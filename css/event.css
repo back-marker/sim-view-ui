@@ -1,0 +1,430 @@
+#event-page header {
+  height: 70px;
+  margin-bottom: 30px;
+}
+
+#event-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.event {
+  width: 350px;
+  margin: 30px;
+}
+
+.event .title {
+  font-size: 30px;
+  color: #fff;
+  text-align: center;
+  background-color: #5c5470;
+  padding: 10px;
+  font-family: Roboto Light, Arial;
+}
+
+.event .server-container {
+  padding: 5px 10px 5px 10px;
+  background-color: #4a435e;
+  color: #fff;
+}
+
+.event .server {
+  float: left;
+  font-family: Roboto Light, Arial;
+}
+
+@keyframes live-color {
+  0% {
+    background-color: #ea4949;
+  }
+  50% {
+    background-color: transparent
+  }
+  100% {
+    background-color: #ea4949;
+  }
+}
+
+.event .live {
+  width: 16px;
+  height: 16px;
+  float: right;
+  margin-left: 10px;
+  border-radius: 8px;
+  animation-name: live-color;
+  animation-duration: .7s;
+  animation-iteration-count: infinite;
+}
+.event .team {
+  float: right;
+  width: 16px;
+  height: 16px;
+  background-image: url("../images/team.png");
+  background-size: cover;
+}
+
+.event .track {
+  clear: both;
+}
+
+.track .detail {
+  float: left;
+}
+
+.time .tag {
+  text-transform: uppercase;
+  font-size: 14px;
+  color: #d06363;
+}
+
+.time .date {
+  float: right;
+  text-transform: uppercase;
+  font-size: 14px;
+  color: #404040;
+  font-weight: bold;
+}
+.event .time {
+  background-color: #edebf2;
+  padding: 5px 10px;
+}
+.detail {
+  background-color: #4a435e;
+  color: #fff;
+  padding: 5px 10px 5px 10px;
+}
+
+.detail p {
+  font-size: 14px;
+  text-transform: uppercase;
+}
+.detail .name {
+  float: left;
+}
+
+.detail .length {
+  float: right;
+}
+
+.track .preview {
+  float: right;
+}
+
+.track .preview {
+  background-image: url("../images/preview.png");
+  width: 350px;
+  background-position: center;
+}
+
+.preview img {
+  width: 350px;
+}
+
+abc {
+  color: #0A2463;
+  color: #3E92CC;
+  color: #FFFAFF;
+  color: #D8315B;
+
+  color: #1E1B18;
+  color: #3D5A6C;
+  color: #8DE969;
+
+  color: #DADCDF;
+  color: #1F2F56;
+  color: #6C7489;
+  color: #707E8C;
+}
+
+#lb-page header {
+padding: 20px 50px 5px 50px;
+border-bottom: 2px solid #464646;
+display: flex;
+justify-content: space-between;
+}
+
+#event-detail .title {
+color: #ff5757;
+font-size: 30px;
+font-family: Roboto Light;
+}
+
+#event-detail .server {
+  color: #d3d3d3;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 500px;
+  margin-top: 5px;
+}
+#event-detail .timing {
+  margin-top: 5px;
+}
+#event-detail .tag {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 14px;
+  color: #797979;
+  display: inline-block;
+  width: 150px;
+  margin-left: 20px;
+}
+
+#event-detail .date {
+  color: #fff77f;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+#track-condition .tag {
+  color: #797979;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 14px;
+  display: inline-block;
+  width: 150px;
+  margin-right: 20px;
+  text-align: right;
+}
+
+#track-condition .value {
+  color: #fff77f;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+#track-detail img {
+  height: 80px;
+}
+#track-detail > div {
+  float: right;
+}
+#track-condition {
+  padding-top: 5px;
+  margin-right: 20px;
+}
+
+#track-preview {
+  text-align: center;
+}
+
+#track-detail .name {
+  text-align: center;
+  color: #fff77f;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: bold;
+  max-width: 300px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.timing .active {
+  width: 14px;
+  height: 14px;
+  float: left;
+  border-radius: 7px;
+  animation-name: live-color;
+  animation-duration: .7s;
+  animation-iteration-count: infinite;
+  margin-top: 3px;
+  position: absolute;
+}
+
+#remaining .remain-time {
+font-size: 35px;
+color: #38c438;
+border-radius: 10px;
+border: 2px solid;
+padding: 0 15px;
+margin-top: 25px;
+display: inline-block;
+width: 180px;
+text-align: center;
+font-weight: bold;
+}
+
+#leader-board {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+#race-feed {
+  display: none;
+padding: 20px 0 20px 30px;
+border-left: 2px solid #464646;
+width: 400px;
+}
+
+#board-header {
+  border-bottom: 2px solid #464646;
+  padding-bottom: 5px;
+}
+
+#board-header li {
+float: left;
+color: #7cceff;
+text-transform: uppercase;
+font-weight: bold;
+font-size: 16px;
+padding-left: 5px;
+}
+
+#board-body {
+margin-top: 15px;
+}
+#board-body li {
+  float: left;
+  color: #e3e3e3;
+  font-size: 16px;
+  padding: 3px 0 3px 5px;
+}
+
+.lb-pos {
+  width: 45px;
+  font-weight: bold;
+}
+
+.lb-status {
+  width: 70px;
+  }
+
+.lb-car-class {
+width: 60px;
+}
+
+.lb-car {
+width: 250px;
+}
+.lb-team-no {
+width: 60px;
+font-weight: bold;
+
+}
+
+.lb-team {
+width: 180px;
+}
+
+.lb-driver {
+width: 150px;
+}
+
+.lb-best-lap {
+width: 85px;
+}
+.lb-gap {
+  width: 75px;
+}
+.lb-sec1 {
+width: 90px;
+}
+.lb-sec2 {
+width: 90px;
+}
+.lb-sec3 {
+width: 90px;
+}
+.lb-laps {
+width: 70px;
+}
+
+
+.lb-pos,
+.lb-status,
+.lb-team-no,
+.lb-car-class,
+.lb-best-lap,
+.lb-gap,
+.lb-sec1,
+.lb-sec2,
+.lb-sec3,
+.lb-laps {
+  text-align: center;
+}
+
+#board-body ul:nth-child(even) {
+  background-color: #3e3e3e;
+}
+
+#lb-page main {
+  padding: 0px 50px;
+  display: flex;
+  justify-content: center;
+}
+
+#lb-page footer {
+  border-top: 2px solid #464646;
+}
+.purple-sec {
+color: #d956d9  !important;
+font-weight: bold;
+}
+.red-sec {
+  color: #ff5757  !important;
+  font-weight: bold;
+  }
+.green-sec {
+  color: #2ed52e !important;
+  font-weight: bold;
+}
+
+.status-green {
+background-color: #2ed52e;
+}
+
+.status-yellow {
+background-color: #fff77f;
+}
+
+.status-red {
+background-color: #e34e4e;
+}
+
+.lb-status .status {
+display: inline-block;
+width: 14px;
+height: 14px;
+border-radius: 7px;
+}
+
+#race-feed .title {
+  color: #7cceff;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 16px;
+  border-bottom: 2px solid #464646;
+  display: inline-block;
+  padding-bottom: 5px;
+  padding-right: 10px;
+}
+
+#race-feed .feeds {
+margin-top: 15px;
+}
+
+.feeds li {
+  color: #e3e3e3;
+  padding: 2px 0;
+}
+
+.car-class-1 {
+color:#ff5757 !important;
+}
+
+.car-class-2 {
+color: #0fcbea !important;
+}
+
+.car-class-3 {
+
+}
+
+.car-class-4 {
+
+}

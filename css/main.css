@@ -1,0 +1,19 @@
+* {
+padding: 0;
+margin: 0;
+font-family: Roboto, Arial, sans-serif;
+background-repeat: no-repeat;
+list-style: none;
+}
+
+body {
+  background-color: #262626;
+}
+
+main {
+  margin: auto;
+}
+.clear-both {
+  display: block;
+  clear: both;
+}
