@@ -6,6 +6,10 @@ background-repeat: no-repeat;
 list-style: none;
 }
 
+a {
+  text-decoration: none;
+}
+
 body {
   background-color: #262626;
 }
@@ -16,4 +20,8 @@ main {
 .clear-both {
   display: block;
   clear: both;
+}
+
+.hidden {
+  display: none !important;
 }

@@ -42,7 +42,6 @@ function updateCurrentGrip(data) {
 }
 
 function setRemainingTimeTimer(start_time, duration_min) {
-  return;
   setTimeout(function () {
     setRemainingTime(start_time, duration_min);
   }, 1000);
@@ -147,10 +146,12 @@ function getWeatherDisplayName(weather) {
 
 function updateSessionInfo(data) {
   if (data["status"] == "success") {
+    var noLiveSession = true;
     for (var idx = 0; idx < data["sessions"].length; ++idx) {
       if (data["sessions"][idx]["type"] === "Practice") continue;
       if (data["sessions"][idx]["is_finished"] === 1) continue;
 
+      noLiveSession = false;
       var session = data["sessions"][idx];
       $("#event-detail .active").removeClass("active");
       if (session["type"] === "Race") {
@@ -190,6 +191,11 @@ function updateSessionInfo(data) {
         getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), updateLeaderBoard);
       }, 10000);
       break;
+    }
+
+    if (noLiveSession) {
+      $("#message").text("No Qualification or Race session running for this event");
+      $("#message").removeClass("hidden");
     }
   }
 }
@@ -391,7 +397,17 @@ function updateLeaderBoard(data) {
     }
 
     $("#board-body").html(leaderboardHtml);
-    setRemainingLaps(leaderboard[0]["laps"]);
+    if ($("#remaining span").hasClass("remain-laps") && leaderboard[0] != undefined) {
+      if (leaderboard[0] != undefined) {
+        if (leaderboard[0]["is_finished"] == 1) {
+          setRemainingLaps(leaderboard[0]["laps"]);
+        } else {
+          setRemainingLaps(leaderboard[0]["laps"] + 1)
+        }
+      } else {
+        setRemainingLaps(1);
+      }
+    }
 
     pendingCarList.forEach(function (car_id) {
       getRequest("/api/ac/car/" + car_id, updateCarName);
@@ -406,6 +422,48 @@ function getCurrentEvent() {
   return window.location.toString().match("event/([0-9]+)/")[1];
 }
 
+
+function getEventHtml(event) {
+  return "<a href=\"/ac/event/" + event["event_id"] + "/live\">" +
+    "<div class=\"event\" data-event-id=\"" + event["event_id"] + "\">" +
+    "<div class=\"header\">" +
+    "<div class=\"title\">" + event["name"] + "</div>" +
+    "<div class=\"server-container\">" +
+    "<div class=\"server\">" + event["server_name"] + "</div>" +
+    "<div class=\"live" + (event["active"] ? " active" : "") + "\"></div>" +
+    (event["team_event"] ? "<div class=\"team\"></div>" : "") +
+    "<div class=\"clear-both\"></div>" +
+    "</div>" +
+    "</div>" +
+    "<div class=\"time\">" +
+    "<div class=\"quali\"><span class=\"tag\">Qualification</span><span class=\"date\">" + (event["quali_start"] || "N/A") + "</span></div>" +
+    "<div class=\"race \"><span class=\"tag\">Race</span><span class=\"date\">" + (event["race_start"] || "N/A") + "</span></div>" +
+    "</div>" +
+    "<div class=\"track\">" +
+    "<div class=\"preview\">" +
+    "<img src=\"/images/ac/track/" + event["track_config_id"] + "/preview\">" +
+    "</div>" +
+    "<div class=\"clear-both\"></div>" +
+    "</div>" +
+    "<div class=\"footer\"></div>" +
+    "</div>" + "</a>";
+}
+
+function updateAllEvents(data) {
+  if (data["status"] == "success") {
+    var eventHtml = ""
+    for (var idx = 0; idx < data["events"].length; ++idx) {
+      eventHtml += getEventHtml(data["events"][idx]);
+    }
+    $("#event-container").html(eventHtml);
+  }
+}
+
 $(document).ready(function () {
-  getRequest("/api/ac/event/" + getCurrentEvent(), updateEventInfo);
+  var page = $("body").attr("data-page");
+  if (page == "lb-page") {
+    getRequest("/api/ac/event/" + getCurrentEvent(), updateEventInfo);
+  } else if (page == "events-page") {
+    getRequest("/api/ac/events", updateAllEvents);
+  }
 });

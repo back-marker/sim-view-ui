@@ -12,20 +12,21 @@
 .event {
   width: 350px;
   margin: 30px;
+  border-bottom: 5px solid #353535;
 }
 
 .event .title {
   font-size: 30px;
   color: #fff;
   text-align: center;
-  background-color: #5c5470;
+  background-color: #353535;
   padding: 10px;
   font-family: Roboto Light, Arial;
 }
 
 .event .server-container {
   padding: 5px 10px 5px 10px;
-  background-color: #4a435e;
+  background-color: #777;
   color: #fff;
 }
 
@@ -60,7 +61,7 @@
   float: right;
   width: 16px;
   height: 16px;
-  background-image: url("../images/team.png");
+  background-image: url("/images/team.png");
   background-size: cover;
 }
 
@@ -112,29 +113,11 @@
 }
 
 .track .preview {
-  background-image: url("../images/preview.png");
   width: 350px;
-  background-position: center;
 }
 
 .preview img {
   width: 350px;
-}
-
-abc {
-  color: #0A2463;
-  color: #3E92CC;
-  color: #FFFAFF;
-  color: #D8315B;
-
-  color: #1E1B18;
-  color: #3D5A6C;
-  color: #8DE969;
-
-  color: #DADCDF;
-  color: #1F2F56;
-  color: #6C7489;
-  color: #707E8C;
 }
 
 #lb-page header {
@@ -236,7 +219,8 @@ font-family: Roboto Light;
   position: absolute;
 }
 
-#remaining .remain-time {
+#remaining .remain-time,
+#remaining .remain-laps {
 font-size: 35px;
 color: #38c438;
 border-radius: 10px;
@@ -438,10 +422,8 @@ color:#ff5757 !important;
 color: #0fcbea !important;
 }
 
-.car-class-3 {
-
-}
-
-.car-class-4 {
-
+#message {
+  color:#ff5757;
+  font-size: 20px;
+  padding: 10px;
 }

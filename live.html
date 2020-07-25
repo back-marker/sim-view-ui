@@ -9,7 +9,7 @@
   <link rel="stylesheet" type="text/css" href="/css/main.css">
 </head>
 
-<body id="lb-page">
+<body id="lb-page" data-page="lb-page">
   <header>
     <div id="event-detail">
       <div class="title"></div>
@@ -18,12 +18,12 @@
         <div class="quali">
           <div class="live"></div>
           <span class="tag">Qualification</span>
-          <span class="date"></span>
+          <span class="date">-</span>
         </div>
         <div class="race ">
           <div class="live"></div>
           <span class="tag">Race</span>
-          <span class="date"></span>
+          <span class="date">-</span>
         </div>
       </div>
     </div>
@@ -35,7 +35,7 @@
       </div>
       <div id="track-condition">
         <div class="weather">
-          <span class="tag">Weather</span><span class="value"></span>
+          <span class="tag">Weather</span><span class="value">-</span>
         </div>
         <div class="air-temp">
           <span class="tag">Air Temp</span><span class="value"><span class="temp-val"></span>&#176; C</span>
@@ -53,6 +53,7 @@
     </div>
   </header>
   <main>
+    <div id="message" class="hidden"></div>
     <div id="leader-board">
       <div id="board-header">
       </div>
