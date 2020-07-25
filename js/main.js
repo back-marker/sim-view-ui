@@ -23,6 +23,8 @@ function updateEventInfo(data) {
     var trackApi = "/ac/track/" + data["event"]["track_config_id"];
     getRequest("/api" + trackApi, updateTrackInfo);
     $("#track-preview img").attr("src", "/images" + trackApi + "/preview");
+
+    getRequest("/api/ac/event/" + data["event"]["event_id"] + "/sessions", updateSessionInfo);
   }
 }
 
@@ -46,13 +48,13 @@ function setRemainingTimeTimer(start_time, duration_min) {
 }
 
 function setRemainingTime(start_time, duration_min) {
-  var elapsedMS = Date.now() - (start_time / 1000);
-  var remainTime = getTimeDiffString(duration_min * 60 - elapsedMS / 1000);
-  console.log(remainTime);
+  var elapsedMS = Date.now() - Math.floor(start_time / 1000);
+  var diffTime = duration_min * 60 - Math.floor(elapsedMS / 1000);
+  var remainTime = getTimeDiffString(diffTime);
   $("#remaining span").text(remainTime);
 
   var nextTimeout = 60000;
-  if (remainTime < 60 * 60) {
+  if (diffTime < 60 * 60) {
     nextTimeout = 1000;
   }
   setTimeout(function () {
@@ -62,7 +64,6 @@ function setRemainingTime(start_time, duration_min) {
 
 function getTimeDiffString(diff) {
   // Diff in secs
-  if (diff < 0) diff = -diff;
   if (diff < 0) {
     return "--";
   } else if (diff < 60) {
@@ -103,7 +104,13 @@ function getLapTimeString(lapTime) {
   return min + ":" + sec + ":" + ms;
 }
 
-
+function getGapString(diff) {
+  if (typeof diff === "string") {
+    return diff;
+  } else {
+    getLapTimeString(diff);
+  }
+}
 
 carList = {};
 driverList = {};
@@ -139,7 +146,6 @@ function updateSessionInfo(data) {
       if (data["sessions"][idx]["is_finished"] === 1) continue;
 
       var session = data["sessions"][idx];
-      console.log(session);
       $("#event-detail .active").removeClass("active");
       if (session["type"] === "Race") {
         $("#event-detail .race .live").addClass("active");
@@ -150,8 +156,12 @@ function updateSessionInfo(data) {
       $("#track-condition .weather .value").text(getWeatherDisplayName(session["weather"]));
       $("#track-condition .air-temp .temp-val").text(session["air_temp"]);
       $("#track-condition .road-temp .temp-val").text(session["road_temp"]);
-      $("#track-condition .start-grip .value").text((session["start_grip"] * 100) + "%");
-      $("#track-condition .current-grip .value").text((session["current_grip"] * 100) + "%");
+      if (session["start_grip"] != -1) {
+        $("#track-condition .start-grip .value").text((session["start_grip"] * 100) + "%");
+      }
+      if (session["current_grip"] != -1) {
+        $("#track-condition .current-grip .value").text((session["current_grip"] * 100) + "%");
+      }
       $("#remaining").attr("data-session-start", session["start_time"]);
       if (session["duration_min"] != 0) {
         $("#remaining").attr("data-session-type", "time");
@@ -161,6 +171,16 @@ function updateSessionInfo(data) {
         $("#remaining span").addClass("remain-laps");
       }
 
+      $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
+      if (session["type"] == "Race") {
+        setupRaceLeaderBoardStructure();
+      } else {
+        setupQualiLeaderBoardStructure();
+      }
+
+      setInterval(function () {
+        getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), updateLeaderBoard);
+      }, 10000);
       break;
     }
   }
@@ -197,10 +217,9 @@ function fixLeaderboard(leaderboard) {
   var sec1_idx = -1, sec2_idx = -1, sec3_idx = -1;
   for (var idx = 0; idx < leaderboard.length; ++idx) {
     // No change required for sector_1
-    leaderboard[idx]["sector_2"] = getSectorTime(leaderboard[idx]["time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 2);
-    leaderboard[idx]["sector_3"] = getSectorTime(leaderboard[idx]["time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 3);
+    leaderboard[idx]["sector_2"] = getSectorTime(leaderboard[idx]["best_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 2);
+    leaderboard[idx]["sector_3"] = getSectorTime(leaderboard[idx]["best_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 3);
     // Remove this
-    leaderboard[idx]["is_connected"] = 1;
     if (leaderboard[idx]["is_connected"] == 1) {
       if (sec1_idx == -1 || leaderboard[idx]["sector_1"] < leaderboard[idx]["sector_1"]) {
         sec1_idx = idx;
@@ -227,17 +246,55 @@ function fixLeaderboard(leaderboard) {
   return leaderboard;
 }
 
+prevLapList = {}
+function fixRaceLeaderboard(leaderboard) {
+  var prevLaps = -1;
+  for (var idx = 0; idx < leaderboard.length; ++idx) {
+    // No change required for sector_1
+    if (leaderboard[idx]["sector_1"] !== 0) {
+      if ((leaderboard[idx]["sector_2"] === 0 && leaderboard[idx]["last_lap_time"] !== 0) || (leaderboard[idx]["sector_2"] !== 0)) {
+        leaderboard[idx]["sector_2"] = getSectorTime(leaderboard[idx]["last_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 2);
+      }
+      if (leaderboard[idx]["sector_2"] !== 0 && leaderboard[idx]["last_lap_time"] !== 0) {
+        leaderboard[idx]["sector_3"] = getSectorTime(leaderboard[idx]["last_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 3);
+      } else {
+        leaderboard[idx]["sector_3"] = 0;
+      }
+      if (leaderboard[idx]["last_lap_time"] !== 0) {
+        prevLapList[leaderboard[idx]["user_id"]] = leaderboard[idx]["last_lap_time"];
+      }
+    }
+
+    if (leaderboard[idx]["gap"] === undefined) {
+      if (prevLaps != -1) {
+        leaderboard[idx]["gaps"] = "+" + (prevLaps - leaderboard[idx]["laps"]) + " L";
+      }
+    } else {
+      leaderboard[idx]["gaps"] = getLapTimeString(leaderboard[idx]["gaps"]);
+    }
+    prevLaps = leaderboard[idx]["laps"];
+  }
+
+  return leaderboard
+}
+
+function getDriverStatusClass(is_connected, is_finished) {
+  if (is_finished) {
+    return "status-chequered";
+  } else if (is_connected) {
+    return "status-green";
+  } else {
+    return "status-red";
+  }
+}
+
 function getLeaderBoardHtml(pos, info) {
-  console.log(info);
   return "<ul data-pos=\"" + pos + "\">" +
     "<li class=\"lb-pos\">" + pos + "</li>" +
-    "<li class=\"lb-status\"><span class=\"status status-" + (info["is_connected"] === 1 ? "green" : "red") + "\"></span></li>" +
-    //"<li class=\"lb-team-no\">101</li>
-    //"<li class=\"lb-car-class car-class-1">GT3</li>
-    "<li class=\"lb-car\" data-car-id=\"" + info["car_id"] + "\">" + ((carList[info["car_id"]] !== undefined)? carList[info["car_id"]] : "") + "</li>" +
-    //<li class="lb-team">Ravenwest Racing</li>
-    "<li class=\"lb-driver\" data-user-id=\"" + info["user_id"] + "\">" + ((driverList[info["user_id"]] !== undefined)? driverList[info["user_id"]] : "") + "</li>" +
-    "<li class=\"lb-best-lap" + (pos == 1 && info["is_connected"] == 1 ? " purple-sec" : "") + "\">" + getLapTimeString(info["time"]) + "</li>" +
+    "<li class=\"lb-status\"><span class=\"status " + getDriverStatusClass(info["is_connected"], info["is_finished"]) + "\"></span></li>" +
+    "<li class=\"lb-car\" data-car-id=\"" + info["car_id"] + "\">" + ((carList[info["car_id"]] !== undefined) ? carList[info["car_id"]] : "") + "</li>" +
+    "<li class=\"lb-driver\" data-user-id=\"" + info["user_id"] + "\">" + ((driverList[info["user_id"]] !== undefined) ? driverList[info["user_id"]] : "") + "</li>" +
+    "<li class=\"lb-best-lap" + (pos == 1 && info["is_connected"] == 1 ? " purple-sec" : "") + "\">" + getLapTimeString(info["best_lap_time"]) + "</li>" +
     "<li class=\"lb-gap\">" + (info["gap"] === undefined ? "-" : "+" + getLapTimeString(info["gap"])) + "</li>" +
     "<li class=\"lb-sec1" + (info["sec1_purple"] === 1 ? " purple-sec" : "") + "\">" + getSectorTimeString(info["sector_1"]) + "</li>" +
     "<li class=\"lb-sec2" + (info["sec2_purple"] === 1 ? " purple-sec" : "") + "\">" + getSectorTimeString(info["sector_2"]) + "</li>" +
@@ -247,15 +304,76 @@ function getLeaderBoardHtml(pos, info) {
     "</ul>";
 }
 
+function getRaceLeaderBoardHtml(pos, info) {
+  return "<ul data-pos=\"" + pos + "\">" +
+    "<li class=\"lb-pos\">" + pos + "</li>" +
+    "<li class=\"lb-status\"><span class=\"status " + getDriverStatusClass(info["is_connected"], info["is_finished"]) + "\"></span></li>" +
+    "<li class=\"lb-car\" data-car-id=\"" + info["car_id"] + "\">" + ((carList[info["car_id"]] !== undefined) ? carList[info["car_id"]] : "") + "</li>" +
+    "<li class=\"lb-driver\" data-user-id=\"" + info["user_id"] + "\">" + ((driverList[info["user_id"]] !== undefined) ? driverList[info["user_id"]] : "") + "</li>" +
+    "<li class=\"lb-laps\">" + info["laps"] + "</li>" +
+    "<li class=\"lb-gap\">" + (info["gap"] === undefined ? "-" : "+" + getGapString(info["gap"])) + "</li>" +
+    "<li class=\"lb-best-lap\">" + getLapTimeString(info["best_lap_time"]) + "</li>" +
+    "<li class=\"lb-last-lap\">" + getLapTimeString(prevLapList[info["user_id"]] !== undefined ? prevLapList[info["user_id"]] : 0) + "</li>" +
+    "<li class=\"lb-sec1\">" + getSectorTimeString(info["sector_1"]) + "</li>" +
+    "<li class=\"lb-sec2\">" + getSectorTimeString(info["sector_2"]) + "</li>" +
+    "<li class=\"lb-sec3\">" + getSectorTimeString(info["sector_3"]) + "</li>" +
+    "<div class=\"clear-both\"></div>" +
+    "</ul>";
+}
+
+function setupRaceLeaderBoardStructure() {
+  leaderboardHeader = "<ul>" +
+    "<li class=\"lb-pos\">Pos</li>" +
+    "<li class=\"lb-status\">Status</li>" +
+    "<li class=\"lb-car\">Car</li>" +
+    "<li class=\"lb-driver\">Driver</li>" +
+    "<li class=\"lb-laps\">Laps</li>" +
+    "<li class=\"lb-gap\">Gap</li>" +
+    "<li class=\"lb-best-lap\">Best Lap</li>" +
+    "<li class=\"lb-last-lap\">Last Lap</li>" +
+    "<li class=\"lb-sec1\">S1</li>" +
+    "<li class=\"lb-sec2\">S2</li>" +
+    "<li class=\"lb-sec3\">S3</li>" +
+    "<div class=\"clear-both\"></div>" +
+    "</ul>";
+  $("#board-header").html(leaderboardHeader);
+}
+
+function setupQualiLeaderBoardStructure() {
+  leaderboardHeader = "<ul>" +
+    "<li class=\"lb-pos\">Pos</li>" +
+    "<li class=\"lb-status\">Status</li>" +
+    "<li class=\"lb-car\">Car</li>" +
+    "<li class=\"lb-driver\">Driver</li>" +
+    "<li class=\"lb-best-lap\">Best Lap</li>" +
+    "<li class=\"lb-gap\">Gap</li>" +
+    "<li class=\"lb-sec1\">S1</li>" +
+    "<li class=\"lb-sec2\">S2</li>" +
+    "<li class=\"lb-sec3\">S3</li>" +
+    "<li class=\"lb-laps\">Laps</li>" +
+    "<div class=\"clear-both\"></div>" +
+    "</ul>";
+  $("#board-header").html(leaderboardHeader);
+}
+
 function updateLeaderBoard(data) {
   if (data["status"] == "success") {
     var leaderboard = data["leaderboard"];
     var leaderboardHtml = "";
-    leaderboard = fixLeaderboard(leaderboard);
     var pendingCarList = new Set();
     var pendingDriverList = new Set();
+    var sessionType = $("#event-detail").attr("data-session");
+    if (sessionType == "race") {
+      leaderboard = fixRaceLeaderboard(leaderboard);
+    } else {
+      leaderboard = fixLeaderboard(leaderboard);
+    }
     for (idx = 0; idx < leaderboard.length; ++idx) {
-      leaderboardHtml += getLeaderBoardHtml(idx + 1, leaderboard[idx]);
+      if (sessionType == "race") {
+        leaderboardHtml += getRaceLeaderBoardHtml(idx + 1, leaderboard[idx]);
+      } else {
+        leaderboardHtml += getLeaderBoardHtml(idx + 1, leaderboard[idx]);
+      }
       if (carList[leaderboard[idx]["car_id"]] === undefined) {
         pendingCarList.add(leaderboard[idx]["car_id"]);
       }
@@ -278,8 +396,4 @@ $(document).ready(function () {
   // Event id 3;
   var eventId = 3;
   getRequest("/api/ac/event/" + eventId, updateEventInfo);
-  getRequest("/api/ac/event/" + eventId + "/sessions", updateSessionInfo);
-  setInterval(function () {
-    getRequest("/api/ac/session/7/leaderboard", updateLeaderBoard);
-  }, 10000);
 });

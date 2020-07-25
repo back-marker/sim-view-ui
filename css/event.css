@@ -315,11 +315,12 @@ width: 180px;
 width: 150px;
 }
 
-.lb-best-lap {
+.lb-best-lap,
+.lb-last-lap {
 width: 85px;
 }
 .lb-gap {
-  width: 75px;
+  width: 80px;
 }
 .lb-sec1 {
 width: 90px;
@@ -334,17 +335,22 @@ width: 90px;
 width: 70px;
 }
 
+.lb-crashes {
+  width: 85px;
+}
 
 .lb-pos,
 .lb-status,
 .lb-team-no,
 .lb-car-class,
 .lb-best-lap,
+.lb-last-lap,
 .lb-gap,
 .lb-sec1,
 .lb-sec2,
 .lb-sec3,
-.lb-laps {
+.lb-laps,
+.lb-crashes {
   text-align: center;
 }
 
@@ -384,6 +390,17 @@ background-color: #fff77f;
 
 .status-red {
 background-color: #e34e4e;
+}
+
+.status-chequered {
+  background-color: #fff;
+  border-top: 7px solid #575757;
+  border-bottom: 7px solid #575757;
+  border-right: 7px solid #fff;
+  border-left: 7px solid #fff;
+  transform: rotate(45deg);
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .lb-status .status {
