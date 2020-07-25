@@ -42,9 +42,15 @@ function updateCurrentGrip(data) {
 }
 
 function setRemainingTimeTimer(start_time, duration_min) {
+  return;
   setTimeout(function () {
     setRemainingTime(start_time, duration_min);
   }, 1000);
+}
+
+function setRemainingLaps(laps_done) {
+  var remainLapsText = laps_done + " / " + $("#remaining").attr("data-laps");
+  $("#remaining span").text(remainLapsText);
 }
 
 function setRemainingTime(start_time, duration_min) {
@@ -169,6 +175,7 @@ function updateSessionInfo(data) {
         remainingTimerId = setRemainingTimeTimer(session["start_time"], session["duration_min"]);
       } else {
         $("#remaining span").addClass("remain-laps");
+        $("#remaining").attr("data-laps", session["laps"]);
       }
 
       $("head title").text("Race Stats - Live " + session["type"]);
@@ -382,7 +389,9 @@ function updateLeaderBoard(data) {
         pendingDriverList.add(leaderboard[idx]["user_id"]);
       }
     }
+
     $("#board-body").html(leaderboardHtml);
+    setRemainingLaps(leaderboard[0]["laps"]);
 
     pendingCarList.forEach(function (car_id) {
       getRequest("/api/ac/car/" + car_id, updateCarName);
