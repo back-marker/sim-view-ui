@@ -171,6 +171,7 @@ function updateSessionInfo(data) {
         $("#remaining span").addClass("remain-laps");
       }
 
+      $("head title").text("Race Stats - Live " + session["type"]);
       $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
       if (session["type"] == "Race") {
         setupRaceLeaderBoardStructure();
@@ -392,8 +393,10 @@ function updateLeaderBoard(data) {
   }
 }
 
+function getCurrentEvent() {
+  return window.location.toString().match("event/([0-9]+)/")[1];
+}
+
 $(document).ready(function () {
-  // Event id 3;
-  var eventId = 3;
-  getRequest("/api/ac/event/" + eventId, updateEventInfo);
+  getRequest("/api/ac/event/" + getCurrentEvent(), updateEventInfo);
 });
