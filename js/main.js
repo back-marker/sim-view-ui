@@ -72,7 +72,7 @@ function getTimeDiffString(diff) {
   if (diff < 0) {
     return "--";
   } else if (diff < 60) {
-    return diff;
+    return diff + "S";
   } else if (diff < 60 * 60) {
     return Math.floor(diff / 60) + "M " + (diff % 60) + "S";
   } else {
