@@ -188,14 +188,31 @@ function updateSessionInfo(data) {
       }
 
       setInterval(function () {
+        getRequest("/api/ac/session/" + session["session_id"], updateSessionGrip);
+      }, 30 * 1000);
+
+      setInterval(function () {
         getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), updateLeaderBoard);
-      }, 10000);
+      }, 10 * 1000);
       break;
     }
 
     if (noLiveSession) {
       $("#message").text("No Qualification or Race session running for this event");
       $("#message").removeClass("hidden");
+    }
+  }
+}
+
+function updateSessionGrip(data) {
+  if (data["status"] == "success") {
+    var session = data["session"]
+
+    if (session["start_grip"] != -1) {
+      $("#track-condition .start-grip .value").text((session["start_grip"] * 100) + "%");
+    }
+    if (session["current_grip"] != -1) {
+      $("#track-condition .current-grip .value").text((session["current_grip"] * 100) + "%");
     }
   }
 }
