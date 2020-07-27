@@ -179,7 +179,7 @@ function updateSessionInfo(data) {
         $("#remaining").attr("data-laps", session["laps"]);
       }
 
-      $("head title").text("Race Stats - Live " + session["type"]);
+      $("head title").text("Sim View | Live " + session["type"]);
       $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
       if (session["type"] == "Race") {
         setupRaceLeaderBoardStructure();
