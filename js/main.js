@@ -24,7 +24,7 @@ function updateEventInfo(data) {
     getRequest("/api" + trackApi, updateTrackInfo);
     $("#track-preview img").attr("src", "/images" + trackApi + "/preview");
 
-    getRequest("/api/ac/event/" + data["event"]["event_id"] + "/sessions", updateSessionInfo);
+    getRequest("/api/ac/event/" + data["event"]["event_id"] + "/session/latest", updateSessionInfo);
   }
 }
 
@@ -146,61 +146,56 @@ function getWeatherDisplayName(weather) {
 
 function updateSessionInfo(data) {
   if (data["status"] == "success") {
-    var noLiveSession = true;
-    for (var idx = 0; idx < data["sessions"].length; ++idx) {
-      if (data["sessions"][idx]["type"] === "Practice") continue;
-      if (data["sessions"][idx]["is_finished"] === 1) continue;
-
-      noLiveSession = false;
-      var session = data["sessions"][idx];
-      $("#event-detail .active").removeClass("active");
-      if (session["type"] === "Race") {
-        $("#event-detail .race .live").addClass("active");
-      } else {
-        $("#event-detail .quali .live").addClass("active");
-      }
-
-      $("#track-condition .weather .value").text(getWeatherDisplayName(session["weather"]));
-      $("#track-condition .air-temp .temp-val").text(session["air_temp"]);
-      $("#track-condition .road-temp .temp-val").text(session["road_temp"]);
-      if (session["start_grip"] != -1) {
-        $("#track-condition .start-grip .value").text((session["start_grip"] * 100) + "%");
-      }
-      if (session["current_grip"] != -1) {
-        $("#track-condition .current-grip .value").text((session["current_grip"] * 100) + "%");
-      }
-      $("#remaining").attr("data-session-start", session["start_time"]);
-      if (session["duration_min"] != 0) {
-        $("#remaining").attr("data-session-type", "time");
-        $("#remaining span").addClass("remain-time");
-        remainingTimerId = setRemainingTimeTimer(session["start_time"], session["duration_min"]);
-      } else {
-        $("#remaining span").addClass("remain-laps");
-        $("#remaining").attr("data-laps", session["laps"]);
-      }
-
-      $("head title").text("Sim View | Live " + session["type"]);
-      $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
-      if (session["type"] == "Race") {
-        setupRaceLeaderBoardStructure();
-      } else {
-        setupQualiLeaderBoardStructure();
-      }
-
-      setInterval(function () {
-        getRequest("/api/ac/session/" + session["session_id"], updateSessionGrip);
-      }, 30 * 1000);
-
-      setInterval(function () {
-        getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), updateLeaderBoard);
-      }, 10 * 1000);
-      break;
-    }
-
-    if (noLiveSession) {
+    var session = data["session"];
+    if (session["type"] == "Practice" || session["is_finished"] === 1) {
       $("#message").text("No Qualification or Race session running for this event");
       $("#message").removeClass("hidden");
+      return;
     }
+
+
+    $("#event-detail .active").removeClass("active");
+    if (session["type"] === "Race") {
+      $("#event-detail .race .live").addClass("active");
+    } else {
+      $("#event-detail .quali .live").addClass("active");
+    }
+
+    $("#track-condition .weather .value").text(getWeatherDisplayName(session["weather"]));
+    $("#track-condition .air-temp .temp-val").text(session["air_temp"]);
+    $("#track-condition .road-temp .temp-val").text(session["road_temp"]);
+    if (session["start_grip"] != -1) {
+      $("#track-condition .start-grip .value").text((session["start_grip"] * 100) + "%");
+    }
+    if (session["current_grip"] != -1) {
+      $("#track-condition .current-grip .value").text((session["current_grip"] * 100) + "%");
+    }
+    $("#remaining").attr("data-session-start", session["start_time"]);
+    if (session["duration_min"] != 0) {
+      $("#remaining").attr("data-session-type", "time");
+      $("#remaining span").addClass("remain-time");
+      remainingTimerId = setRemainingTimeTimer(session["start_time"], session["duration_min"]);
+    } else {
+      $("#remaining span").addClass("remain-laps");
+      $("#remaining").attr("data-laps", session["laps"]);
+    }
+
+    $("head title").text("Sim View | Live " + session["type"]);
+    $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
+    if (session["type"] == "Race") {
+      setupRaceLeaderBoardStructure();
+    } else {
+      setupQualiLeaderBoardStructure();
+    }
+
+    setInterval(function () {
+      getRequest("/api/ac/session/" + session["session_id"], updateSessionGrip);
+    }, 30 * 1000);
+
+    setInterval(function () {
+      getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), updateLeaderBoard);
+    }, 10 * 1000);
+
   }
 }
 
