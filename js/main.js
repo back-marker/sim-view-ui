@@ -47,8 +47,18 @@ function setRemainingTimeTimer(start_time, duration_min) {
   }, 1000);
 }
 
-function setRemainingLaps(laps_done) {
-  var remainLapsText = laps_done + " / " + $("#remaining").attr("data-laps");
+function setRemainingLaps(current_lap) {
+  var remainLapsText;
+  if (current_lap == -1) {
+    remainLapsText = "Finished";
+  } else {
+    var totalLap = Number($("#remaining").attr("data-laps"));
+    if (totalLap == current_lap) {
+      remainLapsText = "Last Lap";
+    } else {
+      remainLapsText = current_lap + " / " + totalLap;
+    }
+  }
   $("#remaining span").text(remainLapsText);
 }
 
@@ -409,10 +419,10 @@ function updateLeaderBoard(data) {
     }
 
     $("#board-body").html(leaderboardHtml);
-    if ($("#remaining span").hasClass("remain-laps") && leaderboard[0] != undefined) {
+    if ($("#remaining span").hasClass("remain-laps")) {
       if (leaderboard[0] != undefined) {
         if (leaderboard[0]["is_finished"] == 1) {
-          setRemainingLaps(leaderboard[0]["laps"]);
+          setRemainingLaps(-1);
         } else {
           setRemainingLaps(leaderboard[0]["laps"] + 1)
         }
