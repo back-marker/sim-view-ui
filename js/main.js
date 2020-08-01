@@ -37,7 +37,7 @@ function updateTrackInfo(data) {
 function updateCurrentGrip(data) {
   if (data["status"] == "success") {
     var session = data["session"];
-    $("#track-condition .current-grip .value").text((session["current_grip"] * 100) + "%");
+    $("#track-condition .current-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
   }
 }
 
@@ -175,10 +175,10 @@ function updateSessionInfo(data) {
     $("#track-condition .air-temp .temp-val").text(session["air_temp"]);
     $("#track-condition .road-temp .temp-val").text(session["road_temp"]);
     if (session["start_grip"] != -1) {
-      $("#track-condition .start-grip .value").text((session["start_grip"] * 100) + "%");
+      $("#track-condition .start-grip .value").text((session["start_grip"] * 100).toFixed(1) + "%");
     }
     if (session["current_grip"] != -1) {
-      $("#track-condition .current-grip .value").text((session["current_grip"] * 100) + "%");
+      $("#track-condition .current-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
     }
     $("#remaining").attr("data-session-start", session["start_time"]);
     if (session["duration_min"] != 0) {
