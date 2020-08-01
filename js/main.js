@@ -353,8 +353,8 @@ function getLeaderBoardHtml(pos, info) {
   return "<ul data-pos=\"" + pos + "\">" +
     "<li class=\"lb-pos\">" + pos + "</li>" +
     "<li class=\"lb-status\"><span class=\"status " + getDriverStatusClass(info["is_connected"], info["is_finished"]) + "\"></span></li>" +
-    "<li class=\"lb-car\" data-car-id=\"" + info["car_id"] + "\">" + ((carList[info["car_id"]] !== undefined) ? carList[info["car_id"]] : "") + "</li>" +
     "<li class=\"lb-driver\" data-user-id=\"" + info["user_id"] + "\">" + ((driverList[info["user_id"]] !== undefined) ? driverList[info["user_id"]] : "") + "</li>" +
+    "<li class=\"lb-car\" data-car-id=\"" + info["car_id"] + "\">" + ((carList[info["car_id"]] !== undefined) ? carList[info["car_id"]] : "") + "</li>" +
     "<li class=\"lb-best-lap" + (pos == 1 && info["is_connected"] == 1 && info["best_lap_time"] != 0 ? " purple-sec" : "") + "\">" + getLapTimeString(info["best_lap_time"]) + "</li>" +
     "<li class=\"lb-gap\">" + (info["gap"] === undefined ? "-" : "+" + getLapTimeString(info["gap"])) + "</li>" +
     "<li class=\"lb-sec1" + (info["sec1_purple"] === 1 ? " purple-sec" : "") + "\">" + getSectorTimeString(info["sector_1"]) + "</li>" +
@@ -369,8 +369,8 @@ function getRaceLeaderBoardHtml(pos, info) {
   return "<ul data-pos=\"" + pos + "\">" +
     "<li class=\"lb-pos\">" + pos + "</li>" +
     "<li class=\"lb-status\"><span class=\"status " + getDriverStatusClass(info["is_connected"], info["is_finished"]) + "\"></span></li>" +
-    "<li class=\"lb-car\" data-car-id=\"" + info["car_id"] + "\">" + ((carList[info["car_id"]] !== undefined) ? carList[info["car_id"]] : "") + "</li>" +
     "<li class=\"lb-driver\" data-user-id=\"" + info["user_id"] + "\">" + ((driverList[info["user_id"]] !== undefined) ? driverList[info["user_id"]] : "") + "</li>" +
+    "<li class=\"lb-car\" data-car-id=\"" + info["car_id"] + "\">" + ((carList[info["car_id"]] !== undefined) ? carList[info["car_id"]] : "") + "</li>" +
     "<li class=\"lb-laps\">" + info["laps"] + "</li>" +
     "<li class=\"lb-gap\">" + (info["gap"] === undefined ? "-" : "+" + getGapString(info["gap"])) + "</li>" +
     "<li class=\"lb-best-lap" + (info["purple_lap"] ? " purple-sec" : "") + "\">" + getLapTimeString(info["best_lap_time"]) + "</li>" +
@@ -386,8 +386,8 @@ function setupRaceLeaderBoardStructure() {
   leaderboardHeader = "<ul>" +
     "<li class=\"lb-pos\">Pos</li>" +
     "<li class=\"lb-status\">Status</li>" +
-    "<li class=\"lb-car\">Car</li>" +
     "<li class=\"lb-driver\">Driver</li>" +
+    "<li class=\"lb-car\">Car</li>" +
     "<li class=\"lb-laps\">Laps</li>" +
     "<li class=\"lb-gap\">Gap</li>" +
     "<li class=\"lb-best-lap\">Best Lap</li>" +
@@ -404,8 +404,8 @@ function setupQualiLeaderBoardStructure() {
   leaderboardHeader = "<ul>" +
     "<li class=\"lb-pos\">Pos</li>" +
     "<li class=\"lb-status\">Status</li>" +
-    "<li class=\"lb-car\">Car</li>" +
     "<li class=\"lb-driver\">Driver</li>" +
+    "<li class=\"lb-car\">Car</li>" +
     "<li class=\"lb-best-lap\">Best Lap</li>" +
     "<li class=\"lb-gap\">Gap</li>" +
     "<li class=\"lb-sec1\">S1</li>" +
