@@ -235,7 +235,11 @@ function getSectorTime(time, sec1, sec2, sec) {
     return sec1;
   } else if (sec === 2) {
     if (time !== 0) {
-      return time - sec1;
+      if (sec2 === 0) {
+        return time - sec1;
+      } else {
+        return sec2;
+      }
     } else {
       return sec2;
     }
@@ -288,19 +292,10 @@ function fixRaceLeaderboard(leaderboard) {
   var best_idx = -1;
   for (var idx = 0; idx < leaderboard.length; ++idx) {
     // No change required for sector_1
-    leaderboard[idx]["sector_3"] = 0;
-    if (leaderboard[idx]["sector_1"] !== 0) {
-      if ((leaderboard[idx]["sector_2"] === 0 && leaderboard[idx]["last_lap_time"] !== 0) || (leaderboard[idx]["sector_2"] !== 0)) {
-        leaderboard[idx]["sector_2"] = getSectorTime(leaderboard[idx]["last_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 2);
-      }
-      if (leaderboard[idx]["sector_2"] !== 0 && leaderboard[idx]["last_lap_time"] !== 0) {
-        leaderboard[idx]["sector_3"] = getSectorTime(leaderboard[idx]["last_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 3);
-      } else {
-        leaderboard[idx]["sector_3"] = 0;
-      }
-      if (leaderboard[idx]["last_lap_time"] !== 0) {
-        prevLapList[leaderboard[idx]["user_id"]] = leaderboard[idx]["last_lap_time"];
-      }
+    leaderboard[idx]["sector_2"] = getSectorTime(leaderboard[idx]["last_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 2);
+    leaderboard[idx]["sector_3"] = getSectorTime(leaderboard[idx]["last_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 3);
+    if (leaderboard[idx]["last_lap_time"] !== 0) {
+      prevLapList[leaderboard[idx]["user_id"]] = leaderboard[idx]["last_lap_time"];
     }
 
     if (leaderboard[idx]["best_lap_time"] != 0) {
