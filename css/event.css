@@ -33,6 +33,10 @@
 .event .server {
   float: left;
   font-family: Roboto Light, Arial;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @keyframes live-color {
