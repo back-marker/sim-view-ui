@@ -471,13 +471,13 @@ function getCurrentEvent() {
 
 
 function getEventHtml(event) {
-  return "<a href=\"/ac/event/" + event["event_id"] + "/live\">" +
-    "<div class=\"event\" data-event-id=\"" + event["event_id"] + "\">" +
+  return "<a data-event-id=\"" + event["event_id"] + "\" href=\"/ac/event/" + event["event_id"] + "/live\">" +
+    "<div class=\"event\">" +
     "<div class=\"header\">" +
     "<div class=\"title\">" + event["name"] + "</div>" +
     "<div class=\"server-container\">" +
     "<div class=\"server\">" + event["server_name"] + "</div>" +
-    "<div class=\"live" + (event["active"] ? " active" : "") + "\"></div>" +
+    "<div class=\"live\"></div>" +
     (event["team_event"] ? "<div class=\"team\"></div>" : "") +
     "<div class=\"clear-both\"></div>" +
     "</div>" +
@@ -503,6 +503,23 @@ function updateAllEvents(data) {
       eventHtml += getEventHtml(data["events"][idx]);
     }
     $("#event-container").html(eventHtml);
+
+    for (var idx = 0; idx < data["events"].length; ++idx) {
+      getRequest("/api/ac/event/" + data["events"][idx]["event_id"] + "/session/latest", updateActiveEvent);
+    }
+  }
+}
+
+function updateActiveEvent(data) {
+  if (data["status"] == "success") {
+    var session = data["session"];
+    if (session["type"] !== "Practice" && session["is_finished"] === 0) {
+      var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
+      event.find(".live").addClass("active");
+    } else {
+      var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
+      event.removeAttr("href");
+    }
   }
 }
 

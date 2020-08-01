@@ -51,7 +51,7 @@
   }
 }
 
-.event .live {
+.event .active {
   width: 16px;
   height: 16px;
   float: right;
@@ -61,6 +61,7 @@
   animation-duration: .7s;
   animation-iteration-count: infinite;
 }
+
 .event .team {
   float: right;
   width: 16px;
