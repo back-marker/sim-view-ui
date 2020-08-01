@@ -154,6 +154,8 @@ function getWeatherDisplayName(weather) {
   return weather.join(" ");
 }
 
+var sessionGripIntervalHandler = -1;
+var sessionLeaderboardIntervalHandler = -1;
 function updateSessionInfo(data) {
   if (data["status"] == "success") {
     var session = data["session"];
@@ -162,7 +164,7 @@ function updateSessionInfo(data) {
       $("#message").removeClass("hidden");
       return;
     }
-
+    $("main").removeClass("hidden");
 
     $("#event-detail .active").removeClass("active");
     if (session["type"] === "Race") {
@@ -198,11 +200,11 @@ function updateSessionInfo(data) {
       setupQualiLeaderBoardStructure();
     }
 
-    setInterval(function () {
+    sessionGripIntervalHandler = setInterval(function () {
       getRequest("/api/ac/session/" + session["session_id"], updateSessionGrip);
     }, 30 * 1000);
 
-    setInterval(function () {
+    sessionLeaderboardIntervalHandler = setInterval(function () {
       getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), updateLeaderBoard);
     }, 10 * 1000);
 
@@ -212,6 +214,23 @@ function updateSessionInfo(data) {
 function updateSessionGrip(data) {
   if (data["status"] == "success") {
     var session = data["session"]
+    if (session["is_finished"] === 1) {
+      if (sessionLeaderboardIntervalHandler != -1) {
+        clearInterval(sessionLeaderboardIntervalHandler);
+      }
+      if (sessionGripIntervalHandler != -1) {
+        clearInterval(sessionGripIntervalHandler);
+      }
+      var sessionOverText = session["type"] + " session is over";
+      if (session["type"] !== "Race") {
+        sessionOverText += ". Reloading in 5 secs";
+        setTimeout(function () { window.location.reload(true); }, 5 * 1000);
+      }
+      $("#message").text(sessionOverText);
+      $("#message").removeClass("hidden");
+
+      return;
+    }
 
     if (session["start_grip"] != -1) {
       $("#track-condition .start-grip .value").text((session["start_grip"] * 100) + "%");

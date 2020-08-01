@@ -424,6 +424,7 @@ color: #0fcbea !important;
 
 #message {
   color:#ff5757;
-  font-size: 20px;
-  padding: 10px;
+  text-align: center;
+  font-size: 25px;
+  padding: 15px;
 }
