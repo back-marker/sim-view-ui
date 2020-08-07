@@ -9,3 +9,8 @@
 a {
   text-decoration: none;
 }
+
+@font-face {
+  font-family: Roboto-Light;
+  src: url("/fonts/Roboto-Light.ttf");
+}
