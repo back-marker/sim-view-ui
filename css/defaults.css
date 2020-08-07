@@ -1,0 +1,11 @@
+* {
+  padding: 0;
+  margin: 0;
+  font-family: Roboto, Arial, sans-serif;
+  background-repeat: no-repeat;
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}

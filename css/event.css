@@ -1,3 +1,20 @@
+body {
+  background-color: #262626;
+}
+
+main {
+  margin: auto;
+}
+
+.clear-both {
+  display: block;
+  clear: both;
+}
+
+.hidden {
+  display: none !important;
+}
+
 #event-page header {
   height: 70px;
   margin-bottom: 30px;
@@ -91,10 +108,12 @@
   color: #404040;
   font-weight: bold;
 }
+
 .event .time {
   background-color: #edebf2;
   padding: 5px 10px;
 }
+
 .detail {
   background-color: #4a435e;
   color: #fff;
@@ -105,6 +124,7 @@
   font-size: 14px;
   text-transform: uppercase;
 }
+
 .detail .name {
   float: left;
 }
@@ -126,16 +146,16 @@
 }
 
 #lb-page header {
-padding: 20px 50px 5px 50px;
-border-bottom: 2px solid #464646;
-display: flex;
-justify-content: space-between;
+  padding: 20px 50px 5px 50px;
+  border-bottom: 2px solid #464646;
+  display: flex;
+  justify-content: space-between;
 }
 
 #event-detail .title {
-color: #ff5757;
-font-size: 30px;
-font-family: Roboto Light;
+  color: #ff5757;
+  font-size: 30px;
+  font-family: Roboto Light;
 }
 
 #event-detail .server {
@@ -147,9 +167,11 @@ font-family: Roboto Light;
   max-width: 500px;
   margin-top: 5px;
 }
+
 #event-detail .timing {
   margin-top: 5px;
 }
+
 #event-detail .tag {
   text-transform: uppercase;
   font-weight: bold;
@@ -188,9 +210,11 @@ font-family: Roboto Light;
 #track-detail img {
   height: 80px;
 }
-#track-detail > div {
+
+#track-detail>div {
   float: right;
 }
+
 #track-condition {
   padding-top: 5px;
   margin-right: 20px;
@@ -226,16 +250,16 @@ font-family: Roboto Light;
 
 #remaining .remain-time,
 #remaining .remain-laps {
-font-size: 35px;
-color: #38c438;
-border-radius: 10px;
-border: 2px solid;
-padding: 0 15px;
-margin-top: 25px;
-display: inline-block;
-width: 180px;
-text-align: center;
-font-weight: bold;
+  font-size: 35px;
+  color: #38c438;
+  border-radius: 10px;
+  border: 2px solid;
+  padding: 0 15px;
+  margin-top: 25px;
+  display: inline-block;
+  width: 180px;
+  text-align: center;
+  font-weight: bold;
 }
 
 #leader-board {
@@ -245,9 +269,9 @@ font-weight: bold;
 
 #race-feed {
   display: none;
-padding: 20px 0 20px 30px;
-border-left: 2px solid #464646;
-width: 400px;
+  padding: 20px 0 20px 30px;
+  border-left: 2px solid #464646;
+  width: 400px;
 }
 
 #board-header {
@@ -256,17 +280,18 @@ width: 400px;
 }
 
 #board-header li {
-float: left;
-color: #7cceff;
-text-transform: uppercase;
-font-weight: bold;
-font-size: 16px;
-padding-left: 5px;
+  float: left;
+  color: #7cceff;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 16px;
+  padding-left: 5px;
 }
 
 #board-body {
-margin-top: 15px;
+  margin-top: 15px;
 }
+
 #board-body li {
   float: left;
   color: #e3e3e3;
@@ -281,47 +306,52 @@ margin-top: 15px;
 
 .lb-status {
   width: 70px;
-  }
+}
 
 .lb-car-class {
-width: 60px;
+  width: 60px;
 }
 
 .lb-car {
-width: 250px;
+  width: 250px;
 }
-.lb-team-no {
-width: 60px;
-font-weight: bold;
 
+.lb-team-no {
+  width: 60px;
+  font-weight: bold;
 }
 
 .lb-team {
-width: 180px;
+  width: 180px;
 }
 
 .lb-driver {
-width: 150px;
+  width: 150px;
 }
 
 .lb-best-lap,
 .lb-last-lap {
-width: 85px;
+  width: 85px;
 }
+
 .lb-gap {
   width: 80px;
 }
+
 .lb-sec1 {
-width: 90px;
+  width: 90px;
 }
+
 .lb-sec2 {
-width: 90px;
+  width: 90px;
 }
+
 .lb-sec3 {
-width: 90px;
+  width: 90px;
 }
+
 .lb-laps {
-width: 70px;
+  width: 70px;
 }
 
 .lb-crashes {
@@ -356,29 +386,32 @@ width: 70px;
 #lb-page footer {
   border-top: 2px solid #464646;
 }
+
 .purple-sec {
-color: #d956d9  !important;
-font-weight: bold;
-}
-.red-sec {
-  color: #ff5757  !important;
+  color: #d956d9 !important;
   font-weight: bold;
-  }
+}
+
+.red-sec {
+  color: #ff5757 !important;
+  font-weight: bold;
+}
+
 .green-sec {
   color: #2ed52e !important;
   font-weight: bold;
 }
 
 .status-green {
-background-color: #2ed52e;
+  background-color: #2ed52e;
 }
 
 .status-yellow {
-background-color: #fff77f;
+  background-color: #fff77f;
 }
 
 .status-red {
-background-color: #e34e4e;
+  background-color: #e34e4e;
 }
 
 .status-chequered {
@@ -393,10 +426,10 @@ background-color: #e34e4e;
 }
 
 .lb-status .status {
-display: inline-block;
-width: 14px;
-height: 14px;
-border-radius: 7px;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 7px;
 }
 
 #race-feed .title {
@@ -411,7 +444,7 @@ border-radius: 7px;
 }
 
 #race-feed .feeds {
-margin-top: 15px;
+  margin-top: 15px;
 }
 
 .feeds li {
@@ -420,15 +453,15 @@ margin-top: 15px;
 }
 
 .car-class-1 {
-color:#ff5757 !important;
+  color: #ff5757 !important;
 }
 
 .car-class-2 {
-color: #0fcbea !important;
+  color: #0fcbea !important;
 }
 
 #message {
-  color:#ff5757;
+  color: #ff5757;
   text-align: center;
   font-size: 25px;
   padding: 15px;
