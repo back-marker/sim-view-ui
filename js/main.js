@@ -235,10 +235,10 @@ function updateSessionGrip(data) {
     }
 
     if (session["start_grip"] != -1) {
-      $("#track-condition .start-grip .value").text((session["start_grip"] * 100) + "%");
+      $("#track-condition .start-grip .value").text((session["start_grip"] * 100).toFixed(1) + "%");
     }
     if (session["current_grip"] != -1) {
-      $("#track-condition .current-grip .value").text((session["current_grip"] * 100) + "%");
+      $("#track-condition .current-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
     }
   }
 }
