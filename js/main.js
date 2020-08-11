@@ -3,8 +3,8 @@ function getRequest(url, callback) {
     type: "GET",
     url: url,
     crossDomain: true,
-    success: function (data) { callback(data); },
-    error: function () { console.log(arguments); }
+    success: function(data) { callback(data); },
+    error: function() { console.log(arguments); }
   });
 }
 
@@ -42,7 +42,7 @@ function updateCurrentGrip(data) {
 }
 
 function setRemainingTimeTimer(start_time, duration_min) {
-  setTimeout(function () {
+  setTimeout(function() {
     setRemainingTime(start_time, duration_min);
   }, 1000);
 }
@@ -72,7 +72,7 @@ function setRemainingTime(start_time, duration_min) {
   if (diffTime < 60 * 60) {
     nextTimeout = 1000;
   }
-  setTimeout(function () {
+  setTimeout(function() {
     setRemainingTime(start_time, duration_min);
   }, nextTimeout);
 }
@@ -129,6 +129,7 @@ function getGapString(diff) {
 
 carList = {};
 driverList = {};
+
 function updateCarName(data) {
   if (data["status"] === "success") {
     var car = data["car"];
@@ -156,6 +157,7 @@ function getWeatherDisplayName(weather) {
 
 var sessionGripIntervalHandler = -1;
 var sessionLeaderboardIntervalHandler = -1;
+
 function updateSessionInfo(data) {
   if (data["status"] == "success") {
     var session = data["session"];
@@ -200,11 +202,11 @@ function updateSessionInfo(data) {
       setupQualiLeaderBoardStructure();
     }
 
-    sessionGripIntervalHandler = setInterval(function () {
+    sessionGripIntervalHandler = setInterval(function() {
       getRequest("/api/ac/session/" + session["session_id"], updateSessionGrip);
     }, 30 * 1000);
 
-    sessionLeaderboardIntervalHandler = setInterval(function () {
+    sessionLeaderboardIntervalHandler = setInterval(function() {
       getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), updateLeaderBoard);
     }, 10 * 1000);
 
@@ -224,7 +226,7 @@ function updateSessionGrip(data) {
       var sessionOverText = session["type"] + " session is over";
       if (session["type"] !== "Race") {
         sessionOverText += ". Reloading in 5 secs";
-        setTimeout(function () { window.location.reload(true); }, 5 * 1000);
+        setTimeout(function() { window.location.reload(true); }, 5 * 1000);
       }
       $("#message").text(sessionOverText);
       $("#message").removeClass("hidden");
@@ -273,7 +275,9 @@ function getSectorTime(time, sec1, sec2, sec) {
 
 function fixLeaderboard(leaderboard) {
   // Add purple sectors info
-  var sec1_idx = -1, sec2_idx = -1, sec3_idx = -1;
+  var sec1_idx = -1,
+    sec2_idx = -1,
+    sec3_idx = -1;
   for (var idx = 0; idx < leaderboard.length; ++idx) {
     // No change required for sector_1
     leaderboard[idx]["sector_2"] = getSectorTime(leaderboard[idx]["best_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 2);
@@ -306,6 +310,7 @@ function fixLeaderboard(leaderboard) {
 }
 
 prevLapList = {}
+
 function fixRaceLeaderboard(leaderboard) {
   var prevLaps = -1;
   var best_idx = -1;
@@ -324,10 +329,10 @@ function fixRaceLeaderboard(leaderboard) {
     }
     if (leaderboard[idx]["gap"] === undefined) {
       if (prevLaps != -1) {
-        leaderboard[idx]["gaps"] = "+" + (prevLaps - leaderboard[idx]["laps"]) + " L";
+        leaderboard[idx]["gap"] = (prevLaps - leaderboard[idx]["laps"]) + " L";
       }
     } else {
-      leaderboard[idx]["gaps"] = getLapTimeString(leaderboard[idx]["gaps"]);
+      leaderboard[idx]["gap"] = getLapTimeString(leaderboard[idx]["gap"]);
     }
     prevLaps = leaderboard[idx]["laps"];
   }
@@ -456,10 +461,10 @@ function updateLeaderBoard(data) {
       }
     }
 
-    pendingCarList.forEach(function (car_id) {
+    pendingCarList.forEach(function(car_id) {
       getRequest("/api/ac/car/" + car_id, updateCarName);
     });
-    pendingDriverList.forEach(function (user_id) {
+    pendingDriverList.forEach(function(user_id) {
       getRequest("/api/ac/user/" + user_id, updateDriverName);
     });
   }
@@ -523,7 +528,7 @@ function updateActiveEvent(data) {
   }
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
   var page = $("body").attr("data-page");
   if (page == "lb-page") {
     getRequest("/api/ac/event/" + getCurrentEvent(), updateEventInfo);
