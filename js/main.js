@@ -8,531 +8,635 @@ function getRequest(url, callback) {
   });
 }
 
-function updateEventInfo(data) {
-  if (data["status"] === "success") {
-    $("#event-detail").attr("data-event-id", data["event"]["event_id"]).attr("data-team-event", data["event"]["team_event"]).attr("data-track", data["event"]["track_config_id"]);
-    $("#event-detail .title").text(data["event"]["name"]);
-    $("#event-detail .server").text(data["event"]["server_name"]);
-    if (data["event"]["quali_start"] !== undefined) {
-      $("#event-detail .quali .date").text(data["event"]["quali_start"]);
-    }
-    if (data["event"]["race_start"] !== undefined) {
-      $("#event-detail .race .date").text(data["event"]["race_start"]);
-    }
-
-    var trackApi = "/ac/track/" + data["event"]["track_config_id"];
-    getRequest("/api" + trackApi, updateTrackInfo);
-    $("#track-preview img").attr("src", "/images" + trackApi + "/preview");
-
-    getRequest("/api/ac/event/" + data["event"]["event_id"] + "/session/latest", updateSessionInfo);
-  }
-}
-
-function updateTrackInfo(data) {
-  if (data["status"] === "success") {
-    $("#track-preview .name").text(data["track"]["display_name"]);
-  }
-}
-
-function updateCurrentGrip(data) {
-  if (data["status"] == "success") {
-    var session = data["session"];
-    $("#track-condition .current-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
-  }
-}
-
 function setRemainingTimeTimer(start_time, duration_min) {
   setTimeout(function() {
-    setRemainingTime(start_time, duration_min);
+    LeaderboardPage.setRemainingTime(start_time, duration_min);
   }, 1000);
 }
 
-function setRemainingLaps(current_lap) {
-  var remainLapsText;
-  if (current_lap == -1) {
-    remainLapsText = "Finished";
-  } else {
-    var totalLap = Number($("#remaining").attr("data-laps"));
-    if (totalLap == current_lap) {
-      remainLapsText = "Last Lap";
-    } else {
-      remainLapsText = current_lap + " / " + totalLap;
+class Page {
+  static cb_updateCarName(data) {
+    if (data["status"] === "success") {
+      var car = data["car"];
+      $(".lb-car[data-car-id=" + car["car_id"] + "]").text(car["display_name"]);
+      LeaderBoard.carList[car["car_id"]] = car["display_name"];
     }
   }
-  $("#remaining span").text(remainLapsText);
-}
 
-function setRemainingTime(start_time, duration_min) {
-  var elapsedMS = Date.now() - Math.floor(start_time / 1000);
-  var diffTime = duration_min * 60 - Math.floor(elapsedMS / 1000);
-  var remainTime = getTimeDiffString(diffTime);
-  $("#remaining span").text(remainTime);
-
-  var nextTimeout = 60000;
-  if (diffTime < 60 * 60) {
-    nextTimeout = 1000;
-  }
-  setTimeout(function() {
-    setRemainingTime(start_time, duration_min);
-  }, nextTimeout);
-}
-
-function getTimeDiffString(diff) {
-  // Diff in secs
-  if (diff < 0) {
-    return "--";
-  } else if (diff < 60) {
-    return diff + "S";
-  } else if (diff < 60 * 60) {
-    return Math.floor(diff / 60) + "M " + (diff % 60) + "S";
-  } else {
-    diff = Math.floor(diff / 60);
-    return Math.floor(diff / 60) + "H " + (diff % 60) + "M";
-  }
-}
-
-function getLapTimeString(lapTime) {
-  // Laptime in ms
-  if (lapTime === 0) return "-";
-  var min = "";
-  var sec = "";
-  var ms = "";
-
-  ms = lapTime % 1000;
-  lapTime = Math.floor(lapTime / 1000);
-  sec = lapTime % 60;
-  lapTime = Math.floor(lapTime / 60);
-  min = lapTime;
-  if (min >= 60) {
-    return "-";
-  }
-
-  if (sec < 10) {
-    sec = "0" + sec;
-  }
-  if (ms < 10) {
-    ms = "00" + ms;
-  } else if (ms < 100) {
-    ms = "0" + ms;
-  }
-
-  return min + ":" + sec + ":" + ms;
-}
-
-function getGapString(diff) {
-  if (typeof diff === "string") {
-    return diff;
-  } else {
-    getLapTimeString(diff);
-  }
-}
-
-carList = {};
-driverList = {};
-
-function updateCarName(data) {
-  if (data["status"] === "success") {
-    var car = data["car"];
-    $(".lb-car[data-car-id=" + car["car_id"] + "]").text(car["display_name"]);
-    carList[car["car_id"]] = car["display_name"];
-  }
-}
-
-function updateDriverName(data) {
-  if (data["status"] === "success") {
-    var user = data["user"];
-    $(".lb-driver[data-user-id=" + user["user_id"] + "]").text(user["name"]);
-    driverList[user["user_id"]] = user["name"];
-  }
-}
-
-function getWeatherDisplayName(weather) {
-  weather = weather.split("_");
-  if (weather[0] === "sol") {
-    weather.shift();
-  }
-  weather.shift();
-  return weather.join(" ");
-}
-
-var sessionGripIntervalHandler = -1;
-var sessionLeaderboardIntervalHandler = -1;
-
-function updateSessionInfo(data) {
-  if (data["status"] == "success") {
-    var session = data["session"];
-    if (session["type"] == "Practice" || session["is_finished"] === 1) {
-      $("#message").text("No Qualification or Race session running for this event");
-      $("#message").removeClass("hidden");
-      return;
+  static cb_updateDriverName(data) {
+    if (data["status"] === "success") {
+      var user = data["user"];
+      $(".lb-driver[data-driver-id=" + user["user_id"] + "]").text(user["name"]);
+      LeaderBoard.driverList[user["user_id"]] = user["name"];
     }
-    $("main").removeClass("hidden");
-
-    $("#event-detail .active").removeClass("active");
-    if (session["type"] === "Race") {
-      $("#event-detail .race .live").addClass("active");
-    } else {
-      $("#event-detail .quali .live").addClass("active");
-    }
-
-    $("#track-condition .weather .value").text(getWeatherDisplayName(session["weather"]));
-    $("#track-condition .air-temp .temp-val").text(session["air_temp"]);
-    $("#track-condition .road-temp .temp-val").text(session["road_temp"]);
-    if (session["start_grip"] != -1) {
-      $("#track-condition .start-grip .value").text((session["start_grip"] * 100).toFixed(1) + "%");
-    }
-    if (session["current_grip"] != -1) {
-      $("#track-condition .current-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
-    }
-    $("#remaining").attr("data-session-start", session["start_time"]);
-    if (session["duration_min"] != 0) {
-      $("#remaining").attr("data-session-type", "time");
-      $("#remaining span").addClass("remain-time");
-      remainingTimerId = setRemainingTimeTimer(session["start_time"], session["duration_min"]);
-    } else {
-      $("#remaining span").addClass("remain-laps");
-      $("#remaining").attr("data-laps", session["laps"]);
-    }
-
-    $("head title").text("Sim View | Live " + session["type"]);
-    $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
-    if (session["type"] == "Race") {
-      setupRaceLeaderBoardStructure();
-    } else {
-      setupQualiLeaderBoardStructure();
-    }
-
-    sessionGripIntervalHandler = setInterval(function() {
-      getRequest("/api/ac/session/" + session["session_id"], updateSessionGrip);
-    }, 30 * 1000);
-
-    sessionLeaderboardIntervalHandler = setInterval(function() {
-      getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), updateLeaderBoard);
-    }, 10 * 1000);
-
   }
 }
 
-function updateSessionGrip(data) {
-  if (data["status"] == "success") {
-    var session = data["session"]
-    if (session["is_finished"] === 1) {
-      if (sessionLeaderboardIntervalHandler != -1) {
-        clearInterval(sessionLeaderboardIntervalHandler);
+class LeaderboardPage extends Page {
+
+  static sessionGripIntervalHandler = -1;
+  static sessionLeaderboardIntervalHandler = -1;
+
+  static cb_updateEventInfo(data) {
+    if (data["status"] === "success") {
+      var event = data["event"];
+      $("#event-detail").attr("data-event-id", event["event_id"]).attr("data-team-event", event["team_event"]).attr("data-track", event["track_config_id"]);
+      $("#event-detail .title").text(event["name"]);
+      $("#event-detail .server").text(event["server_name"]);
+      if (event["quali_start"] !== undefined) {
+        $("#event-detail .quali .date").text(event["quali_start"]);
       }
-      if (sessionGripIntervalHandler != -1) {
-        clearInterval(sessionGripIntervalHandler);
+      if (event["race_start"] !== undefined) {
+        $("#event-detail .race .date").text(event["race_start"]);
       }
-      var sessionOverText = session["type"] + " session is over";
-      if (session["type"] !== "Race") {
-        sessionOverText += ". Reloading in 5 secs";
-        setTimeout(function() { window.location.reload(true); }, 5 * 1000);
-      }
-      $("#message").text(sessionOverText);
-      $("#message").removeClass("hidden");
 
-      return;
+      var trackApi = "/ac/track/" + event["track_config_id"];
+      getRequest("/api" + trackApi, LeaderboardPage.cb_updateTrackInfo);
+      $("#track-preview img").attr("src", "/images" + trackApi + "/preview");
+
+      getRequest("/api/ac/event/" + event["event_id"] + "/session/latest", LeaderboardPage.cb_updateSessionInfo);
+    }
+  }
+
+  static cb_updateTrackInfo(data) {
+    if (data["status"] === "success") {
+      $("#track-preview .name").text(data["track"]["display_name"]);
+    }
+  }
+
+  static cb_updateSessionGrip(data) {
+    if (data["status"] == "success") {
+      var session = data["session"]
+      if (session["is_finished"] === 1) {
+        if (LeaderboardPage.sessionLeaderboardIntervalHandler != -1) {
+          clearInterval(LeaderboardPage.sessionLeaderboardIntervalHandler);
+        }
+        if (LeaderboardPage.sessionGripIntervalHandler != -1) {
+          clearInterval(LeaderboardPage.sessionGripIntervalHandler);
+        }
+        var sessionOverText = session["type"] + " session is over";
+        if (session["type"] !== "Race") {
+          sessionOverText += ". Reloading in 5 secs";
+          setTimeout(function() { window.location.reload(true); }, 5 * 1000);
+        }
+        $("#message").text(sessionOverText);
+        $("#message").removeClass("hidden");
+
+        return;
+      }
+
+      if (session["start_grip"] != -1) {
+        $("#track-condition .start-grip .value").text((session["start_grip"] * 100).toFixed(1) + "%");
+      }
+      if (session["current_grip"] != -1) {
+        $("#track-condition .current-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
+      }
+    }
+  }
+
+  static cb_updateLeaderBoard(data) {
+    if (data["status"] == "success") {
+      var leaderboard = data["leaderboard"];
+      var leaderboardHtml = "";
+      var pendingCarList = new Set();
+      var pendingDriverList = new Set();
+      var sessionType = $("#event-detail").attr("data-session");
+      if (sessionType == "race") {
+        leaderboard = RaceLeaderBoard.fromJSON(leaderboard);
+      } else {
+        leaderboard = QualiLeaderBoard.fromJSON(leaderboard);
+      }
+
+      var pos = 0;
+      for (var entry of leaderboard.entries) {
+        if (sessionType === "race") {
+          leaderboardHtml += entry.toHTML(pos, leaderboard.bestLapIdx);
+        } else {
+          leaderboardHtml += entry.toHTML(pos, leaderboard.bestSec1Idx, leaderboard.bestSec2Idx, leaderboard.bestSec3Idx);
+        }
+        if (LeaderBoard.carList[entry.carId] === undefined) {
+          pendingCarList.add(entry.carId);
+        }
+        if (LeaderBoard.driverList[entry.driverId] === undefined) {
+          pendingDriverList.add(entry.driverId);
+        }
+
+        pos += 1;
+      }
+
+      $("#board-body").html(leaderboardHtml);
+      if ($("#remaining span").hasClass("remain-laps")) {
+        if (leaderboard.entries[0] !== undefined) {
+          if (leaderboard.entries[0].status === LeaderBoardEntry.STATUS.FINISHED) {
+            LeaderboardPage.setRemainingLaps(-1);
+          } else {
+            LeaderboardPage.setRemainingLaps(leaderboard.entries[0].totalLaps + 1)
+          }
+        } else {
+          LeaderboardPage.setRemainingLaps(1);
+        }
+      }
+
+      pendingCarList.forEach(function(car_id) {
+        getRequest("/api/ac/car/" + car_id, Page.cb_updateCarName);
+      });
+      pendingDriverList.forEach(function(user_id) {
+        getRequest("/api/ac/user/" + user_id, Page.cb_updateDriverName);
+      });
+    }
+  }
+
+  static cb_updateSessionInfo(data) {
+    if (data["status"] == "success") {
+      var session = data["session"];
+      if (session["type"] == "Practice" || session["is_finished"] === 1) {
+        $("#message").text("No Qualification or Race session running for this event");
+        $("#message").removeClass("hidden");
+        return;
+      }
+      $("main").removeClass("hidden");
+
+      $("#event-detail .active").removeClass("active");
+      if (session["type"] === "Race") {
+        $("#event-detail .race .live").addClass("active");
+      } else {
+        $("#event-detail .quali .live").addClass("active");
+      }
+
+      $("#track-condition .weather .value").text(Util.getWeatherDisplayName(session["weather"]));
+      $("#track-condition .air-temp .temp-val").text(session["air_temp"]);
+      $("#track-condition .road-temp .temp-val").text(session["road_temp"]);
+      if (session["start_grip"] != -1) {
+        $("#track-condition .start-grip .value").text((session["start_grip"] * 100).toFixed(1) + "%");
+      }
+      if (session["current_grip"] != -1) {
+        $("#track-condition .current-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
+      }
+      $("#remaining").attr("data-session-start", session["start_time"]);
+      if (session["duration_min"] != 0) {
+        $("#remaining").attr("data-session-type", "time");
+        $("#remaining span").addClass("remain-time");
+        setRemainingTimeTimer(session["start_time"], session["duration_min"]);
+      } else {
+        $("#remaining span").addClass("remain-laps");
+        $("#remaining").attr("data-laps", session["laps"]);
+      }
+
+      $("head title").text("Sim View | Live " + session["type"]);
+      $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
+      if (session["type"] == "Race") {
+        LeaderboardPage.setupRaceLeaderBoardHeader();
+      } else {
+        LeaderboardPage.setupQualiLeaderBoardHeader();
+      }
+
+      LeaderboardPage.sessionGripIntervalHandler = setInterval(function() {
+        getRequest("/api/ac/session/" + session["session_id"], LeaderboardPage.cb_updateSessionGrip);
+      }, 30 * 1000);
+
+      LeaderboardPage.sessionLeaderboardIntervalHandler = setInterval(function() {
+        getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), LeaderboardPage.cb_updateLeaderBoard);
+      }, 10 * 1000);
+
+    }
+  }
+
+
+
+  static setupRaceLeaderBoardHeader() {
+    var leaderboardHeader = `<ul>
+      <li class="lb-pos">Pos</li>
+      <li class="lb-status">Status</li>
+      <li class="lb-driver">Driver</li>
+      <li class="lb-car">Car</li>
+      <li class="lb-laps">Laps</li>
+      <li class="lb-gap">Gap</li>
+      <li class="lb-best-lap">Best Lap</li>
+      <li class="lb-last-lap">Last Lap</li>
+      <li class="lb-sec1">S1</li>
+      <li class="lb-sec2">S2</li>
+      <li class="lb-sec3">S3</li>
+      <div class="clear-both\"></div>
+    </ul>`;
+    $("#board-header").html(leaderboardHeader);
+  }
+
+  static setupQualiLeaderBoardHeader() {
+    var leaderboardHeader = `<ul>
+      <li class="lb-pos">Pos</li>
+      <li class="lb-status">Status</li>
+      <li class="lb-driver">Driver</li>
+      <li class="lb-car">Car</li>
+      <li class="lb-best-lap">Best Lap</li>
+      <li class="lb-gap">Gap</li>
+      <li class="lb-sec1">S1</li>
+      <li class="lb-sec2">S2</li>
+      <li class="lb-sec3">S3</li>
+      <li class="lb-laps">Laps</li>
+      <div class="clear-both"></div>
+    </ul>`;
+    $("#board-header").html(leaderboardHeader);
+  }
+
+  static setRemainingLaps(current_lap) {
+    var remainLapsText;
+    if (current_lap == -1) {
+      remainLapsText = "Finished";
+    } else {
+      var totalLap = Number($("#remaining").attr("data-laps"));
+      if (totalLap == current_lap) {
+        remainLapsText = "Last Lap";
+      } else {
+        remainLapsText = current_lap + " / " + totalLap;
+      }
+    }
+    $("#remaining span").text(remainLapsText);
+  }
+
+  static setRemainingTime(start_time, duration_min) {
+    var elapsedMS = Date.now() - Math.floor(start_time / 1000);
+    var diffTime = duration_min * 60 - Math.floor(elapsedMS / 1000);
+    var remainTime = Util.getTimeDiffString(diffTime);
+    $("#remaining span").text(remainTime);
+
+    var nextTimeout = 60000;
+    if (diffTime < 60 * 60) {
+      nextTimeout = 1000;
+    }
+    setTimeout(function() {
+      LeaderboardPage.setRemainingTime(start_time, duration_min);
+    }, nextTimeout);
+  }
+}
+
+class EventsPage extends Page {
+  static cb_updateAllEvents(data) {
+    if (data["status"] == "success") {
+      var eventHtml = ""
+      for (var idx = 0; idx < data["events"].length; ++idx) {
+        eventHtml += EventsPage.getEventHtml(data["events"][idx]);
+      }
+      $("#event-container").html(eventHtml);
+
+      for (var idx = 0; idx < data["events"].length; ++idx) {
+        getRequest("/api/ac/event/" + data["events"][idx]["event_id"] + "/session/latest", EventsPage.cb_updateActiveEvent);
+      }
+    }
+  }
+
+  static cb_updateActiveEvent(data) {
+    if (data["status"] == "success") {
+      var session = data["session"];
+      if (session["type"] !== "Practice" && session["is_finished"] === 0) {
+        var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
+        event.find(".live").addClass("active");
+      } else {
+        var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
+        event.removeAttr("href");
+      }
+    }
+  }
+
+  static getEventHtml(event) {
+    return `<a data-event-id="${event["event_id"]}" href="${"/ac/event/" + event["event_id"] + "/live"}">
+      <div class="event">
+        <div class="header">
+          <div class="title">${event["name"]}</div>
+          <div class="server-container">
+            <div class="server">${event["server_name"]}</div>
+            <div class="live"></div>
+            ${(event["team_event"] ? "<div class=\"team\"></div>" : "")} +
+            <div class="clear-both"></div>
+          </div>
+        </div>
+        <div class="time">
+          <div class="quali"><span class="tag">Qualification</span><span class="date">${(event["quali_start"] || "N/A")}</span></div>
+          <div class="race"><span class="tag">Race</span><span class="date">${(event["race_start"] || "N/A")}</span></div>
+        </div>
+        <div class="track">
+          <div class="preview"><img src="/images/ac/track/${event["track_config_id"]}/preview"></div>
+          <div class="clear-both"></div>
+        </div>
+        <div class="footer"></div>
+      </div>
+    </a>`;
+  }
+}
+
+class LeaderBoard {
+  static carList = {};
+  static driverList = {};
+}
+
+class QualiLeaderBoard {
+  constructor() {
+    this.entries = [];
+    this.bestSec1Idx = -1;
+    this.bestSec2Idx = -1;
+    this.bestSec3Idx = -1;
+  }
+
+  addEntry(entry) {
+    var idx = this.entries.length;
+    this.entries.push(entry);
+    if (entry.status === LeaderBoardEntry.STATUS.CONNECTED) {
+      if (entry.bestLap.sec1 !== 0 && (this.bestSec1Idx == -1 ||
+          entry.bestLap.sec1 < this.entries[this.bestSec1Idx].bestLap.sec1)) {
+        this.bestSec1Idx = idx;
+      }
+      if (entry.bestLap.sec2 !== 0 && (this.bestSec2Idx == -1 ||
+          entry.bestLap.sec2 < this.entries[this.bestSec2Idx].bestLap.sec2)) {
+        this.bestSec2Idx = idx;
+      }
+      if (entry.bestLap.sec3 !== 0 && (this.bestSec3Idx == -1 ||
+          entry.bestLap.sec3 < this.entries[this.bestSec3Idx].bestLap.sec3)) {
+        this.bestSec3Idx = idx;
+      }
+    }
+  }
+
+  toHTML() {
+
+  }
+
+  static fromJSON(leaderboard) {
+    var qualiLeaderBoard = new QualiLeaderBoard();
+    for (var idx = 0; idx < leaderboard.length; ++idx) {
+      var entry = leaderboard[idx];
+      var bestLap = new Lap(entry["best_lap_time"], entry["sector_1"], entry["sector_2"]);
+      var leaderBoardEntry = new QualiLeaderBoardEntry(entry["is_connected"], entry["is_finished"], entry["user_id"],
+        entry["car_id"], bestLap, entry["gap"], entry["valid_laps"]);
+
+      qualiLeaderBoard.addEntry(leaderBoardEntry);
     }
 
-    if (session["start_grip"] != -1) {
-      $("#track-condition .start-grip .value").text((session["start_grip"] * 100).toFixed(1) + "%");
+    return qualiLeaderBoard;
+  }
+}
+
+class LeaderBoardEntry {
+  static STATUS = { CONNECTED: 0, DISCONNECTED: 1, FINISHED: 2 };
+
+  static statusFromConnectedAndFinished(connected, finished) {
+    if (finished === 1) {
+      return LeaderBoardEntry.STATUS.FINISHED;
+    } else if (connected === 1) {
+      return LeaderBoardEntry.STATUS.CONNECTED;
     }
-    if (session["current_grip"] != -1) {
-      $("#track-condition .current-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
+    return LeaderBoardEntry.STATUS.DISCONNECTED;
+  }
+
+  static getDriverStatusClass(status) {
+    switch (status) {
+      case LeaderBoardEntry.STATUS.FINISHED:
+        return "status-chequered";
+      case LeaderBoardEntry.STATUS.CONNECTED:
+        return "status-green";
+      case LeaderBoardEntry.STATUS.DISCONNECTED:
+        return "status-red";
     }
   }
 }
 
-function updateCurrentSession() {
+class QualiLeaderBoardEntry {
+  constructor(connected, finished, driverId, carId, bestLap, gap, totalLaps) {
+    this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, finished);
+    this.driverId = driverId;
+    this.carId = carId;
+    this.bestLap = bestLap;
+    this.gap = gap;
+    this.totalLaps = totalLaps;
+  }
 
+  /**
+   * Return weather this leaderboard entry is at top
+   * @param {int} pos
+   */
+  isPurpleLap(pos) {
+    return pos === 0 && this.status === LeaderBoardEntry.STATUS.CONNECTED && this.bestLap.lapTime !== 0;
+  }
+
+  /**
+   * Return unordered list representing entry in QualiLeaderBoard page
+   * All pos, bestSecXIdx count from 0
+   * @param {int} pos
+   * @param {int} bestSec1Idx
+   * @param {int} bestSec2Idx
+   * @param {int} bestSec3Idx
+   */
+  toHTML(pos, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
+    return `<ul data-pos="${pos + 1}">
+      <li class="lb-pos">${pos + 1}</li>
+      <li class="lb-status"><span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span></li>
+      <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
+      <li class="lb-car" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId] : "")}</li>
+      <li class="lb-best-lap${(this.isPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</li>
+      <li class="lb-gap">${(this.gap === undefined ? "-" : "+" + Lap.convertMSToTimeString(this.gap))}</li>
+      <li class="lb-sec1${(bestSec1Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</li>
+      <li class="lb-sec2${(bestSec2Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</li>
+      <li class="lb-sec3${(bestSec3Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</li>
+      <li class="lb-laps">${this.totalLaps}</li>
+      <div class="clear-both"></div>
+    </ul>`;
+  }
 }
 
-function getSectorTimeString(time) {
-  return getLapTimeString(time);
+class RaceLeaderBoard {
+  static prevLapList = {}
+
+  constructor() {
+    this.entries = [];
+    this.bestLapIdx = -1;
+  }
+
+  addEntry(entry) {
+    var idx = this.entries.length;
+    this.entries.push(entry);
+    if (entry.bestLapTime !== 0 && (this.bestLapIdx === -1 ||
+        entry.bestLapTime < this.entries[this.bestLapIdx].bestLapTime)) {
+      this.bestLapIdx = idx;
+    }
+  }
+
+  toHTML() {
+
+  }
+
+  static fromJSON(leaderboard) {
+    var raceLeaderBoard = new RaceLeaderBoard();
+    var prevLaps = -1;
+    for (var idx = 0; idx < leaderboard.length; ++idx) {
+      var entry = leaderboard[idx];
+      var lastLap = new Lap(entry["last_lap_time"], entry["sector_1"], entry["sector_2"]);
+      var leaderBoardEntry = new RaceLeaderBoardEntry(entry["is_connected"], entry["is_finished"],
+        entry["user_id"], entry["car_id"], entry["laps"], entry["gap"], entry["best_lap_time"], lastLap);
+      if (leaderBoardEntry.gap === undefined && prevLaps !== -1) {
+        leaderBoardEntry.gap = (prevLaps - leaderBoardEntry.totalLaps) + " L"
+      }
+
+      raceLeaderBoard.addEntry(leaderBoardEntry);
+
+      if (lastLap.lapTime !== 0) {
+        RaceLeaderBoard.prevLapList[leaderBoardEntry.driverId] = lastLap.lapTime;
+      }
+    }
+
+    return raceLeaderBoard;
+  }
 }
 
-function getSectorTime(time, sec1, sec2, sec) {
-  if (sec === 1) {
-    return sec1;
-  } else if (sec === 2) {
-    if (time !== 0) {
+class RaceLeaderBoardEntry {
+  constructor(connected, finished, driverId, carId, totalLaps, gap, bestLapTime, lastLap) {
+    this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, finished);
+    this.driverId = driverId;
+    this.carId = carId;
+    this.totalLaps = totalLaps;
+    this.gap = gap;
+    this.bestLapTime = bestLapTime;
+    this.lastLap = lastLap;
+  }
+
+  /**
+   * Return weather this leaderboard entry has the best lap in Race
+   * @param {int} pos
+   * @param {int} bestLapIdx
+   */
+  isPurpleLap(pos, bestLapIdx) {
+    return pos === bestLapIdx && this.bestLapTime !== 0;
+  }
+
+  /**
+   * pos count from 0
+   * @param {int} pos
+   */
+  toHTML(pos, bestLapIdx) {
+    return `<ul data-pos="${pos + 1}">
+      <li class="lb-pos">${pos + 1}</li>
+      <li class="lb-status"><span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span></li>
+      <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
+      <li class="lb-car" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId] : "")}</li>
+      <li class="lb-laps">${this.totalLaps}</li>
+      <li class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</li>
+      <li class="lb-best-lap${(this.isPurpleLap(pos, bestLapIdx) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</li>
+      <li class="lb-last-lap">${Lap.convertMSToDisplayTimeString(RaceLeaderBoard.prevLapList[this.driverId] !== undefined ? RaceLeaderBoard.prevLapList[this.driverId] : 0)}</li>
+      <li class="lb-sec1">${Lap.convertMSToDisplayTimeString(this.lastLap.sec1)}</li>
+      <li class="lb-sec2">${Lap.convertMSToDisplayTimeString(this.lastLap.sec2)}</li>
+      <li class="lb-sec3">${Lap.convertMSToDisplayTimeString(this.lastLap.sec3)}</li>
+      <div class="clear-both"></div>
+    </ul>`;
+  }
+}
+
+class Lap {
+  // time, sec1, sec2 are inetger representing time in milli second
+  constructor(lapTime, sec1, sec2) {
+    this.lapTime = lapTime;
+    this.sec1 = sec1;
+    this.sec2 = Lap.calculateSector2Time(lapTime, sec1, sec2);
+    this.sec3 = Lap.calculateSector3Time(lapTime, sec1, this.sec2);
+  }
+
+  static calculateSector2Time(lapTime, sec1, sec2) {
+    if (lapTime !== 0) {
       if (sec2 === 0) {
-        return time - sec1;
+        return lapTime - sec1;
       } else {
         return sec2;
       }
     } else {
       return sec2;
     }
-  } else {
-    if (time !== 0) {
-      return time - sec1 - sec2;
+  }
+
+  static calculateSector3Time(lapTime, sec1, sec2) {
+    if (lapTime !== 0) {
+      return lapTime - sec1 - sec2;
     } else {
       return 0;
     }
   }
+
+  /**
+   * For :
+   * 1. 0 return empty string
+   * 2. time greater than 60 min returns empty string
+   * 3. return in MM:SS:SSS
+   * @param {int} time
+   */
+  static convertMSToTimeString(time) {
+    // Laptime in ms
+    if (time === 0) return "";
+    var min = "";
+    var sec = "";
+    var ms = "";
+
+    ms = time % 1000;
+    time = Math.floor(time / 1000);
+    sec = time % 60;
+    time = Math.floor(time / 60);
+    min = time;
+    if (min >= 60) {
+      return "";
+    }
+
+    if (sec < 10) {
+      sec = "0" + sec;
+    }
+    if (ms < 10) {
+      ms = "00" + ms;
+    } else if (ms < 100) {
+      ms = "0" + ms;
+    }
+
+    return min + ":" + sec + ":" + ms;
+  }
+
+  static convertMSToDisplayTimeString(time) {
+    var timeStr = Lap.convertMSToTimeString(time);
+    return timeStr === "" ? "-" : timeStr;
+  }
+
+  static convertToGapDisplayString(gap) {
+    if (gap === undefined) return "-";
+    if (typeof gap === "string") return "+" + gap;
+    return "+" + Lap.convertMSToTimeString(gap);
+  }
 }
 
-function fixLeaderboard(leaderboard) {
-  // Add purple sectors info
-  var sec1_idx = -1,
-    sec2_idx = -1,
-    sec3_idx = -1;
-  for (var idx = 0; idx < leaderboard.length; ++idx) {
-    // No change required for sector_1
-    leaderboard[idx]["sector_2"] = getSectorTime(leaderboard[idx]["best_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 2);
-    leaderboard[idx]["sector_3"] = getSectorTime(leaderboard[idx]["best_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 3);
-    // Remove this
-    if (leaderboard[idx]["is_connected"] == 1) {
-      if (sec1_idx == -1 || leaderboard[idx]["sector_1"] < leaderboard[sec1_idx]["sector_1"]) {
-        sec1_idx = idx;
-      }
-      if (sec2_idx == -1 || leaderboard[idx]["sector_2"] < leaderboard[sec2_idx]["sector_2"]) {
-        sec2_idx = idx;
-      }
-      if (sec3_idx == -1 || leaderboard[idx]["sector_3"] < leaderboard[sec3_idx]["sector_3"]) {
-        sec3_idx = idx;
-      }
+class Util {
+  static getWeatherDisplayName(weather) {
+    weather = weather.split("_");
+    if (weather[0] === "sol") {
+      weather.shift();
     }
+    weather.shift();
+    return weather.join(" ");
   }
 
-  if (sec1_idx != -1 && leaderboard[sec1_idx]["sector_1"] != 0) {
-    leaderboard[sec1_idx]["sec1_purple"] = 1;
-  }
-  if (sec2_idx != -1 && leaderboard[sec2_idx]["sector_2"] != 0) {
-    leaderboard[sec2_idx]["sec2_purple"] = 1;
-  }
-  if (sec3_idx != -1 && leaderboard[sec3_idx]["sector_3"] != 0) {
-    leaderboard[sec3_idx]["sec3_purple"] = 1;
-  }
-
-  return leaderboard;
-}
-
-prevLapList = {}
-
-function fixRaceLeaderboard(leaderboard) {
-  var prevLaps = -1;
-  var best_idx = -1;
-  for (var idx = 0; idx < leaderboard.length; ++idx) {
-    // No change required for sector_1
-    leaderboard[idx]["sector_2"] = getSectorTime(leaderboard[idx]["last_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 2);
-    leaderboard[idx]["sector_3"] = getSectorTime(leaderboard[idx]["last_lap_time"], leaderboard[idx]["sector_1"], leaderboard[idx]["sector_2"], 3);
-    if (leaderboard[idx]["last_lap_time"] !== 0) {
-      prevLapList[leaderboard[idx]["user_id"]] = leaderboard[idx]["last_lap_time"];
-    }
-
-    if (leaderboard[idx]["best_lap_time"] != 0) {
-      if (best_idx == -1 || leaderboard[idx]["best_lap_time"] < leaderboard[best_idx]["best_lap_time"]) {
-        best_idx = idx;
-      }
-    }
-    if (leaderboard[idx]["gap"] === undefined) {
-      if (prevLaps != -1) {
-        leaderboard[idx]["gap"] = (prevLaps - leaderboard[idx]["laps"]) + " L";
-      }
+  static getTimeDiffString(diff) {
+    // Diff in secs
+    if (diff < 0) {
+      return "--";
+    } else if (diff < 60) {
+      return diff + "S";
+    } else if (diff < 60 * 60) {
+      return Math.floor(diff / 60) + "M " + (diff % 60) + "S";
     } else {
-      leaderboard[idx]["gap"] = getLapTimeString(leaderboard[idx]["gap"]);
-    }
-    prevLaps = leaderboard[idx]["laps"];
-  }
-
-  if (best_idx != -1) {
-    leaderboard[best_idx]["purple_lap"] = true;
-  }
-
-  return leaderboard
-}
-
-function getDriverStatusClass(is_connected, is_finished) {
-  if (is_finished) {
-    return "status-chequered";
-  } else if (is_connected) {
-    return "status-green";
-  } else {
-    return "status-red";
-  }
-}
-
-function getLeaderBoardHtml(pos, info) {
-  return "<ul data-pos=\"" + pos + "\">" +
-    "<li class=\"lb-pos\">" + pos + "</li>" +
-    "<li class=\"lb-status\"><span class=\"status " + getDriverStatusClass(info["is_connected"], info["is_finished"]) + "\"></span></li>" +
-    "<li class=\"lb-driver\" data-user-id=\"" + info["user_id"] + "\">" + ((driverList[info["user_id"]] !== undefined) ? driverList[info["user_id"]] : "") + "</li>" +
-    "<li class=\"lb-car\" data-car-id=\"" + info["car_id"] + "\">" + ((carList[info["car_id"]] !== undefined) ? carList[info["car_id"]] : "") + "</li>" +
-    "<li class=\"lb-best-lap" + (pos == 1 && info["is_connected"] == 1 && info["best_lap_time"] != 0 ? " purple-sec" : "") + "\">" + getLapTimeString(info["best_lap_time"]) + "</li>" +
-    "<li class=\"lb-gap\">" + (info["gap"] === undefined ? "-" : "+" + getLapTimeString(info["gap"])) + "</li>" +
-    "<li class=\"lb-sec1" + (info["sec1_purple"] === 1 ? " purple-sec" : "") + "\">" + getSectorTimeString(info["sector_1"]) + "</li>" +
-    "<li class=\"lb-sec2" + (info["sec2_purple"] === 1 ? " purple-sec" : "") + "\">" + getSectorTimeString(info["sector_2"]) + "</li>" +
-    "<li class=\"lb-sec3" + (info["sec3_purple"] === 1 ? " purple-sec" : "") + "\">" + getSectorTimeString(info["sector_3"]) + "</li>" +
-    "<li class=\"lb-laps\">" + info["valid_laps"] + "</li>" +
-    "<div class=\"clear-both\"></div>" +
-    "</ul>";
-}
-
-function getRaceLeaderBoardHtml(pos, info) {
-  return "<ul data-pos=\"" + pos + "\">" +
-    "<li class=\"lb-pos\">" + pos + "</li>" +
-    "<li class=\"lb-status\"><span class=\"status " + getDriverStatusClass(info["is_connected"], info["is_finished"]) + "\"></span></li>" +
-    "<li class=\"lb-driver\" data-user-id=\"" + info["user_id"] + "\">" + ((driverList[info["user_id"]] !== undefined) ? driverList[info["user_id"]] : "") + "</li>" +
-    "<li class=\"lb-car\" data-car-id=\"" + info["car_id"] + "\">" + ((carList[info["car_id"]] !== undefined) ? carList[info["car_id"]] : "") + "</li>" +
-    "<li class=\"lb-laps\">" + info["laps"] + "</li>" +
-    "<li class=\"lb-gap\">" + (info["gap"] === undefined ? "-" : "+" + getGapString(info["gap"])) + "</li>" +
-    "<li class=\"lb-best-lap" + (info["purple_lap"] ? " purple-sec" : "") + "\">" + getLapTimeString(info["best_lap_time"]) + "</li>" +
-    "<li class=\"lb-last-lap\">" + getLapTimeString(prevLapList[info["user_id"]] !== undefined ? prevLapList[info["user_id"]] : 0) + "</li>" +
-    "<li class=\"lb-sec1\">" + getSectorTimeString(info["sector_1"]) + "</li>" +
-    "<li class=\"lb-sec2\">" + getSectorTimeString(info["sector_2"]) + "</li>" +
-    "<li class=\"lb-sec3\">" + getSectorTimeString(info["sector_3"]) + "</li>" +
-    "<div class=\"clear-both\"></div>" +
-    "</ul>";
-}
-
-function setupRaceLeaderBoardStructure() {
-  leaderboardHeader = "<ul>" +
-    "<li class=\"lb-pos\">Pos</li>" +
-    "<li class=\"lb-status\">Status</li>" +
-    "<li class=\"lb-driver\">Driver</li>" +
-    "<li class=\"lb-car\">Car</li>" +
-    "<li class=\"lb-laps\">Laps</li>" +
-    "<li class=\"lb-gap\">Gap</li>" +
-    "<li class=\"lb-best-lap\">Best Lap</li>" +
-    "<li class=\"lb-last-lap\">Last Lap</li>" +
-    "<li class=\"lb-sec1\">S1</li>" +
-    "<li class=\"lb-sec2\">S2</li>" +
-    "<li class=\"lb-sec3\">S3</li>" +
-    "<div class=\"clear-both\"></div>" +
-    "</ul>";
-  $("#board-header").html(leaderboardHeader);
-}
-
-function setupQualiLeaderBoardStructure() {
-  leaderboardHeader = "<ul>" +
-    "<li class=\"lb-pos\">Pos</li>" +
-    "<li class=\"lb-status\">Status</li>" +
-    "<li class=\"lb-driver\">Driver</li>" +
-    "<li class=\"lb-car\">Car</li>" +
-    "<li class=\"lb-best-lap\">Best Lap</li>" +
-    "<li class=\"lb-gap\">Gap</li>" +
-    "<li class=\"lb-sec1\">S1</li>" +
-    "<li class=\"lb-sec2\">S2</li>" +
-    "<li class=\"lb-sec3\">S3</li>" +
-    "<li class=\"lb-laps\">Laps</li>" +
-    "<div class=\"clear-both\"></div>" +
-    "</ul>";
-  $("#board-header").html(leaderboardHeader);
-}
-
-function updateLeaderBoard(data) {
-  if (data["status"] == "success") {
-    var leaderboard = data["leaderboard"];
-    var leaderboardHtml = "";
-    var pendingCarList = new Set();
-    var pendingDriverList = new Set();
-    var sessionType = $("#event-detail").attr("data-session");
-    if (sessionType == "race") {
-      leaderboard = fixRaceLeaderboard(leaderboard);
-    } else {
-      leaderboard = fixLeaderboard(leaderboard);
-    }
-    for (idx = 0; idx < leaderboard.length; ++idx) {
-      if (sessionType == "race") {
-        leaderboardHtml += getRaceLeaderBoardHtml(idx + 1, leaderboard[idx]);
-      } else {
-        leaderboardHtml += getLeaderBoardHtml(idx + 1, leaderboard[idx]);
-      }
-      if (carList[leaderboard[idx]["car_id"]] === undefined) {
-        pendingCarList.add(leaderboard[idx]["car_id"]);
-      }
-      if (driverList[leaderboard[idx]["user_id"]] === undefined) {
-        pendingDriverList.add(leaderboard[idx]["user_id"]);
-      }
-    }
-
-    $("#board-body").html(leaderboardHtml);
-    if ($("#remaining span").hasClass("remain-laps")) {
-      if (leaderboard[0] != undefined) {
-        if (leaderboard[0]["is_finished"] == 1) {
-          setRemainingLaps(-1);
-        } else {
-          setRemainingLaps(leaderboard[0]["laps"] + 1)
-        }
-      } else {
-        setRemainingLaps(1);
-      }
-    }
-
-    pendingCarList.forEach(function(car_id) {
-      getRequest("/api/ac/car/" + car_id, updateCarName);
-    });
-    pendingDriverList.forEach(function(user_id) {
-      getRequest("/api/ac/user/" + user_id, updateDriverName);
-    });
-  }
-}
-
-function getCurrentEvent() {
-  return window.location.toString().match("event/([0-9]+)/")[1];
-}
-
-
-function getEventHtml(event) {
-  return "<a data-event-id=\"" + event["event_id"] + "\" href=\"/ac/event/" + event["event_id"] + "/live\">" +
-    "<div class=\"event\">" +
-    "<div class=\"header\">" +
-    "<div class=\"title\">" + event["name"] + "</div>" +
-    "<div class=\"server-container\">" +
-    "<div class=\"server\">" + event["server_name"] + "</div>" +
-    "<div class=\"live\"></div>" +
-    (event["team_event"] ? "<div class=\"team\"></div>" : "") +
-    "<div class=\"clear-both\"></div>" +
-    "</div>" +
-    "</div>" +
-    "<div class=\"time\">" +
-    "<div class=\"quali\"><span class=\"tag\">Qualification</span><span class=\"date\">" + (event["quali_start"] || "N/A") + "</span></div>" +
-    "<div class=\"race \"><span class=\"tag\">Race</span><span class=\"date\">" + (event["race_start"] || "N/A") + "</span></div>" +
-    "</div>" +
-    "<div class=\"track\">" +
-    "<div class=\"preview\">" +
-    "<img src=\"/images/ac/track/" + event["track_config_id"] + "/preview\">" +
-    "</div>" +
-    "<div class=\"clear-both\"></div>" +
-    "</div>" +
-    "<div class=\"footer\"></div>" +
-    "</div>" + "</a>";
-}
-
-function updateAllEvents(data) {
-  if (data["status"] == "success") {
-    var eventHtml = ""
-    for (var idx = 0; idx < data["events"].length; ++idx) {
-      eventHtml += getEventHtml(data["events"][idx]);
-    }
-    $("#event-container").html(eventHtml);
-
-    for (var idx = 0; idx < data["events"].length; ++idx) {
-      getRequest("/api/ac/event/" + data["events"][idx]["event_id"] + "/session/latest", updateActiveEvent);
+      diff = Math.floor(diff / 60);
+      return Math.floor(diff / 60) + "H " + (diff % 60) + "M";
     }
   }
-}
 
-function updateActiveEvent(data) {
-  if (data["status"] == "success") {
-    var session = data["session"];
-    if (session["type"] !== "Practice" && session["is_finished"] === 0) {
-      var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
-      event.find(".live").addClass("active");
-    } else {
-      var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
-      event.removeAttr("href");
-    }
+  static getCurrentEvent() {
+    return window.location.toString().match("event/([0-9]+)/")[1];
   }
 }
 
 $(document).ready(function() {
   var page = $("body").attr("data-page");
   if (page == "lb-page") {
-    getRequest("/api/ac/event/" + getCurrentEvent(), updateEventInfo);
+    getRequest("/api/ac/event/" + Util.getCurrentEvent(), LeaderboardPage.cb_updateEventInfo);
   } else if (page == "events-page") {
-    getRequest("/api/ac/events", updateAllEvents);
+    getRequest("/api/ac/events", EventsPage.cb_updateAllEvents);
   }
 });
