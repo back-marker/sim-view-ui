@@ -309,7 +309,7 @@ main {
 }
 
 .lb-car-class {
-  width: 60px;
+  width: 70px;
 }
 
 .lb-car {
@@ -452,12 +452,24 @@ main {
   padding: 2px 0;
 }
 
+.car-class-0 {
+  color: #ED7D3A !important;
+}
+
 .car-class-1 {
-  color: #ff5757 !important;
+  color: #E6F73C !important;
 }
 
 .car-class-2 {
-  color: #0fcbea !important;
+  color: #FF84D0 !important;
+}
+
+.car-class-3 {
+  color: #24CAF2 !important;
+}
+
+.car-class-4 {
+  color: #EF2D56 !important;
 }
 
 #message {
