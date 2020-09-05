@@ -309,7 +309,7 @@ class EventsPage extends Page {
           <div class="server-container">
             <div class="server">${event["server_name"]}</div>
             <div class="live"></div>
-            ${(event["team_event"] ? "<div class=\"team\"></div>" : "")} +
+            ${(event["team_event"] ? "<div class=\"team\"></div>" : "")}
             <div class="clear-both"></div>
           </div>
         </div>
