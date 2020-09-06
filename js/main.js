@@ -545,6 +545,7 @@ class Lap {
 
   static calculateSector2Time(lapTime, sec1, sec2) {
     if (lapTime !== 0) {
+      if (sec1 === 0) return 0;
       if (sec2 === 0) {
         return lapTime - sec1;
       } else {
@@ -557,6 +558,7 @@ class Lap {
 
   static calculateSector3Time(lapTime, sec1, sec2) {
     if (lapTime !== 0) {
+      if (sec1 === 0) return 0;
       return lapTime - sec1 - sec2;
     } else {
       return 0;
