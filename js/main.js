@@ -18,11 +18,11 @@ class Page {
   static cb_updateCarName(data) {
     if (data["status"] === "success") {
       var car = data["car"];
-      $(".lb-car[data-car-id=" + car["car_id"] + "]").text(car["display_name"]);
       LeaderBoard.carList[car["car_id"]] = { "name": car["display_name"], "class": car["car_class"] };
       if (LeaderBoard.carColorClass.indexOf(car["car_class"]) === -1) {
         LeaderBoard.carColorClass.push(car["car_class"]);
       }
+      $(".lb-car[data-car-id=" + car["car_id"] + "] .car-name").text(car["display_name"]).addClass(Util.getCarColorClass(car["car_id"]));
       $(".lb-car-class[data-car-id=" + car["car_id"] + "]").text(car["car_class"]).addClass(Util.getCarColorClass(car["car_id"]));
     }
   }
@@ -210,8 +210,8 @@ class LeaderboardPage extends Page {
       <li class="lb-pos">Pos</li>
       <li class="lb-status">Status</li>
       <li class="lb-car-class">Class</li>
-      <li class="lb-driver">Driver</li>
       <li class="lb-car">Car</li>
+      <li class="lb-driver">Driver</li>
       <li class="lb-laps">Laps</li>
       <li class="lb-gap">Gap</li>
       <li class="lb-best-lap">Best Lap</li>
@@ -229,8 +229,8 @@ class LeaderboardPage extends Page {
       <li class="lb-pos">Pos</li>
       <li class="lb-status">Status</li>
       <li class="lb-car-class">Class</li>
-      <li class="lb-driver">Driver</li>
       <li class="lb-car">Car</li>
+      <li class="lb-driver">Driver</li>
       <li class="lb-best-lap">Best Lap</li>
       <li class="lb-gap">Gap</li>
       <li class="lb-sec1">S1</li>
@@ -434,8 +434,8 @@ class QualiLeaderBoardEntry {
       <li class="lb-pos">${pos + 1}</li>
       <li class="lb-status"><span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span></li>
       <li class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</li>
+      <li class="lb-car ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</li>
       <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
-      <li class="lb-car" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</li>
       <li class="lb-best-lap${(this.isPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</li>
       <li class="lb-gap">${(this.gap === undefined ? "-" : "+" + Lap.convertMSToTimeString(this.gap))}</li>
       <li class="lb-sec1${(bestSec1Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</li>
@@ -520,8 +520,8 @@ class RaceLeaderBoardEntry {
       <li class="lb-pos">${pos + 1}</li>
       <li class="lb-status"><span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span></li>
       <li class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</li>
+      <li class="lb-car ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</li>
       <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
-      <li class="lb-car" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</li>
       <li class="lb-laps">${this.totalLaps}</li>
       <li class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</li>
       <li class="lb-best-lap${(this.isPurpleLap(pos, bestLapIdx) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</li>
