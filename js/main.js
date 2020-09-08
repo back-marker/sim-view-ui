@@ -535,6 +535,9 @@ class RaceLeaderBoardEntry {
 }
 
 class Lap {
+  static MILISECOND_SEPARATOR = ".";
+  static SECOND_SEPARATOR = ":";
+
   // time, sec1, sec2 are inetger representing time in milli second
   constructor(lapTime, sec1, sec2) {
     this.lapTime = lapTime;
@@ -588,16 +591,21 @@ class Lap {
       return "";
     }
 
-    if (sec < 10) {
-      sec = "0" + sec;
-    }
     if (ms < 10) {
       ms = "00" + ms;
     } else if (ms < 100) {
       ms = "0" + ms;
     }
 
-    return min + ":" + sec + ":" + ms;
+    if (min == 0) {
+      return sec + Lap.MILISECOND_SEPARATOR + ms;
+    }
+
+    if (sec < 10) {
+      sec = "0" + sec;
+    }
+
+    return min + Lap.SECOND_SEPARATOR + sec + Lap.MILISECOND_SEPARATOR + ms;
   }
 
   static convertMSToDisplayTimeString(time) {
