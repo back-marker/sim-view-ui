@@ -276,7 +276,7 @@ main {
 
 #board-header {
   border-bottom: 2px solid #464646;
-  padding-bottom: 5px;
+  padding-bottom: 20px;
 }
 
 #board-header li {
@@ -288,15 +288,11 @@ main {
   padding-left: 5px;
 }
 
-#board-body {
-  margin-top: 15px;
-}
-
 #board-body li {
   float: left;
   color: #e3e3e3;
   font-size: 16px;
-  padding: 3px 0 3px 5px;
+  padding: 5px 0 5px 5px;
 }
 
 .lb-pos {
@@ -385,7 +381,7 @@ main {
 }
 
 #lb-page main {
-  padding: 0px 50px;
+  padding: 20px 50px;
   display: flex;
   justify-content: center;
 }
