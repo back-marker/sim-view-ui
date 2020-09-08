@@ -310,6 +310,8 @@ main {
 
 .lb-car {
   width: 280px;
+  display: flex;
+  align-items: center;
 }
 
 .lb-team-no {
@@ -374,6 +376,14 @@ main {
 .lb-laps,
 .lb-crashes {
   text-align: center;
+}
+
+.car-badge {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
 }
 
 #board-body ul:nth-child(even) {

@@ -434,7 +434,10 @@ class QualiLeaderBoardEntry {
       <li class="lb-pos">${pos + 1}</li>
       <li class="lb-status"><span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span></li>
       <li class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</li>
-      <li class="lb-car ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</li>
+      <li class="lb-car ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
+        <span class="car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"></span>
+        <span class="car-name">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</span>
+      </li>
       <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
       <li class="lb-best-lap${(this.isPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</li>
       <li class="lb-gap">${(this.gap === undefined ? "-" : "+" + Lap.convertMSToTimeString(this.gap))}</li>
@@ -520,7 +523,10 @@ class RaceLeaderBoardEntry {
       <li class="lb-pos">${pos + 1}</li>
       <li class="lb-status"><span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span></li>
       <li class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</li>
-      <li class="lb-car ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</li>
+      <li class="lb-car ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
+        <span class="car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"></span>
+        <span class="car-name">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</span>
+      </li>
       <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
       <li class="lb-laps">${this.totalLaps}</li>
       <li class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</li>
