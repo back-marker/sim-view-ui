@@ -313,7 +313,7 @@ main {
 }
 
 .lb-car {
-  width: 250px;
+  width: 280px;
 }
 
 .lb-team-no {
@@ -326,7 +326,14 @@ main {
 }
 
 .lb-driver {
-  width: 150px;
+  width: 200px;
+}
+
+.lb-car,
+.lb-driver {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .lb-best-lap,
