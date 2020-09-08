@@ -377,7 +377,7 @@ main {
 }
 
 #board-body ul:nth-child(even) {
-  background-color: #3e3e3e;
+  background-color: #2f2f2f;
 }
 
 #lb-page main {
