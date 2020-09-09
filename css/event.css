@@ -286,44 +286,66 @@ main {
   font-weight: bold;
   font-size: 16px;
   padding-left: 5px;
+  padding-right: 5px;
 }
 
 #board-body li {
   float: left;
   color: #e3e3e3;
   font-size: 16px;
-  padding: 5px 0 5px 5px;
+  padding: 5px;
 }
 
-.lb-pos {
-  width: 45px;
+.lb-pos,
+.lb-hr-pos {
+  width: 35px;
+  padding-left: 8px !important;
   font-weight: bold;
+  text-align: left;
 }
 
-.lb-status {
+.lb-hr-pos,
+.lb-hr-driver {
+  padding-right: 7px !important;
+}
+
+.lb-pos,
+.lb-driver {
+  border-right: 2px solid #464646;
+}
+
+.lb-status,
+.lb-hr-status {
   width: 70px;
+  text-align: center;
 }
 
-.lb-car-class {
+.lb-car-class,
+.lb-hr-car-class {
   width: 70px;
+  text-align: left;
 }
 
-.lb-car {
+.lb-car,
+.lb-hr-car {
   width: 280px;
   display: flex;
   align-items: center;
 }
 
-.lb-team-no {
+.lb-team-no,
+.lb-hr-team-no {
   width: 60px;
   font-weight: bold;
 }
 
-.lb-team {
+.lb-team,
+.lb-hr-team {
   width: 180px;
 }
 
-.lb-driver {
+.lb-driver,
+.lb-hr-driver {
   width: 200px;
 }
 
@@ -335,46 +357,44 @@ main {
 }
 
 .lb-best-lap,
-.lb-last-lap {
-  width: 85px;
-}
-
-.lb-gap {
-  width: 80px;
-}
-
-.lb-sec1 {
-  width: 90px;
-}
-
-.lb-sec2 {
-  width: 90px;
-}
-
-.lb-sec3 {
-  width: 90px;
-}
-
-.lb-laps {
-  width: 70px;
-}
-
-.lb-crashes {
-  width: 85px;
-}
-
-.lb-pos,
-.lb-status,
-.lb-team-no,
-.lb-car-class,
-.lb-best-lap,
+.lb-hr-best-lap,
 .lb-last-lap,
+.lb-hr-last-lap {
+  width: 90px;
+  text-align: right;
+}
+
 .lb-gap,
+.lb-hr-gap {
+  width: 80px;
+  text-align: right;
+}
+
 .lb-sec1,
+.lb-hr-sec1,
 .lb-sec2,
+.lb-hr-sec2,
 .lb-sec3,
+.lb-hr-sec3 {
+  width: 90px;
+  text-align: right;
+}
+
 .lb-laps,
-.lb-crashes {
+.lb-hr-laps {
+  width: 55px;
+  text-align: right;
+  padding-right: 8px !important;
+}
+
+.lb-crashes,
+.lb-hr-crashes {
+  width: 85px;
+  text-align: right;
+}
+
+.lb-team-no,
+.lb-hr-crashes {
   text-align: center;
 }
 

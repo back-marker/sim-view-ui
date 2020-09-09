@@ -207,18 +207,18 @@ class LeaderboardPage extends Page {
 
   static setupRaceLeaderBoardHeader() {
     var leaderboardHeader = `<ul>
-      <li class="lb-pos">Pos</li>
-      <li class="lb-status">Status</li>
-      <li class="lb-car-class">Class</li>
-      <li class="lb-car">Car</li>
-      <li class="lb-driver">Driver</li>
-      <li class="lb-laps">Laps</li>
-      <li class="lb-gap">Gap</li>
-      <li class="lb-best-lap">Best Lap</li>
-      <li class="lb-last-lap">Last Lap</li>
-      <li class="lb-sec1">S1</li>
-      <li class="lb-sec2">S2</li>
-      <li class="lb-sec3">S3</li>
+      <li class="lb-hr-pos">Pos</li>
+      <li class="lb-hr-status">Status</li>
+      <li class="lb-hr-car-class">Class</li>
+      <li class="lb-hr-car">Car</li>
+      <li class="lb-hr-driver">Driver</li>
+      <li class="lb-hr-laps">Laps</li>
+      <li class="lb-hr-gap">Gap</li>
+      <li class="lb-hr-best-lap">Best Lap</li>
+      <li class="lb-hr-last-lap">Last Lap</li>
+      <li class="lb-hr-sec1">S1</li>
+      <li class="lb-hr-sec2">S2</li>
+      <li class="lb-hr-sec3">S3</li>
       <div class="clear-both\"></div>
     </ul>`;
     $("#board-header").html(leaderboardHeader);
@@ -226,17 +226,17 @@ class LeaderboardPage extends Page {
 
   static setupQualiLeaderBoardHeader() {
     var leaderboardHeader = `<ul>
-      <li class="lb-pos">Pos</li>
-      <li class="lb-status">Status</li>
-      <li class="lb-car-class">Class</li>
-      <li class="lb-car">Car</li>
-      <li class="lb-driver">Driver</li>
-      <li class="lb-best-lap">Best Lap</li>
-      <li class="lb-gap">Gap</li>
-      <li class="lb-sec1">S1</li>
-      <li class="lb-sec2">S2</li>
-      <li class="lb-sec3">S3</li>
-      <li class="lb-laps">Laps</li>
+      <li class="lb-hr-pos">Pos</li>
+      <li class="lb-hr-status">Status</li>
+      <li class="lb-hr-car-class">Class</li>
+      <li class="lb-hr-car">Car</li>
+      <li class="lb-hr-driver">Driver</li>
+      <li class="lb-hr-best-lap">Best Lap</li>
+      <li class="lb-hr-gap">Gap</li>
+      <li class="lb-hr-sec1">S1</li>
+      <li class="lb-hr-sec2">S2</li>
+      <li class="lb-hr-sec3">S3</li>
+      <li class="lb-hr-laps">Laps</li>
       <div class="clear-both"></div>
     </ul>`;
     $("#board-header").html(leaderboardHeader);
