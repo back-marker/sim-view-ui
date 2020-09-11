@@ -370,6 +370,12 @@ main {
   text-align: right;
 }
 
+.lb-interval,
+.lb-hr-interval {
+  width: 90px;
+  text-align: right;
+}
+
 .lb-sec1,
 .lb-hr-sec1,
 .lb-sec2,

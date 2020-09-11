@@ -214,6 +214,7 @@ class LeaderboardPage extends Page {
       <li class="lb-hr-driver">Driver</li>
       <li class="lb-hr-laps">Laps</li>
       <li class="lb-hr-gap">Gap</li>
+      <li class="lb-hr-interval">Interval</li>
       <li class="lb-hr-best-lap">Best Lap</li>
       <li class="lb-hr-last-lap">Last Lap</li>
       <li class="lb-hr-sec1">S1</li>
@@ -233,6 +234,7 @@ class LeaderboardPage extends Page {
       <li class="lb-hr-driver">Driver</li>
       <li class="lb-hr-best-lap">Best Lap</li>
       <li class="lb-hr-gap">Gap</li>
+      <li class="lb-hr-interval">Interval</li>
       <li class="lb-hr-sec1">S1</li>
       <li class="lb-hr-sec2">S2</li>
       <li class="lb-hr-sec3">S3</li>
@@ -370,7 +372,7 @@ class QualiLeaderBoard {
       var entry = leaderboard[idx];
       var bestLap = new Lap(entry["best_lap_time"], entry["sector_1"], entry["sector_2"]);
       var leaderBoardEntry = new QualiLeaderBoardEntry(entry["is_connected"], entry["is_finished"], entry["user_id"],
-        entry["car_id"], bestLap, entry["gap"], entry["valid_laps"]);
+        entry["car_id"], bestLap, entry["gap"], entry["interval"], entry["valid_laps"]);
 
       qualiLeaderBoard.addEntry(leaderBoardEntry);
     }
@@ -404,12 +406,13 @@ class LeaderBoardEntry {
 }
 
 class QualiLeaderBoardEntry {
-  constructor(connected, finished, driverId, carId, bestLap, gap, totalLaps) {
+  constructor(connected, finished, driverId, carId, bestLap, gap, interval, totalLaps) {
     this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, finished);
     this.driverId = driverId;
     this.carId = carId;
     this.bestLap = bestLap;
     this.gap = gap;
+    this.interval = interval;
     this.totalLaps = totalLaps;
   }
 
@@ -441,6 +444,7 @@ class QualiLeaderBoardEntry {
       <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
       <li class="lb-best-lap${(this.isPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</li>
       <li class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</li>
+      <li class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</li>
       <li class="lb-sec1${(bestSec1Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</li>
       <li class="lb-sec2${(bestSec2Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</li>
       <li class="lb-sec3${(bestSec3Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</li>
@@ -477,7 +481,7 @@ class RaceLeaderBoard {
       var entry = leaderboard[idx];
       var lastLap = new Lap(entry["last_lap_time"], entry["sector_1"], entry["sector_2"]);
       var leaderBoardEntry = new RaceLeaderBoardEntry(entry["is_connected"], entry["is_finished"],
-        entry["user_id"], entry["car_id"], entry["laps"], entry["gap"], entry["best_lap_time"], lastLap);
+        entry["user_id"], entry["car_id"], entry["laps"], entry["gap"], entry["interval"], entry["best_lap_time"], lastLap);
 
       raceLeaderBoard.addEntry(leaderBoardEntry);
 
@@ -491,20 +495,27 @@ class RaceLeaderBoard {
 }
 
 class RaceLeaderBoardEntry {
-  constructor(connected, finished, driverId, carId, totalLaps, gap, bestLapTime, lastLap) {
+  constructor(connected, finished, driverId, carId, totalLaps, gap, interval, bestLapTime, lastLap) {
     this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, finished);
     this.driverId = driverId;
     this.carId = carId;
     this.totalLaps = totalLaps;
-    if (gap !== undefined) {
-      if ((gap & 1) === 0) {
-        this.gap = gap >> 1;
-      } else {
-        this.gap = (gap >> 1) + " L";
-      }
-    }
+    this.gap = RaceLeaderBoardEntry.getGapFromBitmap(gap);
+    this.interval = RaceLeaderBoardEntry.getGapFromBitmap(interval);
     this.bestLapTime = bestLapTime;
     this.lastLap = lastLap;
+  }
+
+  static getGapFromBitmap(gap) {
+    if (gap !== undefined) {
+      if ((gap & 1) === 0) {
+        return gap >> 1;
+      } else {
+        return (gap >> 1) + " L";
+      }
+    }
+
+    return gap;
   }
 
   /**
@@ -532,6 +543,7 @@ class RaceLeaderBoardEntry {
       <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
       <li class="lb-laps">${this.totalLaps}</li>
       <li class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</li>
+      <li class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</li>
       <li class="lb-best-lap${(this.isPurpleLap(pos, bestLapIdx) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</li>
       <li class="lb-last-lap">${Lap.convertMSToDisplayTimeString(RaceLeaderBoard.prevLapList[this.driverId] !== undefined ? RaceLeaderBoard.prevLapList[this.driverId] : 0)}</li>
       <li class="lb-sec1">${Lap.convertMSToDisplayTimeString(this.lastLap.sec1)}</li>
