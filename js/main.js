@@ -198,7 +198,7 @@ class LeaderboardPage extends Page {
         getRequest("/api/ac/session/" + session["session_id"], LeaderboardPage.cb_updateSessionGrip);
       }, 30 * 1000);
 
-      LeaderboardPage.sessionLeaderboardIntervalHandler = setInterval(function() {
+      LeaderboardPage.sessionLeaderboardIntervalHandler = setTimeout(function() {
         getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), LeaderboardPage.cb_updateLeaderBoard);
       }, 10 * 1000);
 
@@ -440,7 +440,7 @@ class QualiLeaderBoardEntry {
       </li>
       <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
       <li class="lb-best-lap${(this.isPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</li>
-      <li class="lb-gap">${(this.gap === undefined ? "-" : "+" + Lap.convertMSToTimeString(this.gap))}</li>
+      <li class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</li>
       <li class="lb-sec1${(bestSec1Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</li>
       <li class="lb-sec2${(bestSec2Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</li>
       <li class="lb-sec3${(bestSec3Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</li>
@@ -473,15 +473,11 @@ class RaceLeaderBoard {
 
   static fromJSON(leaderboard) {
     var raceLeaderBoard = new RaceLeaderBoard();
-    var prevLaps = -1;
     for (var idx = 0; idx < leaderboard.length; ++idx) {
       var entry = leaderboard[idx];
       var lastLap = new Lap(entry["last_lap_time"], entry["sector_1"], entry["sector_2"]);
       var leaderBoardEntry = new RaceLeaderBoardEntry(entry["is_connected"], entry["is_finished"],
         entry["user_id"], entry["car_id"], entry["laps"], entry["gap"], entry["best_lap_time"], lastLap);
-      if (leaderBoardEntry.gap === undefined && prevLaps !== -1) {
-        leaderBoardEntry.gap = (prevLaps - leaderBoardEntry.totalLaps) + " L"
-      }
 
       raceLeaderBoard.addEntry(leaderBoardEntry);
 
@@ -500,7 +496,13 @@ class RaceLeaderBoardEntry {
     this.driverId = driverId;
     this.carId = carId;
     this.totalLaps = totalLaps;
-    this.gap = gap;
+    if (gap !== undefined) {
+      if ((gap & 1) === 0) {
+        this.gap = gap >> 1;
+      } else {
+        this.gap = (gap >> 1) + " L";
+      }
+    }
     this.bestLapTime = bestLapTime;
     this.lastLap = lastLap;
   }
@@ -543,6 +545,8 @@ class RaceLeaderBoardEntry {
 class Lap {
   static MILISECOND_SEPARATOR = ".";
   static SECOND_SEPARATOR = ":";
+  static GAP_SYMBOL = "+";
+  static NA_SYMBOL = "-";
 
   // time, sec1, sec2 are inetger representing time in milli second
   constructor(lapTime, sec1, sec2) {
@@ -616,13 +620,21 @@ class Lap {
 
   static convertMSToDisplayTimeString(time) {
     var timeStr = Lap.convertMSToTimeString(time);
-    return timeStr === "" ? "-" : timeStr;
+    return timeStr === "" ? Lap.NA_SYMBOL : timeStr;
   }
 
   static convertToGapDisplayString(gap) {
-    if (gap === undefined) return "-";
-    if (typeof gap === "string") return "+" + gap;
-    return "+" + Lap.convertMSToTimeString(gap);
+    if (gap === undefined) return Lap.NA_SYMBOL;
+    var gapString;
+    if (typeof gap === "string") {
+      gapString = gap;
+    } else if (gap === 0) {
+      gapString = "0.000";
+    } else {
+      gapString = Lap.convertMSToTimeString(gap);
+    }
+
+    return Lap.GAP_SYMBOL + gapString;
   }
 }
 
