@@ -38,6 +38,7 @@ class Page {
 
 class LeaderboardPage extends Page {
 
+  static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
   static sessionGripIntervalHandler = -1;
   static sessionLeaderboardIntervalHandler = -1;
 
@@ -153,17 +154,19 @@ class LeaderboardPage extends Page {
   static cb_updateSessionInfo(data) {
     if (data["status"] == "success") {
       var session = data["session"];
-      if (session["type"] == "Practice" || session["is_finished"] === 1) {
-        $("#message").text("No Qualification or Race session running for this event");
+      if (session["is_finished"] === 1) {
+        $("#message").text("No Live session running for this event");
         $("#message").removeClass("hidden");
         return;
       }
       $("main").removeClass("hidden");
 
       $("#event-detail .active").removeClass("active");
-      if (session["type"] === "Race") {
+      if (session["type"] === LeaderboardPage.SESSION_TYPE.RACE) {
         $("#event-detail .race .live").addClass("active");
-      } else {
+      } else if (session["type"] === LeaderboardPage.SESSION_TYPE.PRACTICE) {
+        $("#event-detail .practice .live").addClass("active");
+      } else if (session["type"] === LeaderboardPage.SESSION_TYPE.QUALIFYING) {
         $("#event-detail .quali .live").addClass("active");
       }
 
@@ -188,9 +191,11 @@ class LeaderboardPage extends Page {
 
       $("head title").text("Sim View | Live " + session["type"]);
       $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
-      if (session["type"] == "Race") {
+      if (session["type"] == LeaderboardPage.SESSION_TYPE.RACE) {
         LeaderboardPage.setupRaceLeaderBoardHeader();
-      } else {
+      } else if (session["type"] === LeaderboardPage.SESSION_TYPE.PRACTICE) {
+        LeaderboardPage.setupPracticeLeaderBoardHeader();
+      } else if (session["type"] === LeaderboardPage.SESSION_TYPE.QUALIFYING) {
         LeaderboardPage.setupQualiLeaderBoardHeader();
       }
 
@@ -244,6 +249,10 @@ class LeaderboardPage extends Page {
     $("#board-header").html(leaderboardHeader);
   }
 
+  static setupPracticeLeaderBoardHeader() {
+    LeaderboardPage.setupQualiLeaderBoardHeader();
+  }
+
   static setRemainingLaps(current_lap) {
     var remainLapsText;
     if (current_lap == -1) {
@@ -293,7 +302,7 @@ class EventsPage extends Page {
   static cb_updateActiveEvent(data) {
     if (data["status"] == "success") {
       var session = data["session"];
-      if (session["type"] !== "Practice" && session["is_finished"] === 0) {
+      if (session["is_finished"] === 0) {
         var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
         event.find(".live").addClass("active");
       } else {
@@ -316,6 +325,7 @@ class EventsPage extends Page {
           </div>
         </div>
         <div class="time">
+          <div class="practice"><span class="tag">Practice</span><span class="date">${(event["practice_start"] || "N/A")}</span></div>
           <div class="quali"><span class="tag">Qualification</span><span class="date">${(event["quali_start"] || "N/A")}</span></div>
           <div class="race"><span class="tag">Race</span><span class="date">${(event["race_start"] || "N/A")}</span></div>
         </div>
