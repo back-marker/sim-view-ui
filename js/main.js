@@ -192,7 +192,7 @@ class LeaderboardPage extends Page {
         $("#remaining").attr("data-laps", session["laps"]);
       }
 
-      $("head title").text("Sim View | Live " + session["type"]);
+      $("head title").text("Sim View | Live " + session["type"] + " Session");
       $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
       if (session["type"] == LeaderboardPage.SESSION_TYPE.RACE) {
         LeaderboardPage.setupRaceLeaderBoardHeader();
