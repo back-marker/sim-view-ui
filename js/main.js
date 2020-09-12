@@ -67,6 +67,7 @@ class LeaderboardPage extends Page {
   static cb_updateTrackInfo(data) {
     if (data["status"] === "success") {
       var track = data["track"];
+      $("#track-condition .track-length .value").text((track["length"] / 1000).toFixed(2) + " KM");
       $("#track-preview .name").text(track["display_name"]);
       $("#track-preview .country").text(track["city"] + ", " + track["country"]);
     }
