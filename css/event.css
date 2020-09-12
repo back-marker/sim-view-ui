@@ -224,7 +224,8 @@ main {
   text-align: center;
 }
 
-#track-detail .name {
+#track-detail .name,
+#track-detail .country {
   text-align: center;
   color: #fff77f;
   font-size: 14px;

@@ -65,7 +65,9 @@ class LeaderboardPage extends Page {
 
   static cb_updateTrackInfo(data) {
     if (data["status"] === "success") {
-      $("#track-preview .name").text(data["track"]["display_name"]);
+      var track = data["track"];
+      $("#track-preview .name").text(track["display_name"]);
+      $("#track-preview .country").text(track["city"] + ", " + track["country"]);
     }
   }
 
