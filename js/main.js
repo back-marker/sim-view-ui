@@ -9,6 +9,7 @@ function getRequest(url, callback) {
 }
 
 function setRemainingTimeTimer(start_time, duration_min) {
+  LeaderboardPage.setRemainingTime(start_time, duration_min);
   setTimeout(function() {
     LeaderboardPage.setRemainingTime(start_time, duration_min);
   }, 1000);
@@ -205,8 +206,12 @@ class LeaderboardPage extends Page {
         getRequest("/api/ac/session/" + session["session_id"], LeaderboardPage.cb_updateSessionGrip);
       }, 30 * 1000);
 
+      var leaderboardApi = "/api/ac/session/" + session["session_id"] + "/leaderboard/" +
+        session["type"].toLocaleLowerCase();
+      getRequest(leaderboardApi, LeaderboardPage.cb_updateLeaderBoard);
+
       LeaderboardPage.sessionLeaderboardIntervalHandler = setInterval(function() {
-        getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), LeaderboardPage.cb_updateLeaderBoard);
+        getRequest(leaderboardApi, LeaderboardPage.cb_updateLeaderBoard);
       }, 10 * 1000);
 
     }
