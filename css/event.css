@@ -15,45 +15,59 @@ main {
   display: none !important;
 }
 
-#event-page header {
-  height: 70px;
-  margin-bottom: 30px;
+#events-page header {
+  margin-bottom: 50px;
+}
+
+#events-page main {
+  padding: 0 200px;
 }
 
 #event-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-evenly;
+  justify-content: space-between;
+}
+
+#event-container a {
+  margin-bottom: 50px;
 }
 
 .event {
-  width: 350px;
-  margin: 30px;
-  border-bottom: 5px solid #353535;
+  width: 420px;
 }
 
 .event .title {
   font-size: 30px;
-  color: #fff;
+  color: #a8a8a8;
   text-align: center;
   background-color: #353535;
   padding: 10px;
   font-family: Roboto-Light, Arial;
+  word-wrap: break-word;
+}
+
+.live-event .title {
+  color: #ff5757;
 }
 
 .event .server-container {
-  padding: 5px 10px 5px 10px;
-  background-color: #777;
+  padding: 8px 10px;
+  background-color: #353535;
   color: #fff;
+  border-top: 2px solid #535353;
 }
 
 .event .server {
   float: left;
   font-family: Roboto-Light, Arial;
-  max-width: 300px;
+  max-width: 400px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 14px;
+  color: #6db4df;
+  font-weight: bold;
 }
 
 @keyframes live-color {
@@ -93,6 +107,7 @@ main {
 
 .event .track {
   clear: both;
+  border: 5px solid #353535;
 }
 
 .track .detail {
@@ -102,19 +117,20 @@ main {
 .time .tag {
   text-transform: uppercase;
   font-size: 14px;
-  color: #d06363;
+  color: #b0b0b0;
+  font-weight: bold;
 }
 
 .time .date {
   float: right;
   text-transform: uppercase;
   font-size: 14px;
-  color: #404040;
+  color: #b0b0b0;
   font-weight: bold;
 }
 
 .event .time {
-  background-color: #edebf2;
+  background-color: #353535;
   padding: 5px 10px;
 }
 
@@ -138,15 +154,12 @@ main {
 }
 
 .track .preview {
-  float: right;
-}
-
-.track .preview {
-  width: 350px;
+  text-align: center;
+  padding: 10px;
 }
 
 .preview img {
-  width: 350px;
+  height: 180px;
 }
 
 #lb-page header {

@@ -319,6 +319,7 @@ class EventsPage extends Page {
         } else if (session["type"] === LeaderboardPage.SESSION_TYPE.QUALIFYING) {
           sessionClass = "quali";
         }
+        $("a[data-event-id=\"" + session["event_id"] + "\"] .event").addClass("live-event");
         var event = $("a[data-event-id=\"" + session["event_id"] + "\"] ." + sessionClass);
         event.find(".live").addClass("active");
       } else {
