@@ -205,7 +205,7 @@ class LeaderboardPage extends Page {
         getRequest("/api/ac/session/" + session["session_id"], LeaderboardPage.cb_updateSessionGrip);
       }, 30 * 1000);
 
-      LeaderboardPage.sessionLeaderboardIntervalHandler = setTimeout(function() {
+      LeaderboardPage.sessionLeaderboardIntervalHandler = setInterval(function() {
         getRequest("/api/ac/session/" + session["session_id"] + "/leaderboard/" + session["type"].toLocaleLowerCase(), LeaderboardPage.cb_updateLeaderBoard);
       }, 10 * 1000);
 
