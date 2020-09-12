@@ -152,6 +152,24 @@ main {
   justify-content: space-between;
 }
 
+#lb-page #home-link {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  margin-left: -50px;
+  width: 100px;
+  text-align: center;
+}
+
+#home-link a {
+  color: #7cceff;
+  padding: 5px;
+  display: inline-block;
+  background: #3e3e3e;
+  border-radius: 5px;
+  text-transform: uppercase;
+}
+
 #event-detail .title {
   color: #ff5757;
   font-size: 30px;
@@ -247,6 +265,10 @@ main {
   animation-iteration-count: infinite;
   margin-top: 3px;
   position: absolute;
+}
+
+#remaining {
+  position: relative;
 }
 
 #remaining .remain-time,
