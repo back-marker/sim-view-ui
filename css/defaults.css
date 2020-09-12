@@ -10,6 +10,14 @@ a {
   text-decoration: none;
 }
 
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
 @font-face {
   font-family: Roboto-Light;
   src: url("/vendor/fonts/Roboto-Light.ttf");

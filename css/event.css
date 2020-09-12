@@ -15,11 +15,8 @@ main {
   display: none !important;
 }
 
-#events-page header {
-  margin-bottom: 50px;
-}
-
 #events-page main {
+  margin-top: 100px;
   padding: 0 200px;
 }
 
@@ -556,4 +553,56 @@ main {
   text-align: center;
   font-size: 25px;
   padding: 15px;
+}
+
+#common-header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  border-bottom: 1px solid #424242;
+  height: 50px;
+  background-color: #1e1e1e;
+}
+
+#common-header ul {
+  padding-left: 200px;
+}
+
+#common-header li {
+  float: left;
+  line-height: 50px;
+  padding: 0 25px;
+}
+
+#common-header li.active {
+  border-bottom: 3px solid #6db4df;
+}
+
+#common-header li:first-child {
+  padding-left: 0;
+}
+
+#common-header li a {
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: bold;
+  color: #a8a8a8;
+  transition: color .3s;
+}
+
+li a.red {
+  color: #ff5757 !important;
+}
+
+#common-header li a:hover {
+  color: #7cceff;
+}
+
+#event-sidebar {
+  width: 200px;
+  background-color: green;
+}
+
+#event-main {
+  background-color: blue;
 }
