@@ -310,7 +310,15 @@ class EventsPage extends Page {
     if (data["status"] == "success") {
       var session = data["session"];
       if (session["is_finished"] === 0) {
-        var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
+        var sessionClass = "";
+        if (session["type"] === LeaderboardPage.SESSION_TYPE.RACE) {
+          sessionClass = "race";
+        } else if (session["type"] === LeaderboardPage.SESSION_TYPE.PRACTICE) {
+          sessionClass = "practice";
+        } else if (session["type"] === LeaderboardPage.SESSION_TYPE.QUALIFYING) {
+          sessionClass = "quali";
+        }
+        var event = $("a[data-event-id=\"" + session["event_id"] + "\"] ." + sessionClass);
         event.find(".live").addClass("active");
       } else {
         var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
@@ -326,15 +334,26 @@ class EventsPage extends Page {
           <div class="title">${event["name"]}</div>
           <div class="server-container">
             <div class="server">${event["server_name"]}</div>
-            <div class="live"></div>
             ${(event["team_event"] ? "<div class=\"team\"></div>" : "")}
             <div class="clear-both"></div>
           </div>
         </div>
         <div class="time">
-          <div class="practice"><span class="tag">Practice</span><span class="date">${(event["practice_start"] || "N/A")}</span></div>
-          <div class="quali"><span class="tag">Qualification</span><span class="date">${(event["quali_start"] || "N/A")}</span></div>
-          <div class="race"><span class="tag">Race</span><span class="date">${(event["race_start"] || "N/A")}</span></div>
+          <div class="practice">
+            <div class="live"></div>
+            <span class="tag">Practice</span>
+            <span class="date">${(event["practice_start"] || "N/A")}</span>
+          </div>
+          <div class="quali">
+            <div class="live"></div>
+            <span class="tag">Qualification</span>
+            <span class="date">${(event["quali_start"] || "N/A")}</span>
+          </div>
+          <div class="race">
+            <div class="live"></div>
+            <span class="tag">Race</span>
+            <span class="date">${(event["race_start"] || "N/A")}</span>
+          </div>
         </div>
         <div class="track">
           <div class="preview"><img src="/images/ac/track/${event["track_config_id"]}/preview"></div>
