@@ -18,6 +18,13 @@ a {
   float: right;
 }
 
+table,
+tr,
+td {
+  border: none;
+  border-collapse: collapse;
+}
+
 @font-face {
   font-family: Roboto-Light;
   src: url("/vendor/fonts/Roboto-Light.ttf");

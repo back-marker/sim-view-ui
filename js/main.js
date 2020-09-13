@@ -219,39 +219,37 @@ class LeaderboardPage extends Page {
   }
 
   static setupRaceLeaderBoardHeader() {
-    var leaderboardHeader = `<ul>
-      <li class="lb-hr-pos">Pos</li>
-      <li class="lb-hr-car-class">Class</li>
-      <li class="lb-hr-car">Car</li>
-      <li class="lb-hr-driver">Driver</li>
-      <li class="lb-hr-laps">Laps</li>
-      <li class="lb-hr-gap">Gap</li>
-      <li class="lb-hr-interval">Int.</li>
-      <li class="lb-hr-best-lap">Best</li>
-      <li class="lb-hr-last-lap">Last</li>
-      <li class="lb-hr-sec1">S1</li>
-      <li class="lb-hr-sec2">S2</li>
-      <li class="lb-hr-sec3">S3</li>
-      <div class="clear-both\"></div>
-    </ul>`;
+    var leaderboardHeader = `<tr>
+      <td class="lb-hr-pos">Pos</td>
+      <td class="lb-hr-car-class">Class</td>
+      <td class="lb-hr-car">Car</td>
+      <td class="lb-hr-driver">Driver</td>
+      <td class="lb-hr-laps">Laps</td>
+      <td class="lb-hr-gap">Gap</td>
+      <td class="lb-hr-interval">Int.</td>
+      <td class="lb-hr-best-lap">Best</td>
+      <td class="lb-hr-last-lap">Last</td>
+      <td class="lb-hr-sec1">S1</td>
+      <td class="lb-hr-sec2">S2</td>
+      <td class="lb-hr-sec3">S3</td>
+    </tr>`;
     $("#board-header").html(leaderboardHeader);
   }
 
   static setupQualiLeaderBoardHeader() {
-    var leaderboardHeader = `<ul>
-      <li class="lb-hr-pos">Pos</li>
-      <li class="lb-hr-car-class">Class</li>
-      <li class="lb-hr-car">Car</li>
-      <li class="lb-hr-driver">Driver</li>
-      <li class="lb-hr-best-lap">Best</li>
-      <li class="lb-hr-gap">Gap</li>
-      <li class="lb-hr-interval">Int.</li>
-      <li class="lb-hr-sec1">S1</li>
-      <li class="lb-hr-sec2">S2</li>
-      <li class="lb-hr-sec3">S3</li>
-      <li class="lb-hr-laps">Laps</li>
-      <div class="clear-both"></div>
-    </ul>`;
+    var leaderboardHeader = `<tr>
+      <td class="lb-hr-pos">Pos</td>
+      <td class="lb-hr-car-class">Class</td>
+      <td class="lb-hr-car">Car</td>
+      <td class="lb-hr-driver">Driver</td>
+      <td class="lb-hr-best-lap">Best</td>
+      <td class="lb-hr-gap">Gap</td>
+      <td class="lb-hr-interval">Int.</td>
+      <td class="lb-hr-sec1">S1</td>
+      <td class="lb-hr-sec2">S2</td>
+      <td class="lb-hr-sec3">S3</td>
+      <td class="lb-hr-laps">Laps</td>
+    </tr>`;
     $("#board-header").html(leaderboardHeader);
   }
 
@@ -469,26 +467,26 @@ class QualiLeaderBoardEntry {
    * @param {int} bestSec3Idx
    */
   toHTML(pos, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
-    return `<ul data-pos="${pos + 1}">
-      <li class="lb-pos">
+    return `<tr data-pos="${pos + 1}">
+      <td class="lb-pos">
         <span class="pos">${pos + 1}</span>
         <span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span>
-      </li>
-      <li class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</li>
-      <li class="lb-car" data-car-id="${this.carId}">
-        <span class="car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"></span>
-        <span class="car-name">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</span>
-      </li>
-      <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
-      <li class="lb-best-lap${(this.isPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</li>
-      <li class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</li>
-      <li class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</li>
-      <li class="lb-sec1${(bestSec1Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</li>
-      <li class="lb-sec2${(bestSec2Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</li>
-      <li class="lb-sec3${(bestSec3Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</li>
-      <li class="lb-laps">${this.totalLaps}</li>
-      <div class="clear-both"></div>
-    </ul>`;
+      </td>
+      <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</td>
+      <td class="lb-car" data-car-id="${this.carId}">
+        <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"">
+          ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}
+        </span>
+      </td>
+      <td class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</td>
+      <td class="lb-best-lap${(this.isPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
+      <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
+      <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
+      <td class="lb-sec1${(bestSec1Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</td>
+      <td class="lb-sec2${(bestSec2Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</td>
+      <td class="lb-sec3${(bestSec3Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</td>
+      <td class="lb-laps">${this.totalLaps}</td>
+    </tr>`;
   }
 }
 
@@ -570,27 +568,27 @@ class RaceLeaderBoardEntry {
    * @param {int} pos
    */
   toHTML(pos, bestLapIdx) {
-    return `<ul data-pos="${pos + 1}">
-      <li class="lb-pos">
+    return `<tr data-pos="${pos + 1}">
+      <td class="lb-pos">
         <span class="pos">${pos + 1}</span>
         <span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span>
-      </li>
-      <li class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</li>
-      <li class="lb-car" data-car-id="${this.carId}">
-        <span class="car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"></span>
-        <span class="car-name">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</span>
-      </li>
-      <li class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</li>
-      <li class="lb-laps">${this.totalLaps}</li>
-      <li class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</li>
-      <li class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</li>
-      <li class="lb-best-lap${(this.isPurpleLap(pos, bestLapIdx) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</li>
-      <li class="lb-last-lap">${Lap.convertMSToDisplayTimeString(RaceLeaderBoard.prevLapList[this.driverId] !== undefined ? RaceLeaderBoard.prevLapList[this.driverId] : 0)}</li>
-      <li class="lb-sec1">${Lap.convertMSToDisplayTimeString(this.lastLap.sec1)}</li>
-      <li class="lb-sec2">${Lap.convertMSToDisplayTimeString(this.lastLap.sec2)}</li>
-      <li class="lb-sec3">${Lap.convertMSToDisplayTimeString(this.lastLap.sec3)}</li>
-      <div class="clear-both"></div>
-    </ul>`;
+      </td>
+      <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</td>
+      <td class="lb-car" data-car-id="${this.carId}">
+        <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')">
+          ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}
+        </span>
+      </td>
+      <td class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</td>
+      <td class="lb-laps">${this.totalLaps}</td>
+      <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
+      <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
+      <td class="lb-best-lap${(this.isPurpleLap(pos, bestLapIdx) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</td>
+      <td class="lb-last-lap">${Lap.convertMSToDisplayTimeString(RaceLeaderBoard.prevLapList[this.driverId] !== undefined ? RaceLeaderBoard.prevLapList[this.driverId] : 0)}</td>
+      <td class="lb-sec1">${Lap.convertMSToDisplayTimeString(this.lastLap.sec1)}</td>
+      <td class="lb-sec2">${Lap.convertMSToDisplayTimeString(this.lastLap.sec2)}</td>
+      <td class="lb-sec3">${Lap.convertMSToDisplayTimeString(this.lastLap.sec3)}</td>
+    </tr>`;
   }
 }
 
