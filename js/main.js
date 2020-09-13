@@ -716,6 +716,10 @@ class Util {
     return window.location.toString().match("event/([0-9]+)/")[1];
   }
 
+  static isLiveEventPage() {
+    return window.location.toString().endsWith("/live");
+  }
+
   static getCarColorClass(carId) {
     if (LeaderBoard.carList[carId] === undefined) return "";
     return "car-class-" + LeaderBoard.carColorClass.indexOf(LeaderBoard.carList[carId]["class"]);
@@ -727,6 +731,14 @@ $(document).ready(function() {
   if (page == "lb-page") {
     getRequest("/api/ac/event/" + Util.getCurrentEvent(), LeaderboardPage.cb_updateEventInfo);
   } else if (page == "events-page") {
-    getRequest("/api/ac/events", EventsPage.cb_updateAllEvents);
+    if (Util.isLiveEventPage()) {
+      $("#link-live").addClass("active");
+      $("title").text("SimView | Live Events");
+      getRequest("/api/ac/events/live", EventsPage.cb_updateAllEvents);
+    } else {
+      $("#link-events").addClass("active");
+      $("title").text("SimView | All Events")
+      getRequest("/api/ac/events", EventsPage.cb_updateAllEvents);
+    }
   }
 });
