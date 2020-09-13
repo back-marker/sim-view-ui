@@ -23,7 +23,7 @@ class Page {
       if (LeaderBoard.carColorClass.indexOf(car["car_class"]) === -1) {
         LeaderBoard.carColorClass.push(car["car_class"]);
       }
-      $(".lb-car[data-car-id=" + car["car_id"] + "] .car-name").text(car["display_name"]).addClass(Util.getCarColorClass(car["car_id"]));
+      $(".lb-car[data-car-id=" + car["car_id"] + "] .car-name").text(car["display_name"]);
       $(".lb-car-class[data-car-id=" + car["car_id"] + "]").text(car["car_class"]).addClass(Util.getCarColorClass(car["car_id"]));
     }
   }
@@ -193,7 +193,7 @@ class LeaderboardPage extends Page {
         $("#remaining").attr("data-laps", session["laps"]);
       }
 
-      $("head title").text("Sim View | Live " + session["type"] + " Session");
+      $("head title").text("SimView | Live " + session["type"] + " Session");
       $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
       if (session["type"] == LeaderboardPage.SESSION_TYPE.RACE) {
         LeaderboardPage.setupRaceLeaderBoardHeader();
@@ -221,15 +221,14 @@ class LeaderboardPage extends Page {
   static setupRaceLeaderBoardHeader() {
     var leaderboardHeader = `<ul>
       <li class="lb-hr-pos">Pos</li>
-      <li class="lb-hr-status">Status</li>
       <li class="lb-hr-car-class">Class</li>
       <li class="lb-hr-car">Car</li>
       <li class="lb-hr-driver">Driver</li>
       <li class="lb-hr-laps">Laps</li>
       <li class="lb-hr-gap">Gap</li>
-      <li class="lb-hr-interval">Interval</li>
-      <li class="lb-hr-best-lap">Best Lap</li>
-      <li class="lb-hr-last-lap">Last Lap</li>
+      <li class="lb-hr-interval">Int.</li>
+      <li class="lb-hr-best-lap">Best</li>
+      <li class="lb-hr-last-lap">Last</li>
       <li class="lb-hr-sec1">S1</li>
       <li class="lb-hr-sec2">S2</li>
       <li class="lb-hr-sec3">S3</li>
@@ -241,13 +240,12 @@ class LeaderboardPage extends Page {
   static setupQualiLeaderBoardHeader() {
     var leaderboardHeader = `<ul>
       <li class="lb-hr-pos">Pos</li>
-      <li class="lb-hr-status">Status</li>
       <li class="lb-hr-car-class">Class</li>
       <li class="lb-hr-car">Car</li>
       <li class="lb-hr-driver">Driver</li>
-      <li class="lb-hr-best-lap">Best Lap</li>
+      <li class="lb-hr-best-lap">Best</li>
       <li class="lb-hr-gap">Gap</li>
-      <li class="lb-hr-interval">Interval</li>
+      <li class="lb-hr-interval">Int.</li>
       <li class="lb-hr-sec1">S1</li>
       <li class="lb-hr-sec2">S2</li>
       <li class="lb-hr-sec3">S3</li>
@@ -472,10 +470,12 @@ class QualiLeaderBoardEntry {
    */
   toHTML(pos, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
     return `<ul data-pos="${pos + 1}">
-      <li class="lb-pos">${pos + 1}</li>
-      <li class="lb-status"><span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span></li>
+      <li class="lb-pos">
+        <span class="pos">${pos + 1}</span>
+        <span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span>
+      </li>
       <li class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</li>
-      <li class="lb-car ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
+      <li class="lb-car" data-car-id="${this.carId}">
         <span class="car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"></span>
         <span class="car-name">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</span>
       </li>
@@ -571,10 +571,12 @@ class RaceLeaderBoardEntry {
    */
   toHTML(pos, bestLapIdx) {
     return `<ul data-pos="${pos + 1}">
-      <li class="lb-pos">${pos + 1}</li>
-      <li class="lb-status"><span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span></li>
+      <li class="lb-pos">
+        <span class="pos">${pos + 1}</span>
+        <span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span>
+      </li>
       <li class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</li>
-      <li class="lb-car ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
+      <li class="lb-car" data-car-id="${this.carId}">
         <span class="car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"></span>
         <span class="car-name">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}</span>
       </li>

@@ -168,7 +168,7 @@ main {
 
 #lb-page #home-link {
   position: absolute;
-  top: -15px;
+  top: -18px;
   left: 50%;
   margin-left: -50px;
   width: 100px;
@@ -176,12 +176,19 @@ main {
 }
 
 #home-link a {
-  color: #7cceff;
-  padding: 5px;
+  color: #a8a8a8;
+  padding: 8px 12px;
   display: inline-block;
-  background: #3e3e3e;
+  background: #1e1e1e;
   border-radius: 5px;
   text-transform: uppercase;
+  font-weight: bold;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+#home-link a:hover {
+  color: #6db4df;
 }
 
 #event-detail .title {
@@ -191,7 +198,7 @@ main {
 }
 
 #event-detail .server {
-  color: #d3d3d3;
+  color: #6db4df;
   font-size: 14px;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -235,7 +242,6 @@ main {
 #track-condition .value {
   color: #fff77f;
   text-transform: uppercase;
-  font-weight: bold;
   font-size: 14px;
 }
 
@@ -262,7 +268,6 @@ main {
   color: #fff77f;
   font-size: 14px;
   text-transform: uppercase;
-  font-weight: bold;
   max-width: 300px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -288,9 +293,7 @@ main {
 #remaining .remain-time,
 #remaining .remain-laps {
   font-size: 35px;
-  color: #38c438;
-  border-radius: 10px;
-  border: 2px solid;
+  color: #2db52d;
   padding: 0 15px;
   margin-top: 25px;
   display: inline-block;
@@ -318,7 +321,7 @@ main {
 
 #board-header li {
   float: left;
-  color: #7cceff;
+  color: #797979;
   text-transform: uppercase;
   font-weight: bold;
   font-size: 16px;
@@ -328,17 +331,22 @@ main {
 
 #board-body li {
   float: left;
-  color: #e3e3e3;
+  color: #cccaca;
   font-size: 16px;
-  padding: 5px;
+  padding: 10px 5px;
 }
 
 .lb-pos,
 .lb-hr-pos {
-  width: 35px;
+  width: 55px;
   padding-left: 8px !important;
   font-weight: bold;
   text-align: left;
+}
+
+.lb-pos .pos {
+  width: 30px;
+  display: inline-block;
 }
 
 .lb-hr-pos,
@@ -360,7 +368,11 @@ main {
 .lb-car-class,
 .lb-hr-car-class {
   width: 70px;
-  text-align: left;
+  text-align: center;
+}
+
+.lb-car {
+  text-transform: uppercase;
 }
 
 .lb-car,
@@ -383,7 +395,8 @@ main {
 
 .lb-driver,
 .lb-hr-driver {
-  width: 200px;
+  width: 180px;
+  color: #797979;
 }
 
 .lb-car,
@@ -391,6 +404,17 @@ main {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.lb-best-lap,
+.lb-last-lap,
+.lb-gap,
+.lb-interval,
+.lb-sec1,
+.lb-sec2,
+.lb-sec3,
+.lb-laps {
+  font-family: Roboto-Light;
 }
 
 .lb-best-lap,
@@ -465,21 +489,18 @@ main {
 
 .purple-sec {
   color: #d956d9 !important;
-  font-weight: bold;
 }
 
 .red-sec {
   color: #ff5757 !important;
-  font-weight: bold;
 }
 
 .green-sec {
-  color: #2ed52e !important;
-  font-weight: bold;
+  color: #2db52d !important;
 }
 
 .status-green {
-  background-color: #2ed52e;
+  background-color: #2db52d;
 }
 
 .status-yellow {
@@ -501,7 +522,7 @@ main {
   height: 0 !important;
 }
 
-.lb-status .status {
+.lb-pos .status {
   display: inline-block;
   width: 14px;
   height: 14px;
@@ -529,11 +550,11 @@ main {
 }
 
 .car-class-0 {
-  color: #F4945B !important;
+  color: #32D296 !important;
 }
 
 .car-class-1 {
-  color: #AF95F9 !important;
+  color: #89a2d2 !important;
 }
 
 .car-class-2 {
@@ -545,7 +566,7 @@ main {
 }
 
 .car-class-4 {
-  color: #32D296 !important;
+  color: #E38D59 !important;
 }
 
 #message {
