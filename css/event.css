@@ -26,7 +26,7 @@ main {
   justify-content: space-between;
 }
 
-#event-container a {
+#event-container .single-event {
   margin-bottom: 50px;
 }
 

@@ -327,7 +327,7 @@ class EventsPage extends Page {
   }
 
   static getEventHtml(event) {
-    return `<a data-event-id="${event["event_id"]}" href="${"/ac/event/" + event["event_id"] + "/live"}">
+    return `<div class="single-event"><a data-event-id="${event["event_id"]}" href="${"/ac/event/" + event["event_id"] + "/live"}">
       <div class="event">
         <div class="header">
           <div class="title">${event["name"]}</div>
@@ -360,7 +360,7 @@ class EventsPage extends Page {
         </div>
         <div class="footer"></div>
       </div>
-    </a>`;
+    </a></div>`;
   }
 }
 
