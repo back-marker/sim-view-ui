@@ -5,5 +5,8 @@
 ### Events Page
 ![Events Page](/screenshots/page-events.png)
 
-### Live Sessions Page
-![Live Sessions Page](/screenshots/page-qualifying.png)
+### Live Qualifying Sessions Page
+![Live Qualifying Sessions Page](/screenshots/page-qualifying.png)
+
+### Live Race Sessions Page
+![Live Race Sessions Page](/screenshots/page-race.png)
