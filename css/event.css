@@ -159,6 +159,14 @@ main {
   height: 180px;
 }
 
+#header-container {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 100;
+  background: #262626;
+}
+
 #lb-page header {
   padding: 20px 50px 15px 50px;
   border-bottom: 2px solid #464646;
@@ -476,6 +484,7 @@ main {
 }
 
 #lb-page main {
+  margin-top: 160px;
   padding: 20px 50px;
   display: flex;
   justify-content: center;
