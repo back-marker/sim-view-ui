@@ -483,8 +483,11 @@ main {
   background-color: #2f2f2f;
 }
 
-#lb-page main {
+#header-dummy {
   margin-top: 160px;
+}
+
+#lb-page main {
   padding: 20px 50px;
   display: flex;
   justify-content: center;
