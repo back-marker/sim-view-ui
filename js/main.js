@@ -320,6 +320,7 @@ class EventsPage extends Page {
         event.find(".live").addClass("active");
       } else {
         var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
+        event.find(".live").remove();
         event.removeAttr("href");
       }
     }
