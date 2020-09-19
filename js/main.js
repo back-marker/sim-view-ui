@@ -405,7 +405,7 @@ class QualiLeaderBoard {
     var qualiLeaderBoard = new QualiLeaderBoard();
     for (var idx = 0; idx < leaderboard.length; ++idx) {
       var entry = leaderboard[idx];
-      var bestLap = new Lap(entry["best_lap_time"], entry["sector_1"], entry["sector_2"]);
+      var bestLap = new Lap(entry["best_lap_time"], entry["sector_1"], entry["sector_2"], entry["sector_3"]);
       var leaderBoardEntry = new QualiLeaderBoardEntry(entry["is_connected"], entry["is_finished"], entry["user_id"],
         entry["car_id"], bestLap, entry["gap"], entry["interval"], entry["valid_laps"]);
 
@@ -516,7 +516,7 @@ class RaceLeaderBoard {
     var raceLeaderBoard = new RaceLeaderBoard();
     for (var idx = 0; idx < leaderboard.length; ++idx) {
       var entry = leaderboard[idx];
-      var lastLap = new Lap(entry["last_lap_time"], entry["sector_1"], entry["sector_2"]);
+      var lastLap = new Lap(entry["last_lap_time"], entry["sector_1"], entry["sector_2"], entry["sector_3"]);
       var leaderBoardEntry = new RaceLeaderBoardEntry(entry["is_connected"], entry["is_finished"],
         entry["user_id"], entry["car_id"], entry["laps"], entry["gap"], entry["interval"], entry["best_lap_time"], lastLap);
 
@@ -600,33 +600,11 @@ class Lap {
   static NA_SYMBOL = "-";
 
   // time, sec1, sec2 are inetger representing time in milli second
-  constructor(lapTime, sec1, sec2) {
+  constructor(lapTime, sec1, sec2, sec3) {
     this.lapTime = lapTime;
     this.sec1 = sec1;
-    this.sec2 = Lap.calculateSector2Time(lapTime, sec1, sec2);
-    this.sec3 = Lap.calculateSector3Time(lapTime, sec1, this.sec2);
-  }
-
-  static calculateSector2Time(lapTime, sec1, sec2) {
-    if (lapTime !== 0) {
-      if (sec1 === 0) return 0;
-      if (sec2 === 0) {
-        return lapTime - sec1;
-      } else {
-        return sec2;
-      }
-    } else {
-      return sec2;
-    }
-  }
-
-  static calculateSector3Time(lapTime, sec1, sec2) {
-    if (lapTime !== 0) {
-      if (sec1 === 0) return 0;
-      return lapTime - sec1 - sec2;
-    } else {
-      return 0;
-    }
+    this.sec2 = sec2;
+    this.sec3 = sec3;
   }
 
   /**
