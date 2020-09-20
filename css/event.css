@@ -20,6 +20,11 @@ main {
   padding: 0 200px;
 }
 
+#result-page main {
+  margin-top: 100px;
+  padding: 0 200px;
+}
+
 #event-container {
   display: flex;
   flex-wrap: wrap;
@@ -253,7 +258,7 @@ main {
   font-size: 14px;
 }
 
-#track-detail img {
+#track-preview img {
   height: 80px;
 }
 
@@ -270,8 +275,9 @@ main {
   text-align: center;
 }
 
-#track-detail .name,
-#track-detail .country {
+#track-preview .name,
+#track-preview .country,
+#track-preview .length {
   text-align: center;
   color: #fff77f;
   font-size: 14px;
@@ -381,6 +387,7 @@ main {
 .lb-car,
 .lb-hr-car {
   width: 280px;
+  max-width: 280px;
 }
 
 .lb-team-no,
@@ -397,6 +404,7 @@ main {
 .lb-driver,
 .lb-hr-driver {
   width: 180px;
+  max-width: 180px;
   color: #797979;
 }
 
@@ -629,11 +637,343 @@ li a.red {
   color: #7cceff;
 }
 
-#event-sidebar {
-  width: 200px;
-  background-color: green;
+#result-event .track-image {
+  height: 100px;
 }
 
-#event-main {
-  background-color: blue;
+#result-event #track-info {
+  margin-top: 15px;
+}
+
+#result-event #track-detail .single-track-info {
+  text-align: right;
+  color: #fff77f;
+  font-size: 14px;
+  text-transform: uppercase;
+  max-width: 250px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+
+#result-event #track-detail .name {
+  color: #ff5757;
+}
+
+#result-sidebar li {
+  padding: 10px;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: bold;
+  color: #aaa;
+  transition: background-color, color 0.2s;
+}
+
+#result-sidebar .active {
+  border-left: 2px solid #6db4df;
+  background-color: #353535;
+}
+
+#result-sidebar li:first-child {
+  padding-top: 10px;
+}
+
+#result-sidebar li:last-child {
+  padding-bottom: 10px;
+}
+
+#result-sidebar li:hover {
+  background-color: #353535;
+  cursor: pointer;
+}
+
+#select-session select {
+  width: 200px;
+  padding: 10px 5px;
+  border-color: transparent;
+  color: white;
+  font-size: 16px;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ff5757;
+  border-radius: unset;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: #353535 url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwbDUgNSA1LTUiIGZpbGw9IiNhYWFhYWEiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==) no-repeat 90% 50%;
+}
+
+#select-session option {
+  color: #aaa;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: bold;
+  padding: 10px 5px;
+}
+
+#result-main {
+  margin-left: 50px;
+}
+
+#result-event {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid #464646;
+  padding-bottom: 15px;
+  margin-bottom: 60px;
+}
+
+#event-detail .tag {
+  margin-left: 0;
+}
+
+#session-count .value {
+  color: #fff77f;
+  text-transform: uppercase;
+  font-size: 14px
+}
+
+#session-count .tag {
+  margin-right: 30px;
+  width: auto;
+}
+
+#session-count {
+  margin-top: 40px;
+}
+
+#result-main-tabs {
+  margin-bottom: 40px;
+}
+
+#result-main-tabs li {
+  padding: 10px 20px;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: bold;
+  color: #aaa;
+  transition: background-color, color 0.2s;
+}
+
+#result-main-tabs li:last-child {
+  padding: 0;
+}
+
+#result-main-tabs .active {
+  border-bottom: 2px solid #6db4df;
+  background-color: #353535;
+}
+
+#result-main-tabs li:hover {
+  background-color: #353535;
+  cursor: pointer;
+}
+
+#session-summary {
+  margin-top: 40px;
+  border-right: 2px solid #464646;
+}
+
+#session-summary .tag {
+  color: #797979;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 14px;
+  display: inline-block;
+  width: 90px;
+  float: left;
+}
+
+#session-summary>div {
+  margin-bottom: 10px;
+}
+
+#session-summary .value {
+  color: #fff77f;
+  text-transform: uppercase;
+  font-size: 14px;
+  float: left;
+  width: 125px;
+  padding-right: 5px;
+}
+
+#session-summary .duration {
+  border-bottom: 1px dotted #464646;
+  padding-bottom: 10px;
+}
+
+#result-tab .position {
+  padding: 0 20px;
+}
+
+#result-1 .position {
+  font-size: 70px;
+}
+
+#result-2 .position {
+  font-size: 60px;
+}
+
+#result-3 .position {
+  font-size: 50px;
+}
+
+#final-position .result {
+  width: 200px;
+  text-align: center;
+  margin-right: 20px;
+}
+
+#final-position .podium {
+  color: #6db4df;
+  margin-bottom: 10px;
+  border-bottom: 5px solid #6db4df;
+  width: 120px;
+  margin: auto;
+}
+
+#final-position .driver {
+  margin-top: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#sectors-tab>table {
+  margin-bottom: 40px;
+}
+
+.sectors-best-title {
+  color: #6db4df;
+  font-size: 16px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-top: 5px;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.sec-hr-pos,
+.sec-pos,
+.st-hr-pos,
+.st-pos {
+  width: 40px;
+  font-weight: bold;
+  text-align: left;
+  padding-left: 8px !important;
+}
+
+.sec-hr-car-class,
+.sec-car-class {
+  width: 70px;
+  text-align: center;
+}
+
+.sec-hr-car,
+.sec-car {
+  width: 280px;
+  max-width: 280px;
+}
+
+.sec-pos,
+.st-pos,
+.sec-driver {
+  border-right: 2px solid #464646;
+}
+
+.sec-hr-sec,
+.sec-sec,
+.sec-hr-gap,
+.sec-gap,
+.sec-hr-interval,
+.sec-interval {
+  width: 90px;
+  text-align: right;
+}
+
+.sec-hr-interval,
+.sec-interval,
+.st-hr-total,
+.st-total {
+  padding-right: 8px !important;
+}
+
+.sec-sec,
+.sec-gap,
+.sec-interval {
+  font-family: Roboto-Light;
+  font-size: 15px !important;
+}
+
+.sec-hr-driver,
+.sec-driver {
+  width: 180px;
+  max-width: 180px;
+  padding-left: 10px !important;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sec-header td,
+#standings-header td {
+  color: #797979;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 16px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom: 2px solid #464646;
+  padding-bottom: 15px;
+}
+
+.sec-body td,
+#standings-body td {
+  padding: 10px 5px;
+  color: #cccaca;
+  font-size: 16px;
+}
+
+.sec-body tr:nth-child(even),
+#standings-body tr:nth-child(even) {
+  background-color: #2f2f2f;
+}
+
+.st-hr-valid-laps,
+.st-valid-laps {
+  width: 70px;
+  text-align: right;
+}
+
+.st-hr-total,
+.st-total {
+  width: 85px;
+  text-align: right;
+}
+
+.st-valid-laps,
+.st-finish-at,
+.st-total {
+  font-family: Roboto-Light;
+  font-size: 15px !important;
+}
+
+.st-hr-valid-laps,
+.st-valid-laps {
+  width: 65px;
+  text-align: right;
+}
+
+.st-hr-finish-at,
+.st-finish-at {
+  width: 250px;
+  text-align: right;
+}
+
+#standings {
+  margin-bottom: 40px;
 }

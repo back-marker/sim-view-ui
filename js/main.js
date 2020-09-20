@@ -16,6 +16,8 @@ function setRemainingTimeTimer(start_time, duration_min) {
 }
 
 class Page {
+  static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
+
   static cb_updateCarName(data) {
     if (data["status"] === "success") {
       var car = data["car"];
@@ -321,7 +323,7 @@ class EventsPage extends Page {
       } else {
         var event = $("a[data-event-id=\"" + session["event_id"] + "\"]");
         event.find(".live").remove();
-        event.removeAttr("href");
+        event.attr("href", "/ac/event/" + session["event_id"] + "/result");
       }
     }
   }
@@ -537,22 +539,10 @@ class RaceLeaderBoardEntry {
     this.driverId = driverId;
     this.carId = carId;
     this.totalLaps = totalLaps;
-    this.gap = RaceLeaderBoardEntry.getGapFromBitmap(gap);
-    this.interval = RaceLeaderBoardEntry.getGapFromBitmap(interval);
+    this.gap = Util.getGapFromBitmap(gap);
+    this.interval = Util.getGapFromBitmap(interval);
     this.bestLapTime = bestLapTime;
     this.lastLap = lastLap;
-  }
-
-  static getGapFromBitmap(gap) {
-    if (gap !== undefined) {
-      if ((gap & 1) === 0) {
-        return gap >> 1;
-      } else {
-        return (gap >> 1) + " L";
-      }
-    }
-
-    return gap;
   }
 
   /**
@@ -684,9 +674,15 @@ class Util {
     } else if (diff < 60) {
       return diff + "S";
     } else if (diff < 60 * 60) {
+      if (diff % 60 === 0) {
+        return Math.floor(diff / 60) + "M";
+      }
       return Math.floor(diff / 60) + "M " + (diff % 60) + "S";
     } else {
       diff = Math.floor(diff / 60);
+      if (diff % 60 === 0) {
+        return Math.floor(diff / 60) + "H";
+      }
       return Math.floor(diff / 60) + "H " + (diff % 60) + "M";
     }
   }
@@ -702,6 +698,326 @@ class Util {
   static getCarColorClass(carId) {
     if (LeaderBoard.carList[carId] === undefined) return "";
     return "car-class-" + LeaderBoard.carColorClass.indexOf(LeaderBoard.carList[carId]["class"]);
+  }
+
+  static getGapFromBitmap(gap) {
+    if (gap !== undefined) {
+      if ((gap & 1) === 0) {
+        return gap >> 1;
+      } else {
+        return (gap >> 1) + " L";
+      }
+    }
+
+    return gap;
+  }
+}
+
+class ResultSectorTabEntry {
+  constructor(driverId, carId, bestSectorTime, gap, interval) {
+    this.driverId = driverId;
+    this.carId = carId;
+    this.bestSectorTime = bestSectorTime;
+    this.gap = gap;
+    this.interval = interval;
+  }
+
+  static fromJSON(data) {
+    return new ResultSectorTabEntry(data["user_id"], data["car_id"], data["best_sector_time"], data["gap"], data["interval"]);
+  }
+
+  toHTML(pos) {
+    return `<tr>
+      <td class="sec-pos">${pos}</td>
+      <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</td>
+      <td class="lb-car" data-car-id="${this.carId}">
+        <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"">
+          ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}
+        </span>
+      </td>
+      <td class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</td>
+      <td class="sec-sec">${Lap.convertMSToDisplayTimeString(this.bestSectorTime)}</td>
+      <td class="sec-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
+      <td class="sec-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
+      </tr>`;
+  }
+}
+
+class QualiResultStandingTabEntry {
+  constructor(driverId, carId, bestLapTime, validLaps, gap, interval, finishAt) {
+    this.driverId = driverId;
+    this.carId = carId;
+    this.bestLapTime = bestLapTime;
+    this.validLaps = validLaps;
+    this.gap = gap;
+    this.interval = interval;
+    this.finishAt = new Date(finishAt / 1000);
+  }
+
+  static fromJSON(data) {
+    return new QualiResultStandingTabEntry(data["user_id"], data["car_id"], data["best_lap_time"],
+      data["valid_laps"], data["gap"], data["interval"], data["lap_finish_time"]);
+  }
+
+  toHTML(pos) {
+    return `<tr>
+      <td class="st-pos">${pos}</td>
+      <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</td>
+      <td class="lb-car" data-car-id="${this.carId}">
+        <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"">
+          ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}
+        </span>
+      </td>
+      <td class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</td>
+      <td class="lb-best-lap">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</td>
+      <td class="st-valid-laps">${this.validLaps}</td>
+      <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
+      <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
+      <td class="st-finish-at">${this.finishAt.toUTCString()}</td>
+    </tr>`;
+  }
+
+  static getHeaderHtml() {
+    return `<tr>
+      <td class="st-hr-pos">Pos</td>
+      <td class="lb-hr-car-class">Class</td>
+      <td class="lb-hr-car">Car</td>
+      <td class="lb-hr-driver">Driver</td>
+      <td class="lb-hr-best-lap">Best</td>
+      <td class="st-hr-valid-laps">V. Laps</td>
+      <td class="lb-hr-gap">Gap</td>
+      <td class="lb-hr-interval">Int.</td>
+      <td class="st-hr-finish-at">Finish At</td>
+    </tr>`;
+  }
+}
+
+class RaceResultStandingTabEntry {
+  constructor(driverId, carId, laps, validLaps, gap, interval, totalTime) {
+    this.driverId = driverId;
+    this.carId = carId;
+    this.laps = laps;
+    this.validLaps = validLaps;
+    this.gap = Util.getGapFromBitmap(gap);
+    this.interval = Util.getGapFromBitmap(interval);
+    this.totalTime = totalTime;
+  }
+
+  static fromJSON(data) {
+    return new RaceResultStandingTabEntry(data["user_id"], data["car_id"], data["laps"],
+      data["valid_laps"], data["gap"], data["interval"], data["total_time"]);
+  }
+
+  toHTML(pos) {
+    return `<tr>
+      <td class="st-pos">${pos}</td>
+      <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</td>
+      <td class="lb-car" data-car-id="${this.carId}">
+        <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"">
+          ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}
+        </span>
+      </td>
+      <td class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</td>
+      <td class="lb-laps">${this.laps}</td>
+      <td class="st-valid-laps">${this.validLaps}</td>
+      <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
+      <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
+      <td class="st-total">${Lap.convertMSToDisplayTimeString(this.totalTime)}</td>
+    </tr>`;
+  }
+
+  static getHeaderHtml() {
+    return `<tr>
+      <td class="st-hr-pos">Pos</td>
+      <td class="lb-hr-car-class">Class</td>
+      <td class="lb-hr-car">Car</td>
+      <td class="lb-hr-driver">Driver</td>
+      <td class="lb-hr-laps">Laps</td>
+      <td class="st-hr-valid-laps">V. Laps</td>
+      <td class="lb-hr-gap">Gap</td>
+      <td class="lb-hr-interval">Int.</td>
+      <td class="st-total">Total</td>
+    </tr>`;
+  }
+}
+
+class ResultPage extends Page {
+  static cb_updateEventInfo(data) {
+    if (data["status"] == "success") {
+      var event = data["event"];
+      $("#event-detail .title").text(event["name"]);
+      $("#event-detail .server").text(event["server_name"]);
+      $("#track-detail img").attr("src", "/images/ac/track/" + event["track_config_id"] + "/preview");
+      $("title").text("SimView | Result | " + event["name"]);
+
+      getRequest("/api/ac/track/" + event["track_config_id"], ResultPage.cb_updateTrackInfo);
+      getRequest("/api/ac/event/" + event["event_id"] + "/sessions", ResultPage.cb_updateAllSessions);
+    }
+  }
+
+  static cb_updateTrackInfo(data) {
+    if (data["status"] == "success") {
+      var track = data["track"];
+      $("#track-detail .name").text(track["display_name"]);
+      $("#track-detail img").attr("alt", track["display_name"]);
+      $("#track-detail .city").text(track["city"]);
+      $("#track-detail .country").text(track["country"]);
+      $("#track-detail .length").text((track["length"] / 1000).toFixed(2) + " KM");
+    }
+  }
+
+  static cb_updateSessionDetail(data) {
+    if (data["status"] === "success") {
+      var session = data["session"];
+      $("#session-summary .weather .value").text(Util.getWeatherDisplayName(session["weather"]));
+      $("#session-summary .air-temp .temp-val").text(session["air_temp"]);
+      $("#session-summary .road-temp .temp-val").text(session["road_temp"]);
+      if (session["start_grip"] != -1) {
+        $("#session-summary .start-grip .value").text((session["start_grip"] * 100).toFixed(1) + "%");
+      }
+      if (session["current_grip"] != -1) {
+        $("#session-summary .final-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
+      }
+      $("#session-summary .start .value").text((new Date(parseInt(session["start_time"]) / 1000)).toUTCString());
+      $("#session-summary .finish .value").text((new Date(parseInt(session["finish_time"]) / 1000)).toUTCString());
+      if (session["laps"] === 0) {
+        $("#session-summary .duration .value").text(Util.getTimeDiffString(session["duration_min"] * 60));
+      } else {
+        $("#session-summary .duration .value").text(session["laps"] + " L");
+      }
+    }
+  }
+
+  static cb_updateStandingsTab(data) {
+    if (data["status"] === "success") {
+      var standings = data["standings"];
+      console.log(standings);
+
+      var sessionType = $("select[name='select-session'] option:selected").text().toLowerCase().split(' ')[0];
+      if (sessionType === Page.SESSION_TYPE.PRACTICE.toLowerCase() || sessionType === Page.SESSION_TYPE.QUALIFYING.toLowerCase()) {
+        $("#standings-header").html(QualiResultStandingTabEntry.getHeaderHtml());
+      } else {
+        $("#standings-header").html(RaceResultStandingTabEntry.getHeaderHtml());
+      }
+      var standingsHtml = "";
+      for (var idx = 0; idx < standings.length; ++idx) {
+        if (sessionType === Page.SESSION_TYPE.PRACTICE.toLowerCase() || sessionType === Page.SESSION_TYPE.QUALIFYING.toLowerCase()) {
+          standingsHtml += QualiResultStandingTabEntry.fromJSON(standings[idx]).toHTML(idx + 1);
+        } else {
+          standingsHtml += RaceResultStandingTabEntry.fromJSON(standings[idx]).toHTML(idx + 1);
+        }
+      }
+      $("#standings-body").html(standingsHtml);
+    }
+  }
+
+  static cb_updateSectorsTab(data) {
+    if (data["status"] === "success") {
+      var sectors = data["sectors"];
+      var pendingCarList = new Set();
+      var pendingDriverList = new Set();
+      for (var sectorIdx = 1; sectorIdx <= 3; ++sectorIdx) {
+        $("#sec-header-" + sectorIdx).html(ResultPage.getSectorsResultHeaderHtml(sectorIdx));
+        var sectorList = sectors["sector" + sectorIdx];
+        var sectorHtml = "";
+        for (var idx = 0; idx < sectorList.length; ++idx) {
+          var entry = ResultSectorTabEntry.fromJSON(sectorList[idx]);
+          sectorHtml += entry.toHTML(idx + 1);
+          if (LeaderBoard.carList[entry.carId] === undefined) {
+            pendingCarList.add(entry.carId);
+          }
+          if (LeaderBoard.driverList[entry.driverId] === undefined) {
+            pendingDriverList.add(entry.driverId);
+          }
+        }
+        $("#sec-body-" + sectorIdx).html(sectorHtml);
+      }
+
+      pendingCarList.forEach(function(car_id) {
+        getRequest("/api/ac/car/" + car_id, Page.cb_updateCarName);
+      });
+      pendingDriverList.forEach(function(user_id) {
+        getRequest("/api/ac/user/" + user_id, Page.cb_updateDriverName);
+      });
+    }
+  }
+
+  static cb_updateAllSessions(data) {
+    if (data["status"] == "success") {
+      var sessions = data["sessions"];
+      var practiceCount = 0;
+      var qualificationCount = 0;
+      var raceCount = 0;
+      for (var idx = 0; idx < sessions.length; ++idx) {
+        var session = sessions[idx];
+        if (session["type"] === Page.SESSION_TYPE.PRACTICE) {
+          practiceCount++;
+        } else if (session["type"] === Page.SESSION_TYPE.QUALIFYING) {
+          qualificationCount++;
+        } else if (session["type"] === Page.SESSION_TYPE.RACE) {
+          raceCount++;
+        }
+      }
+
+      $("#session-count .practice .value").text(practiceCount);
+      $("#session-count .qualification .value").text(qualificationCount);
+      $("#session-count .race .value").text(raceCount);
+
+      $("select[name='select-session']").html(ResultPage.getResultSidebarHtml(sessions, practiceCount,
+        qualificationCount, raceCount)).change(function() {
+        var sessionId = $(this).val();
+        var sessionType = $("option[value='" + sessionId + "'").attr("data-session-type");
+        getRequest("/api/ac/session/" + sessionId, ResultPage.cb_updateSessionDetail);
+        getRequest("/api/ac/session/" + sessionId + "/result/sectors", ResultPage.cb_updateSectorsTab);
+        getRequest("/api/ac/session/" + sessionId + "/" + sessionType + "/result/standings",
+          ResultPage.cb_updateStandingsTab);
+      });
+    }
+  }
+
+  static getResultSidebarHtml(sessions, practiceCount, qualificationCount, raceCount) {
+    var sidebarHtml = "<option value='0'>Select Session</option>";
+    var practiceIdx = practiceCount;
+    var qualificationIdx = qualificationCount;
+    var raceIdx = raceCount;
+    for (var idx = 0; idx < sessions.length; ++idx) {
+      var session = sessions[idx];
+      var sessionText;
+      if (session["type"] === Page.SESSION_TYPE.PRACTICE) {
+        sessionText = Page.SESSION_TYPE.PRACTICE;
+        if (practiceCount > 1) {
+          sessionText += " " + practiceIdx;
+          practiceIdx--;
+        }
+      } else if (session["type"] === Page.SESSION_TYPE.QUALIFYING) {
+        sessionText = Page.SESSION_TYPE.QUALIFYING;
+        if (qualificationCount > 1) {
+          sessionText += " " + qualificationIdx;
+          qualificationIdx--;
+        }
+      } else if (session["type"] === Page.SESSION_TYPE.RACE) {
+        sessionText = Page.SESSION_TYPE.RACE;
+        if (raceCount > 1) {
+          sessionText += " " + raceIdx;
+          raceIdx--;
+        }
+      }
+      sidebarHtml += `<option data-session-type="${session["type"].toLowerCase()}" value="${session["session_id"]}">${sessionText}</option>`;
+    }
+
+    return sidebarHtml;
+  }
+
+  static getSectorsResultHeaderHtml(sector_idx) {
+    return `<tr>
+        <td class="sec-hr-pos">Pos</td>
+        <td class="sec-hr-car-class">Class</td>
+        <td class="sec-hr-car">Car</td>
+        <td class="sec-hr-driver">Driver</td>
+        <td class="sec-hr-sec">BS ${sector_idx}</td>
+        <td class="sec-hr-gap">Gap</td>
+        <td class="sec-hr-interval">Int.</td>
+      </tr>`;
   }
 }
 
@@ -719,5 +1035,17 @@ $(document).ready(function() {
       $("title").text("SimView | All Events")
       getRequest("/api/ac/events", EventsPage.cb_updateAllEvents);
     }
+  } else if (page == "result-page") {
+    getRequest("/api/ac/event/" + Util.getCurrentEvent(), ResultPage.cb_updateEventInfo);
+    $(".result-tabs").hide();
+    $("#standings-tab").show();
+    $("#result-main-tabs").click(function(e) {
+      $("#result-main-tabs li.active").removeClass("active");
+      e.target.classList.add("active");
+
+      $(".result-tabs").hide();
+      var tabToDisplay = "#" + e.target.getAttribute("data-tab") + "-tab";
+      $(tabToDisplay).fadeIn();
+    });
   }
 });
