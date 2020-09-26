@@ -841,6 +841,165 @@ class RaceResultStandingTabEntry {
   }
 }
 
+class ResultSingleStintLapEntry {
+  constructor(lapTime, sec1, sec2, sec3, avgSpeed, maxSpeed, cuts, crashes, carCrashes, finishAt, isBestLap) {
+    this.lapTime = lapTime;
+    this.sec1 = sec1;
+    this.sec2 = sec2;
+    this.sec3 = sec3;
+    this.avgSpeed = avgSpeed;
+    this.maxSpeed = maxSpeed;
+    this.cuts = cuts;
+    this.crashes = crashes;
+    this.carCrashes = carCrashes;
+    this.finishAt = new Date(finishAt / 1000);
+    this.isBestLap = isBestLap;
+  }
+
+  static fromJSON(data) {
+    return new ResultSingleStintLapEntry(data["lap_time"], data["sector_1"], data["sector_2"],
+      data["sector_3"], data["avg_speed"], data["max_speed"], data["cuts"], data["crashes"], data["car_crashes"],
+      data["finish_at"], data["best_lap"]);
+  }
+
+  toHTML(pos) {
+    var lapType = "";
+    if (!this.isValid()) {
+      lapType = "invalid-lap"
+    } else if (this.isBestLap) {
+      lapType = "best-lap";
+    }
+
+    return `<tr class="${lapType}">
+        <td class="st-no">${pos}</td>
+        <td class="st-time">${Lap.convertMSToDisplayTimeString(this.lapTime)}</td>
+        <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec1)}</td>
+        <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec2)}</td>
+        <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec3)}</td>
+        <td class="st-avg">${this.avgSpeed} Km/Hr</td>
+        <td class="st-max">${this.maxSpeed} Km/Hr</td>
+        <td class="st-cuts">${this.cuts}</td>
+        <td class="st-crashes">${this.crashes}</td>
+        <td class="st-car-crashes">${this.carCrashes}</td>
+        <td class="st-finish-time">${this.finishAt.toUTCString()}</td>
+      </tr>`;
+  }
+
+  isValid() {
+    return this.cuts === 0 && this.crashes === 0 && this.carCrashes === 0;
+  }
+
+  static getHeaderHtml() {
+    return `<tr>
+        <td class="st-hr-no">No.</td>
+        <td class="st-hr-time">Time</td>
+        <td class="st-hr-sec">S1</td>
+        <td class="st-hr-sec">S2</td>
+        <td class="st-hr-sec">S3</td>
+        <td class="st-hr-avg">Avg. Speed</td>
+        <td class="st-hr-max">Max. Speed</td>
+        <td class="st-hr-cuts">Cuts</td>
+        <td class="st-hr-crashes">Crashes</td>
+        <td class="st-hr-car-crashes">Car crashes</td>
+        <td class="st-hr-finish-time">Finish At</td>
+      </tr>`;
+  }
+}
+
+class ResultSingleStintEntry {
+  constructor(totalLaps, validLaps, bestLapTime, lapList) {
+    this.totalLaps = totalLaps;
+    this.validLaps = validLaps;
+    this.bestLapTime = bestLapTime;
+    this.lapList = lapList;
+  }
+
+  static fromJSON(data) {
+    var lapList = [];
+    for (var idx = 0; idx < data["laps"].length; ++idx) {
+      lapList.push(ResultSingleStintLapEntry.fromJSON(data["laps"][idx]));
+    }
+
+    return new ResultSingleStintEntry(data["total_laps"], data["valid_laps"], data["best_lap_time"], lapList);
+  }
+
+  toHTML(pos) {
+    var stintHtml = `<div class="driver-stint">
+      <div class="stint-summary">
+        <ul>
+          <li><span class="st-tag">Stint</span><span class="st-value">${pos}</span></li>
+          <li><span class="st-tag">Valid Laps</span><span class="st-value">${this.validLaps}</span></li>
+          <li><span class="st-tag">Laps</span><span class="st-value">${this.totalLaps}</span></li>
+          <li><span class="st-tag">Best Lap</span><span class="st-value">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</span></li>
+          <div class="clear-both"></div>
+        </ul>
+      </div>`;
+
+    stintHtml += `<div class="stint-laps">
+      <table>
+        <thead class="hr-stint-laps">`;
+    stintHtml += ResultSingleStintLapEntry.getHeaderHtml();
+    stintHtml += `</thead>
+      <tbody class="bd-stint-laps">`;
+    var lapsHtml = "";
+    for (var idx = 0; idx < this.lapList.length; ++idx) {
+      lapsHtml += this.lapList[idx].toHTML(idx + 1);
+    }
+    stintHtml += lapsHtml;
+    stintHtml += `</tbody>
+          </table>
+        </div>
+      </div>`;
+
+    return stintHtml;
+  }
+}
+
+class ResultStintTabEntry {
+  constructor(driverId, carId, stintList) {
+    this.driverId = driverId;
+    this.carId = carId;
+    this.stintList = stintList;
+  }
+
+  static fromJSON(data) {
+    var stints = [];
+    for (var idx = 0; idx < data["stints"].length; ++idx) {
+      stints.push(ResultSingleStintEntry.fromJSON(data["stints"][idx]));
+    }
+
+    return new ResultStintTabEntry(data["user_id"], data["car_id"], stints);
+  }
+
+  toHTML() {
+    var allStints = `<div class="driver-stints" data-driver-id="${this.driverId}">
+      <div class="stint-driver">
+        <div class="left stint-driver-name lb-driver" data-driver-id="${this.driverId}">
+          ${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}
+        </div>
+        <div class="left">|</div>
+        <div class="left stint-driver-class lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
+          ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}
+        </div>
+        <div class="left">|</div>
+        <div class="left stint-driver-car lb-car" data-car-id="${this.carId}">
+          <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"">
+            ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}
+          </span>
+        </div>
+        <div class="clear-both"></div>
+      </div>`;
+    var stintsHtml = "";
+    for (var idx = 0; idx < this.stintList.length; ++idx) {
+      stintsHtml += this.stintList[idx].toHTML(idx + 1);
+    }
+    allStints += stintsHtml +
+      `</div>`;
+
+    return allStints;
+  }
+}
+
 class ResultPage extends Page {
   static cb_updateEventInfo(data) {
     if (data["status"] == "success") {
@@ -942,6 +1101,19 @@ class ResultPage extends Page {
     }
   }
 
+  static cb_updateStintsTab(data) {
+    if (data["status"] === "success") {
+      var stints = data["stints"];
+      var stintsHtml = "";
+      for (var idx = 0; idx < stints.length; ++idx) {
+        var stint = ResultStintTabEntry.fromJSON(stints[idx]);
+        console.log(stint);
+        stintsHtml += stint.toHTML();
+      }
+      $("#stints-tab").html(stintsHtml);
+    }
+  }
+
   static cb_updateAllSessions(data) {
     if (data["status"] == "success") {
       var sessions = data["sessions"];
@@ -969,6 +1141,7 @@ class ResultPage extends Page {
         var sessionType = $("option[value='" + sessionId + "'").attr("data-session-type");
         getRequest("/api/ac/session/" + sessionId, ResultPage.cb_updateSessionDetail);
         getRequest("/api/ac/session/" + sessionId + "/result/sectors", ResultPage.cb_updateSectorsTab);
+        getRequest("/api/ac/session/" + sessionId + "/result/stints", ResultPage.cb_updateStintsTab);
         getRequest("/api/ac/session/" + sessionId + "/" + sessionType + "/result/standings",
           ResultPage.cb_updateStandingsTab);
       });
@@ -1040,6 +1213,7 @@ $(document).ready(function() {
     $(".result-tabs").hide();
     $("#standings-tab").show();
     $("#result-main-tabs").click(function(e) {
+      if (e.target.tagName === "UL") { return; }
       $("#result-main-tabs li.active").removeClass("active");
       e.target.classList.add("active");
 

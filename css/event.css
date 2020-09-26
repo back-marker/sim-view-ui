@@ -700,6 +700,7 @@ li a.red {
   color: #ff5757;
   border-radius: unset;
   width: 100%;
+  border: none;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -976,4 +977,174 @@ li a.red {
 
 #standings {
   margin-bottom: 40px;
+}
+
+.stint-driver {
+  padding: 10px;
+  background: #393939;
+}
+
+.stint-driver>div {
+  margin-right: 20px;
+  color: #aaa;
+}
+
+.stint-driver .stint-driver-name {
+  color: #aaa;
+  border: none;
+}
+
+.stint-summary {
+  padding: 10px 0;
+}
+
+.stint-summary li {
+  float: left;
+}
+
+.bd-stint-laps tr:nth-child(even) {
+  background-color: #2f2f2f;
+}
+
+.stint-summary .st-tag {
+  margin-right: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 14px;
+  color: #797979;
+}
+
+.stint-summary .st-value {
+  margin-right: 40px;
+  color: #fff77f;
+  font-size: 14px;
+}
+
+.driver-stint {
+  padding: 30px;
+}
+
+.driver-stints {
+  margin-bottom: 50px;
+  border-left: 2px solid #393939;
+  border-bottom: 2px solid #393939;
+  border-right: 2px solid #393939;
+}
+
+.stint-laps {
+  margin-top: 10px;
+}
+
+.stint-laps td {
+  padding: 10px 5px;
+}
+
+.bd-stint-laps {
+  color: #cccaca;
+}
+
+.hr-stint-laps td {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 14px;
+  color: #797979;
+  border-bottom: 2px solid #464646;
+}
+
+.st-hr-no {
+  width: 45px;
+  max-width: 45px;
+  padding-right: 7px;
+}
+
+.st-no {
+  border-right: 2px solid #464646;
+}
+
+.st-hr-time {
+  width: 80px;
+}
+
+.st-hr-sec {
+  width: 80px;
+}
+
+.st-hr-cuts {
+  width: 50px;
+}
+
+.st-hr-crashes {
+  width: 70px;
+  max-width: 70px;
+}
+
+.st-hr-car-crashes {
+  width: 100px;
+  max-width: 100px;
+}
+
+.st-hr-avg,
+.st-hr-max {
+  width: 105px;
+  max-height: 105px;
+}
+
+.st-avg,
+.st-max {
+  text-transform: uppercase;
+}
+
+.st-hr-finish-time,
+.st-finish-time {
+  width: 230px;
+  text-align: right;
+}
+
+.st-time,
+.st-sec,
+.st-avg,
+.st-max,
+.st-cuts,
+.st-crashes,
+.st-car-crashes,
+.st-finish-time {
+  font-family: Roboto-Light;
+  font-size: 15px;
+  color: #cccaca;
+}
+
+.st-hr-time,
+.st-time,
+.st-hr-sec,
+.st-sec,
+.st-hr-avg,
+.st-avg,
+.st-hr-max,
+.st-max {
+  text-align: right;
+}
+
+.st-hr-cuts,
+.st-cuts,
+.st-hr-crashes,
+.st-crashes,
+.st-hr-car-crashes,
+.st-car-crashes {
+  text-align: center;
+}
+
+.st-no {
+  font-weight: bold;
+}
+
+.invalid-lap {
+  background-color: #802626 !important;
+}
+
+.best-lap {
+  background-color: #2d803e !important;
+}
+
+.stint-driver .lb-driver {
+  width: auto;
 }
