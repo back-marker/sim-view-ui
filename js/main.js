@@ -37,6 +37,16 @@ class Page {
       LeaderBoard.driverList[user["user_id"]] = user["name"];
     }
   }
+
+  static setCommonHeaderHtml(page) {
+    var header = `<ul>
+        <li class="${page === "live"? "active" : ""}" id="link-live"><a class="red" href="/live">Live</a></li>
+        <li class="${page === "events"? "active" : ""}" id="link-events"><a href="/">Events</a></li>
+        <li class="${page === "result"? "active" : ""}" id="link-result"><a href="/result">Result</a></li>
+        <div class="clear-both"></div>
+      </ul>`;
+    $("#common-header").html(header);
+  }
 }
 
 class LeaderboardPage extends Page {
@@ -1200,15 +1210,18 @@ $(document).ready(function() {
     getRequest("/api/ac/event/" + Util.getCurrentEvent(), LeaderboardPage.cb_updateEventInfo);
   } else if (page == "events-page") {
     if (Util.isLiveEventPage()) {
+      Page.setCommonHeaderHtml("live");
       $("#link-live").addClass("active");
       $("title").text("SimView | Live Events");
       getRequest("/api/ac/events/live", EventsPage.cb_updateAllEvents);
     } else {
+      Page.setCommonHeaderHtml("events");
       $("#link-events").addClass("active");
       $("title").text("SimView | All Events")
       getRequest("/api/ac/events", EventsPage.cb_updateAllEvents);
     }
   } else if (page == "result-page") {
+    Page.setCommonHeaderHtml("result");
     getRequest("/api/ac/event/" + Util.getCurrentEvent(), ResultPage.cb_updateEventInfo);
     $(".result-tabs").hide();
     $("#standings-tab").show();
