@@ -1039,6 +1039,10 @@ class ResultPage extends Page {
   static cb_updateSessionDetail(data) {
     if (data["status"] === "success") {
       var session = data["session"];
+      $("#message").addClass("hidden");
+      if (session["is_finished"] === 0) {
+        $("#message").text("Session is still running. The results data may not be final").removeClass("hidden");
+      }
       $("#session-summary .weather .value").text(Util.getWeatherDisplayName(session["weather"]));
       $("#session-summary .air-temp .temp-val").text(session["air_temp"]);
       $("#session-summary .road-temp .temp-val").text(session["road_temp"]);
@@ -1186,7 +1190,10 @@ class ResultPage extends Page {
           raceIdx--;
         }
       }
-      sidebarHtml += `<option data-session-type="${session["type"].toLowerCase()}" value="${session["session_id"]}">${sessionText}</option>`;
+      if (session["is_finished"] === 0) {
+        sessionText += " [ LIVE ]";
+      }
+      sidebarHtml += `<option data-session-finish="${session["is_finished"]}" data-session-type="${session["type"].toLowerCase()}" value="${session["session_id"]}">${sessionText}</option>`;
     }
 
     return sidebarHtml;
