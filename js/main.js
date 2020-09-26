@@ -339,40 +339,41 @@ class EventsPage extends Page {
   }
 
   static getEventHtml(event) {
-    return `<div class="single-event"><a data-event-id="${event["event_id"]}" href="${"/ac/event/" + event["event_id"] + "/live"}">
-      <div class="event">
-        <div class="header">
-          <div class="title">${event["name"]}</div>
-          <div class="server-container">
-            <div class="server">${event["server_name"]}</div>
-            ${(event["team_event"] ? "<div class=\"team\"></div>" : "")}
+    return `<div class="single-event">
+      <a data-event-id="${event["event_id"]}" href="${"/ac/event/" + event["event_id"] + (Util.isLiveEventPage()? "/live" : "/result")}">
+        <div class="event">
+          <div class="header">
+            <div class="title">${event["name"]}</div>
+            <div class="server-container">
+              <div class="server">${event["server_name"]}</div>
+              ${(event["team_event"] ? "<div class=\"team\"></div>" : "")}
+              <div class="clear-both"></div>
+            </div>
+          </div>
+          <div class="time">
+            <div class="practice">
+              <div class="live"></div>
+              <span class="tag">Practice</span>
+              <span class="date">${(event["practice_start"] || "N/A")}</span>
+            </div>
+            <div class="quali">
+              <div class="live"></div>
+              <span class="tag">Qualification</span>
+              <span class="date">${(event["quali_start"] || "N/A")}</span>
+            </div>
+            <div class="race">
+              <div class="live"></div>
+              <span class="tag">Race</span>
+              <span class="date">${(event["race_start"] || "N/A")}</span>
+            </div>
+          </div>
+          <div class="track">
+            <div class="preview"><img src="/images/ac/track/${event["track_config_id"]}/preview"></div>
             <div class="clear-both"></div>
           </div>
+          <div class="footer"></div>
         </div>
-        <div class="time">
-          <div class="practice">
-            <div class="live"></div>
-            <span class="tag">Practice</span>
-            <span class="date">${(event["practice_start"] || "N/A")}</span>
-          </div>
-          <div class="quali">
-            <div class="live"></div>
-            <span class="tag">Qualification</span>
-            <span class="date">${(event["quali_start"] || "N/A")}</span>
-          </div>
-          <div class="race">
-            <div class="live"></div>
-            <span class="tag">Race</span>
-            <span class="date">${(event["race_start"] || "N/A")}</span>
-          </div>
-        </div>
-        <div class="track">
-          <div class="preview"><img src="/images/ac/track/${event["track_config_id"]}/preview"></div>
-          <div class="clear-both"></div>
-        </div>
-        <div class="footer"></div>
-      </div>
-    </a></div>`;
+      </a></div>`;
   }
 }
 
