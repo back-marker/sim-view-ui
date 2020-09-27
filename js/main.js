@@ -762,7 +762,11 @@ class QualiResultStandingTabEntry {
     this.validLaps = validLaps;
     this.gap = gap;
     this.interval = interval;
-    this.finishAt = new Date(finishAt / 1000);
+    if (finishAt === 0) {
+      this.finishAt = "N/A";
+    } else {
+      this.finishAt = (new Date(finishAt / 1000)).toUTCString();
+    }
   }
 
   static fromJSON(data) {
@@ -784,7 +788,7 @@ class QualiResultStandingTabEntry {
       <td class="st-valid-laps">${this.validLaps}</td>
       <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
       <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
-      <td class="st-finish-at">${this.finishAt.toUTCString()}</td>
+      <td class="st-finish-at">${this.finishAt}</td>
     </tr>`;
   }
 
@@ -858,12 +862,16 @@ class ResultSingleStintLapEntry {
     this.sec1 = sec1;
     this.sec2 = sec2;
     this.sec3 = sec3;
-    this.avgSpeed = avgSpeed;
-    this.maxSpeed = maxSpeed;
+    this.avgSpeed = (avgSpeed === 0 ? "-" : avgSpeed + " Km/Hr");
+    this.maxSpeed = maxSpeed + " Km/Hr";
     this.cuts = cuts;
     this.crashes = crashes;
     this.carCrashes = carCrashes;
-    this.finishAt = new Date(finishAt / 1000);
+    if (finishAt === 0) {
+      this.finishAt = "N/A";
+    } else {
+      this.finishAt = (new Date(finishAt / 1000)).toUTCString();
+    }
     this.isBestLap = isBestLap;
   }
 
@@ -887,12 +895,12 @@ class ResultSingleStintLapEntry {
         <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec1)}</td>
         <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec2)}</td>
         <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec3)}</td>
-        <td class="st-avg">${this.avgSpeed} Km/Hr</td>
-        <td class="st-max">${this.maxSpeed} Km/Hr</td>
+        <td class="st-avg">${this.avgSpeed}</td>
+        <td class="st-max">${this.maxSpeed}</td>
         <td class="st-cuts">${this.cuts}</td>
         <td class="st-crashes">${this.crashes}</td>
         <td class="st-car-crashes">${this.carCrashes}</td>
-        <td class="st-finish-time">${this.finishAt.toUTCString()}</td>
+        <td class="st-finish-time">${this.finishAt}</td>
       </tr>`;
   }
 
@@ -1053,7 +1061,12 @@ class ResultPage extends Page {
         $("#session-summary .final-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
       }
       $("#session-summary .start .value").text((new Date(parseInt(session["start_time"]) / 1000)).toUTCString());
-      $("#session-summary .finish .value").text((new Date(parseInt(session["finish_time"]) / 1000)).toUTCString());
+      var finishTime = parseInt(session["finish_time"]);
+      var finishTimeStr = "N/A";
+      if (finishTime !== 0) {
+        finishTimeStr = (new Date(finishTime / 1000)).toUTCString();
+      }
+      $("#session-summary .finish .value").text(finishTimeStr);
       if (session["laps"] === 0) {
         $("#session-summary .duration .value").text(Util.getTimeDiffString(session["duration_min"] * 60));
       } else {
