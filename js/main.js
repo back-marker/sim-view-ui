@@ -862,7 +862,7 @@ class ResultSingleStintLapEntry {
     this.sec1 = sec1;
     this.sec2 = sec2;
     this.sec3 = sec3;
-    this.grip = (grip <= 0 ? "-" : (grip * 1.0).toFixed(2));
+    this.grip = (grip <= 0 ? "-" : (grip * 100.0).toFixed(2));
     this.avgSpeed = (avgSpeed === 0 ? "-" : avgSpeed + " Km/Hr");
     this.maxSpeed = maxSpeed + " Km/Hr";
     this.cuts = cuts;
