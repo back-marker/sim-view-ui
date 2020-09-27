@@ -604,7 +604,7 @@ main {
 }
 
 #common-header ul {
-  padding-left: 200px;
+  padding: 0 200px;
 }
 
 #common-header li {
@@ -619,6 +619,16 @@ main {
 
 #common-header li:first-child {
   padding-left: 0;
+}
+
+#common-header li:last-of-type {
+  float: right;
+  padding-right: 0;
+}
+
+#common-header li:last-of-type a {
+  text-transform: none;
+  color: #7cceff;
 }
 
 #common-header li a {
