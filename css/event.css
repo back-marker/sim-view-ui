@@ -1062,11 +1062,15 @@ li a.red {
 }
 
 .st-hr-time {
-  width: 80px;
+  width: 70px;
+}
+
+.st-hr-grip {
+  width: 55px;
 }
 
 .st-hr-sec {
-  width: 80px;
+  width: 70px;
 }
 
 .st-hr-cuts {
@@ -1085,8 +1089,8 @@ li a.red {
 
 .st-hr-avg,
 .st-hr-max {
-  width: 105px;
-  max-height: 105px;
+  width: 90px;
+  max-height: 90px;
 }
 
 .st-avg,
@@ -1102,6 +1106,7 @@ li a.red {
 
 .st-time,
 .st-sec,
+.st-grip,
 .st-avg,
 .st-max,
 .st-cuts,
@@ -1117,6 +1122,8 @@ li a.red {
 .st-time,
 .st-hr-sec,
 .st-sec,
+.st-hr-grip,
+.st-grip,
 .st-hr-avg,
 .st-avg,
 .st-hr-max,

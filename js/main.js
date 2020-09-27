@@ -857,11 +857,12 @@ class RaceResultStandingTabEntry {
 }
 
 class ResultSingleStintLapEntry {
-  constructor(lapTime, sec1, sec2, sec3, avgSpeed, maxSpeed, cuts, crashes, carCrashes, finishAt, isBestLap) {
+  constructor(lapTime, sec1, sec2, sec3, grip, avgSpeed, maxSpeed, cuts, crashes, carCrashes, finishAt, isBestLap) {
     this.lapTime = lapTime;
     this.sec1 = sec1;
     this.sec2 = sec2;
     this.sec3 = sec3;
+    this.grip = (grip <= 0 ? "-" : (grip * 1.0).toFixed(2));
     this.avgSpeed = (avgSpeed === 0 ? "-" : avgSpeed + " Km/Hr");
     this.maxSpeed = maxSpeed + " Km/Hr";
     this.cuts = cuts;
@@ -877,7 +878,7 @@ class ResultSingleStintLapEntry {
 
   static fromJSON(data) {
     return new ResultSingleStintLapEntry(data["lap_time"], data["sector_1"], data["sector_2"],
-      data["sector_3"], data["avg_speed"], data["max_speed"], data["cuts"], data["crashes"], data["car_crashes"],
+      data["sector_3"], data["grip"], data["avg_speed"], data["max_speed"], data["cuts"], data["crashes"], data["car_crashes"],
       data["finish_at"], data["best_lap"]);
   }
 
@@ -895,6 +896,7 @@ class ResultSingleStintLapEntry {
         <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec1)}</td>
         <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec2)}</td>
         <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec3)}</td>
+        <td class="st-grip">${this.grip}</td>
         <td class="st-avg">${this.avgSpeed}</td>
         <td class="st-max">${this.maxSpeed}</td>
         <td class="st-cuts">${this.cuts}</td>
@@ -915,6 +917,7 @@ class ResultSingleStintLapEntry {
         <td class="st-hr-sec">S1</td>
         <td class="st-hr-sec">S2</td>
         <td class="st-hr-sec">S3</td>
+        <td class="st-hr-grip">Grip %</td>
         <td class="st-hr-avg">Avg. Speed</td>
         <td class="st-hr-max">Max. Speed</td>
         <td class="st-hr-cuts">Cuts</td>
