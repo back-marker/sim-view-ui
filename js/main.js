@@ -1052,9 +1052,9 @@ class ResultPage extends Page {
   static cb_updateSessionDetail(data) {
     if (data["status"] === "success") {
       var session = data["session"];
-      $("#message").addClass("hidden");
+      $("#message").addClass("hidden-opacity");
       if (session["is_finished"] === 0) {
-        $("#message").text("Session is still running. The results data may not be final").removeClass("hidden");
+        $("#message").html("The results data may not be final as session is still running <a href='/ac/event/" + session["event_id"] + "/live'>[Go Live]</a>").removeClass("hidden-opacity");
       }
       $("#session-summary .weather .value").text(Util.getWeatherDisplayName(session["weather"]));
       $("#session-summary .air-temp .temp-val").text(session["air_temp"]);
