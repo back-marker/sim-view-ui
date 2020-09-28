@@ -1090,7 +1090,8 @@ class ResultPage extends Page {
   static cb_updateStandingsTab(data) {
     if (data["status"] === "success") {
       var standings = data["standings"];
-      console.log(standings);
+      var pendingCarList = new Set();
+      var pendingDriverList = new Set();
 
       var sessionType = $("select[name='select-session'] option:selected").text().toLowerCase().split(' ')[0];
       if (sessionType === Page.SESSION_TYPE.PRACTICE.toLowerCase() || sessionType === Page.SESSION_TYPE.QUALIFYING.toLowerCase()) {
@@ -1105,8 +1106,22 @@ class ResultPage extends Page {
         } else {
           standingsHtml += RaceResultStandingTabEntry.fromJSON(standings[idx]).toHTML(idx + 1);
         }
+
+        if (LeaderBoard.carList[standings[idx]["car_id"]] === undefined) {
+          pendingCarList.add(standings[idx]["car_id"]);
+        }
+        if (LeaderBoard.driverList[standings[idx]["user_id"]] === undefined) {
+          pendingDriverList.add(standings[idx]["user_id"]);
+        }
       }
       $("#standings-body").html(standingsHtml);
+
+      pendingCarList.forEach(function(car_id) {
+        getRequest("/api/ac/car/" + car_id, Page.cb_updateCarName);
+      });
+      pendingDriverList.forEach(function(user_id) {
+        getRequest("/api/ac/user/" + user_id, Page.cb_updateDriverName);
+      });
     }
   }
 
@@ -1144,13 +1159,29 @@ class ResultPage extends Page {
   static cb_updateStintsTab(data) {
     if (data["status"] === "success") {
       var stints = data["stints"];
+      var pendingCarList = new Set();
+      var pendingDriverList = new Set();
+
       var stintsHtml = "";
       for (var idx = 0; idx < stints.length; ++idx) {
         var stint = ResultStintTabEntry.fromJSON(stints[idx]);
-        console.log(stint);
         stintsHtml += stint.toHTML();
+
+        if (LeaderBoard.carList[stint.carId] === undefined) {
+          pendingCarList.add(stint.carId);
+        }
+        if (LeaderBoard.driverList[stint.driverId] === undefined) {
+          pendingDriverList.add(stint.driverId);
+        }
       }
       $("#stints-tab").html(stintsHtml);
+
+      pendingCarList.forEach(function(car_id) {
+        getRequest("/api/ac/car/" + car_id, Page.cb_updateCarName);
+      });
+      pendingDriverList.forEach(function(user_id) {
+        getRequest("/api/ac/user/" + user_id, Page.cb_updateDriverName);
+      });
     }
   }
 
