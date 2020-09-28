@@ -12,10 +12,10 @@
 ![Live Race Sessions Page](/screenshots/page-race.png)
 
 ### Standing Result Page
-![Standing Result Page](/screenshots/result-quali-standing.png)
+![Standing Result Page](/screenshots/result-practice-standing.png)
 
 ### Sectors Result Page
-![Sectors Result Page](/screenshots/result-quali-sectors.png)
+![Sectors Result Page](/screenshots/result-practice-sectors.png)
 
 ### Stints Result Page
-![Stints Result Page](/screenshots/result-quali-stints.png)
+![Stints Result Page](/screenshots/result-practice-stints.png)
