@@ -1003,6 +1003,20 @@ li a.red {
 .stint-driver {
   padding: 10px;
   background: #393939;
+  cursor: pointer;
+}
+
+.arrow-up {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-bottom: 9px solid #a8a8a8;
+  border-right: 8px solid transparent;
+  border-left: 8px solid transparent;
+}
+
+.rotate-180-clock {
+  transform: rotate(180deg);
 }
 
 .stint-driver>div {

@@ -1017,13 +1017,14 @@ class ResultStintTabEntry {
             ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}
           </span>
         </div>
+        <div class="right"><span class="arrow-up"></span></div>
         <div class="clear-both"></div>
       </div>`;
     var stintsHtml = "";
     for (var idx = 0; idx < this.stintList.length; ++idx) {
       stintsHtml += this.stintList[idx].toHTML(idx + 1);
     }
-    allStints += stintsHtml +
+    allStints += `<div class="stints-container">${stintsHtml}</div>` +
       `</div>`;
 
     return allStints;
@@ -1266,5 +1267,17 @@ $(document).ready(function() {
       var tabToDisplay = "#" + e.target.getAttribute("data-tab") + "-tab";
       $(tabToDisplay).fadeIn();
     });
+
+    $("#stints-tab").click(function(e) {
+      var stintBar;
+      if ($(e.target).hasClass('stint-driver')) {
+        stintBar = $(e.target);
+      } else if ($(e.target).parents('.stint-driver').length === 1) {
+        stintBar = $(e.target).parents('.stint-driver');
+      }
+      stintBar.next().slideToggle();
+      stintBar.find('.arrow-up').toggleClass('rotate-180-clock');
+    });
+
   }
 });
