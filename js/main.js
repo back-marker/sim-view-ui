@@ -1306,8 +1306,10 @@ $(document).ready(function() {
       } else if ($(e.target).parents('.stint-driver').length === 1) {
         stintBar = $(e.target).parents('.stint-driver');
       }
-      stintBar.next().slideToggle();
-      stintBar.find('.arrow-up').toggleClass('rotate-180-clock');
+      if (stintBar !== undefined) {
+        stintBar.next().slideToggle();
+        stintBar.find('.arrow-up').toggleClass('rotate-180-clock');
+      }
     });
 
   }
