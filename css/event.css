@@ -1000,6 +1000,10 @@ li a.red {
   margin-bottom: 40px;
 }
 
+#stints-tab {
+  width: 1200px;
+}
+
 .stint-driver {
   padding: 10px;
   background: #393939;
