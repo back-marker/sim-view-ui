@@ -819,6 +819,7 @@ li a.red {
   float: left;
   width: 125px;
   padding-right: 5px;
+  word-break: break-word;
 }
 
 #session-summary .duration {
