@@ -931,10 +931,12 @@ class ResultSingleStintLapEntry {
 }
 
 class ResultSingleStintEntry {
-  constructor(totalLaps, validLaps, bestLapTime, lapList) {
+  constructor(totalLaps, validLaps, bestLapTime, avgLapTime, avgLapGap, lapList) {
     this.totalLaps = totalLaps;
     this.validLaps = validLaps;
     this.bestLapTime = bestLapTime;
+    this.avgLapTime = avgLapTime;
+    this.avgLapGap = avgLapGap;
     this.lapList = lapList;
   }
 
@@ -944,7 +946,8 @@ class ResultSingleStintEntry {
       lapList.push(ResultSingleStintLapEntry.fromJSON(data["laps"][idx]));
     }
 
-    return new ResultSingleStintEntry(data["total_laps"], data["valid_laps"], data["best_lap_time"], lapList);
+    return new ResultSingleStintEntry(data["total_laps"], data["valid_laps"], data["best_lap_time"],
+      data["avg_lap_time"], data["avg_lap_gap"], lapList);
   }
 
   toHTML(pos) {
@@ -955,6 +958,9 @@ class ResultSingleStintEntry {
           <li><span class="st-tag">Valid Laps</span><span class="st-value">${this.validLaps}</span></li>
           <li><span class="st-tag">Laps</span><span class="st-value">${this.totalLaps}</span></li>
           <li><span class="st-tag">Best Lap</span><span class="st-value">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</span></li>
+          <li><span class="st-tag">Avg. Lap</span><span class="st-value">
+            ${Lap.convertMSToDisplayTimeString(this.avgLapTime)} ( ${Lap.convertToGapDisplayString(this.avgLapGap)} )
+          </span></li>
           <div class="clear-both"></div>
         </ul>
       </div>`;
