@@ -1076,7 +1076,10 @@ class ResultPage extends Page {
       }
       $("#session-summary .start .value").text((new Date(parseInt(session["start_time"]) / 1000)).toUTCString());
       var finishTime = parseInt(session["finish_time"]);
-      var finishTimeStr = "N/A";
+      if (session["is_finished"] === 0) {
+        finishTime = 0;
+      }
+      var finishTimeStr = "-";
       if (finishTime !== 0) {
         finishTimeStr = (new Date(finishTime / 1000)).toUTCString();
       }
