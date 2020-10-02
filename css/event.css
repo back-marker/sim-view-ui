@@ -212,15 +212,13 @@ main {
   color: #ff5757;
   font-size: 30px;
   font-family: Roboto-Light;
+  max-width: 850px;
 }
 
 #event-detail .server {
   color: #6db4df;
   font-size: 14px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  max-width: 500px;
+  max-width: 850px;
   margin-top: 5px;
 }
 
@@ -258,8 +256,12 @@ main {
 
 #track-condition .value {
   color: #fff77f;
-  text-transform: uppercase;
   font-size: 14px;
+  max-width: 200px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #track-preview img {
@@ -272,7 +274,9 @@ main {
 
 #track-condition {
   padding-top: 5px;
-  margin-right: 20px;
+  margin-right: 10px;
+  border-right: 1px dotted #797979;
+  padding-right: 10px;
 }
 
 #track-preview {
@@ -285,8 +289,7 @@ main {
   text-align: center;
   color: #fff77f;
   font-size: 14px;
-  text-transform: uppercase;
-  max-width: 300px;
+  max-width: 250px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -814,7 +817,6 @@ li a.red {
 
 #session-summary .value {
   color: #fff77f;
-  text-transform: uppercase;
   font-size: 14px;
   float: left;
   width: 125px;
