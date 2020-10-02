@@ -601,6 +601,7 @@ class Lap {
   static SECOND_SEPARATOR = ":";
   static GAP_SYMBOL = "+";
   static NA_SYMBOL = "-";
+  static NEGATIVE_GAP_SYMBOL = "-";
 
   // time, sec1, sec2 are inetger representing time in milli second
   constructor(lapTime, sec1, sec2, sec3) {
@@ -662,6 +663,8 @@ class Lap {
       gapString = gap;
     } else if (gap === 0) {
       gapString = "0.000";
+    } else if (gap < 0) {
+      return Lap.NEGATIVE_GAP_SYMBOL + Lap.convertMSToTimeString(-gap);
     } else {
       gapString = Lap.convertMSToTimeString(gap);
     }
