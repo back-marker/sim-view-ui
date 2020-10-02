@@ -673,11 +673,13 @@ class Lap {
 class Util {
   static getWeatherDisplayName(weather) {
     weather = weather.split("_");
+    var solWeather = false;
     if (weather[0] === "sol") {
       weather.shift();
+      solWeather = true;
     }
     weather.shift();
-    return weather.join(" ");
+    return weather.join(" ") + (solWeather ? " (Sol)" : "");
   }
 
   static getTimeDiffString(diff) {
