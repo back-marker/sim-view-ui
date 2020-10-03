@@ -262,6 +262,7 @@ main {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-transform: capitalize;
 }
 
 #track-preview img {
@@ -822,6 +823,7 @@ li a.red {
   width: 125px;
   padding-right: 5px;
   word-break: break-word;
+  text-transform: capitalize;
 }
 
 #session-summary .duration {
