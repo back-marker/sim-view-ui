@@ -1033,6 +1033,18 @@ li a.red {
 .stint-driver .stint-driver-name {
   color: #aaa;
   border: none;
+  width: 230px !important;
+  max-width: 230px !important;
+}
+
+.stint-driver .lb-car {
+  width: auto;
+  max-width: none;
+}
+
+.stint-driver .car-name {
+  width: 320px !important;
+  max-width: 320px !important;
 }
 
 .stint-summary {

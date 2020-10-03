@@ -1009,7 +1009,7 @@ class ResultStintTabEntry {
   toHTML() {
     var allStints = `<div class="driver-stints" data-driver-id="${this.driverId}">
       <div class="stint-driver">
-        <div class="left stint-driver-name lb-driver" data-driver-id="${this.driverId}">
+        <div class="left stint-driver-name lb-driver ellipsis" data-driver-id="${this.driverId}">
           ${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}
         </div>
         <div class="left">|</div>
@@ -1018,7 +1018,7 @@ class ResultStintTabEntry {
         </div>
         <div class="left">|</div>
         <div class="left stint-driver-car lb-car" data-car-id="${this.carId}">
-          <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"">
+          <span class="car-name car-badge ellipsis" style="background: url('/images/ac/car/${this.carId}/badge')"">
             ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}
           </span>
         </div>
