@@ -400,13 +400,17 @@ main {
 
 .lb-team-no,
 .lb-hr-team-no {
-  width: 60px;
+  width: 55px;
   font-weight: bold;
 }
 
 .lb-team,
 .lb-hr-team {
-  width: 180px;
+  width: 200px;
+  max-width: 200px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .lb-driver,
@@ -482,7 +486,6 @@ main {
   text-align: right;
 }
 
-.lb-team-no,
 .lb-hr-crashes {
   text-align: center;
 }

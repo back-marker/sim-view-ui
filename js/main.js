@@ -17,7 +17,30 @@ function setRemainingTimeTimer(start_time, duration_min) {
 
 class Page {
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
-  static VERSION = "v0.5";
+  static VERSION = "v0.6";
+
+  static cb_updateTeamsName(data) {
+    if (data["status"] === "success") {
+      var teams = data["teams"];
+      LeaderBoard.teamList = {};
+      var pendingCarList = new Set();
+      for (var idx = 0; idx < teams.length; ++idx) {
+        var team = teams[idx];
+        LeaderBoard.teamList[team["team_id"]] = team;
+        $(".lb-team-no[data-team-id='" + team["team_id"] + "']").text(team["team_no"]);
+        $(".lb-team[data-team-id='" + team["team_id"] + "']").text(team["name"]);
+        $(".lb-car[data-team-id='" + team["team_id"] + "']").attr("data-car-id", team["car_id"]);
+        $(".lb-car-class[data-team-id='" + team["team_id"] + "']").attr("data-car-id", team["car_id"]);
+        $(".lb-car[data-team-id='" + team["team_id"] + "'] .car-badge").css("background", "url(/images/ac/car/" + team["car_id"] + "/badge)");
+        if (LeaderBoard.carList[team["car_id"]] === undefined) {
+          pendingCarList.add(team["car_id"]);
+        }
+      }
+      pendingCarList.forEach(function(car_id) {
+        getRequest("/api/ac/car/" + car_id, Page.cb_updateCarName);
+      });
+    }
+  }
 
   static cb_updateCarName(data) {
     if (data["status"] === "success") {
@@ -60,7 +83,8 @@ class LeaderboardPage extends Page {
   static cb_updateEventInfo(data) {
     if (data["status"] === "success") {
       var event = data["event"];
-      $("#event-detail").attr("data-event-id", event["event_id"]).attr("data-team-event", event["team_event"]).attr("data-track", event["track_config_id"]);
+      $("#event-detail").attr("data-event-id", event["event_id"]).attr("data-team-event", event["team_event"]).
+      attr("data-use-number", event["use_number"]).attr("data-track", event["track_config_id"]);
       $("#event-detail .title").text(event["name"]);
       $("#event-detail .server").text(event["server_name"]);
       if (event["quali_start"] !== undefined) {
@@ -121,6 +145,7 @@ class LeaderboardPage extends Page {
     if (data["status"] == "success") {
       var leaderboard = data["leaderboard"];
       var leaderboardHtml = "";
+      var pendingTeams = false;
       var pendingCarList = new Set();
       var pendingDriverList = new Set();
       var sessionType = $("#event-detail").attr("data-session");
@@ -130,17 +155,23 @@ class LeaderboardPage extends Page {
         leaderboard = QualiLeaderBoard.fromJSON(leaderboard);
       }
 
+      var teamEvent = Util.isCurrentTeamEvent();
+      var useTeamNumber = Util.isCurrentTeamEventUseNumber();
       var pos = 0;
       for (var entry of leaderboard.entries) {
         if (sessionType === "race") {
-          leaderboardHtml += entry.toHTML(pos, leaderboard.bestLapIdx);
+          leaderboardHtml += entry.toHTML(pos, teamEvent, useTeamNumber, leaderboard.bestLapIdx);
         } else {
-          leaderboardHtml += entry.toHTML(pos, leaderboard.bestSec1Idx, leaderboard.bestSec2Idx, leaderboard.bestSec3Idx);
+          leaderboardHtml += entry.toHTML(pos, teamEvent, useTeamNumber, leaderboard.bestSec1Idx, leaderboard.bestSec2Idx, leaderboard.bestSec3Idx);
         }
-        if (LeaderBoard.carList[entry.carId] === undefined) {
+
+        if (teamEvent && (LeaderBoard.teamList === undefined || LeaderBoard.teamList[entry.teamId] === undefined)) {
+          pendingTeams = true;
+        }
+        if (entry.carId !== undefined && LeaderBoard.carList[entry.carId] === undefined) {
           pendingCarList.add(entry.carId);
         }
-        if (LeaderBoard.driverList[entry.driverId] === undefined) {
+        if (entry.driverId !== undefined && LeaderBoard.driverList[entry.driverId] === undefined) {
           pendingDriverList.add(entry.driverId);
         }
 
@@ -160,6 +191,9 @@ class LeaderboardPage extends Page {
         }
       }
 
+      if (pendingTeams) {
+        getRequest("/api/ac/event/" + Util.getCurrentEvent() + "/teams", Page.cb_updateTeamsName);
+      }
       pendingCarList.forEach(function(car_id) {
         getRequest("/api/ac/car/" + car_id, Page.cb_updateCarName);
       });
@@ -207,14 +241,16 @@ class LeaderboardPage extends Page {
         $("#remaining").attr("data-laps", session["laps"]);
       }
 
+      var teamEvent = Util.isCurrentTeamEvent();
+      var userTeamNumber = Util.isCurrentTeamEventUseNumber();
       $("head title").text("SimView | Live " + session["type"] + " Session");
       $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
       if (session["type"] == LeaderboardPage.SESSION_TYPE.RACE) {
-        LeaderboardPage.setupRaceLeaderBoardHeader();
+        LeaderboardPage.setupRaceLeaderBoardHeader(teamEvent, userTeamNumber);
       } else if (session["type"] === LeaderboardPage.SESSION_TYPE.PRACTICE) {
-        LeaderboardPage.setupPracticeLeaderBoardHeader();
+        LeaderboardPage.setupPracticeLeaderBoardHeader(teamEvent, userTeamNumber);
       } else if (session["type"] === LeaderboardPage.SESSION_TYPE.QUALIFYING) {
-        LeaderboardPage.setupQualiLeaderBoardHeader();
+        LeaderboardPage.setupQualiLeaderBoardHeader(teamEvent, userTeamNumber);
       }
 
       LeaderboardPage.sessionGripIntervalHandler = setInterval(function() {
@@ -232,10 +268,12 @@ class LeaderboardPage extends Page {
     }
   }
 
-  static setupRaceLeaderBoardHeader() {
-    var leaderboardHeader = `<tr>
+  static setupRaceLeaderBoardHeader(teamEvent, userTeamNumber) {
+      var leaderboardHeader = `<tr>
       <td class="lb-hr-pos">Pos</td>
       <td class="lb-hr-car-class">Class</td>
+      ${userTeamNumber === true? `<td class="lb-hr-team-no">No.</td>` : ""}
+      ${teamEvent === true? `<td class="lb-hr-team">Team</td>` : ""}
       <td class="lb-hr-car">Car</td>
       <td class="lb-hr-driver">Driver</td>
       <td class="lb-hr-laps">Laps</td>
@@ -250,10 +288,12 @@ class LeaderboardPage extends Page {
     $("#board-header").html(leaderboardHeader);
   }
 
-  static setupQualiLeaderBoardHeader() {
+  static setupQualiLeaderBoardHeader(teamEvent, userTeamNumber) {
     var leaderboardHeader = `<tr>
       <td class="lb-hr-pos">Pos</td>
       <td class="lb-hr-car-class">Class</td>
+      ${userTeamNumber === true? `<td class="lb-hr-team-no">No.</td>` : ""}
+      ${teamEvent === true? `<td class="lb-hr-team">Team</td>` : ""}
       <td class="lb-hr-car">Car</td>
       <td class="lb-hr-driver">Driver</td>
       <td class="lb-hr-best-lap">Best</td>
@@ -267,8 +307,8 @@ class LeaderboardPage extends Page {
     $("#board-header").html(leaderboardHeader);
   }
 
-  static setupPracticeLeaderBoardHeader() {
-    LeaderboardPage.setupQualiLeaderBoardHeader();
+  static setupPracticeLeaderBoardHeader(teamEvent, userTeamNumber) {
+    LeaderboardPage.setupQualiLeaderBoardHeader(teamEvent, userTeamNumber);
   }
 
   static setRemainingLaps(current_lap) {
@@ -380,6 +420,7 @@ class EventsPage extends Page {
 }
 
 class LeaderBoard {
+  static teamList = undefined;
   static carList = {};
   static driverList = {};
   static carColorClass = [];
@@ -421,7 +462,7 @@ class QualiLeaderBoard {
     for (var idx = 0; idx < leaderboard.length; ++idx) {
       var entry = leaderboard[idx];
       var bestLap = new Lap(entry["best_lap_time"], entry["sector_1"], entry["sector_2"], entry["sector_3"]);
-      var leaderBoardEntry = new QualiLeaderBoardEntry(entry["is_connected"], entry["is_finished"], entry["user_id"],
+      var leaderBoardEntry = new QualiLeaderBoardEntry(entry["is_connected"], entry["is_finished"], entry["team_id"], entry["user_id"],
         entry["car_id"], bestLap, entry["gap"], entry["interval"], entry["valid_laps"]);
 
       qualiLeaderBoard.addEntry(leaderBoardEntry);
@@ -456,10 +497,14 @@ class LeaderBoardEntry {
 }
 
 class QualiLeaderBoardEntry {
-  constructor(connected, finished, driverId, carId, bestLap, gap, interval, totalLaps) {
+  constructor(connected, finished, teamId, driverId, carId, bestLap, gap, interval, totalLaps) {
     this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, finished);
+    this.teamId = teamId
     this.driverId = driverId;
     this.carId = carId;
+    if (teamId !== undefined && LeaderBoard.teamList !== undefined && LeaderBoard.teamList[teamId] !== undefined) {
+      this.carId = LeaderBoard.teamList[teamId]["car_id"];
+    }
     this.bestLap = bestLap;
     this.gap = gap;
     this.interval = interval;
@@ -482,19 +527,23 @@ class QualiLeaderBoardEntry {
    * @param {int} bestSec2Idx
    * @param {int} bestSec3Idx
    */
-  toHTML(pos, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
+  toHTML(pos, teamEvent, userTeamNumber, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
     return `<tr data-pos="${pos + 1}">
       <td class="lb-pos">
         <span class="pos">${pos + 1}</span>
         <span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span>
       </td>
-      <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</td>
-      <td class="lb-car" data-car-id="${this.carId}">
-        <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')"">
+      <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" ${teamEvent === true? `data-team-id="${this.teamId}"` : ""} ${this.carId !== undefined? `data-car-id="${this.carId}"` : ""}>
+        ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}
+      </td>
+      ${userTeamNumber === true? `<td class="lb-team-no" data-team-id="${this.teamId}">${LeaderBoard.teamList && LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"]:""}</td>` : ""}
+      ${teamEvent === true? `<td class="lb-team" data-team-id="${this.teamId}">${LeaderBoard.teamList && LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"]:""}</td>` : ""}
+      <td class="lb-car" ${teamEvent === true? `data-team-id="${this.teamId}"` : ""} ${this.carId !== undefined? `data-car-id="${this.carId}"` : ""}>
+        <span class="car-name car-badge" ${this.carId !== undefined? `style="background: url('/images/ac/car/${this.carId}/badge')"`: ""}">
           ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}
         </span>
       </td>
-      <td class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</td>
+      <td class="lb-driver" data-driver-id="${this.driverId}">${((this.driverId !== undefined && LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</td>
       <td class="lb-best-lap${(this.isPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
       <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
       <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
@@ -532,7 +581,7 @@ class RaceLeaderBoard {
     for (var idx = 0; idx < leaderboard.length; ++idx) {
       var entry = leaderboard[idx];
       var lastLap = new Lap(entry["last_lap_time"], entry["sector_1"], entry["sector_2"], entry["sector_3"]);
-      var leaderBoardEntry = new RaceLeaderBoardEntry(entry["is_connected"], entry["is_finished"],
+      var leaderBoardEntry = new RaceLeaderBoardEntry(entry["is_connected"], entry["is_finished"], entry["team_id"],
         entry["user_id"], entry["car_id"], entry["laps"], entry["gap"], entry["interval"], entry["best_lap_time"], lastLap);
 
       raceLeaderBoard.addEntry(leaderBoardEntry);
@@ -547,10 +596,14 @@ class RaceLeaderBoard {
 }
 
 class RaceLeaderBoardEntry {
-  constructor(connected, finished, driverId, carId, totalLaps, gap, interval, bestLapTime, lastLap) {
+  constructor(connected, finished, teamId, driverId, carId, totalLaps, gap, interval, bestLapTime, lastLap) {
     this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, finished);
+    this.teamId = teamId;
     this.driverId = driverId;
     this.carId = carId;
+    if (teamId !== undefined && LeaderBoard.teamList !== undefined && LeaderBoard.teamList[teamId] !== undefined) {
+      this.carId = LeaderBoard.teamList[teamId]["car_id"];
+    }
     this.totalLaps = totalLaps;
     this.gap = Util.getGapFromBitmap(gap);
     this.interval = Util.getGapFromBitmap(interval);
@@ -571,19 +624,23 @@ class RaceLeaderBoardEntry {
    * pos count from 0
    * @param {int} pos
    */
-  toHTML(pos, bestLapIdx) {
+  toHTML(pos, teamEvent, userTeamNumber, bestLapIdx) {
     return `<tr data-pos="${pos + 1}">
       <td class="lb-pos">
         <span class="pos">${pos + 1}</span>
         <span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span>
       </td>
-      <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}</td>
-      <td class="lb-car" data-car-id="${this.carId}">
-        <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')">
+      <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" ${teamEvent === true? `data-team-id="${this.teamId}"` : ""} ${this.carId !== undefined? `data-car-id="${this.carId}"` : ""}>
+        ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["class"] : "")}
+      </td>
+      ${userTeamNumber === true? `<td class="lb-team-no" data-team-id="${this.teamId}">${LeaderBoard.teamList && LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"]:""}</td>` : ""}
+      ${teamEvent === true? `<td class="lb-team" data-team-id="${this.teamId}">${LeaderBoard.teamList && LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"]:""}</td>` : ""}
+      <td class="lb-car" ${teamEvent === true? `data-team-id="${this.teamId}"` : ""} ${this.carId !== undefined? `data-car-id="${this.carId}"` : ""}>
+        <span class="car-name car-badge" ${this.carId !== undefined? `style="background: url('/images/ac/car/${this.carId}/badge')"`: ""}">
           ${((LeaderBoard.carList[this.carId] !== undefined) ? LeaderBoard.carList[this.carId]["name"] : "")}
         </span>
       </td>
-      <td class="lb-driver" data-driver-id="${this.driverId}">${((LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</td>
+      <td class="lb-driver" data-driver-id="${this.driverId}">${((this.driverId !== undefined && LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : "")}</td>
       <td class="lb-laps">${this.totalLaps}</td>
       <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
       <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
@@ -728,6 +785,14 @@ class Util {
     }
 
     return gap;
+  }
+
+  static isCurrentTeamEvent() {
+    return $("#event-detail").attr("data-team-event") === "1";
+  }
+
+  static isCurrentTeamEventUseNumber() {
+    return $("#event-detail").attr("data-use-number") === "1";
   }
 }
 
