@@ -388,10 +388,6 @@ main {
   text-align: center;
 }
 
-.lb-car {
-  text-transform: uppercase;
-}
-
 .lb-car,
 .lb-hr-car {
   width: 280px;
@@ -491,11 +487,15 @@ main {
 }
 
 .car-badge {
-  margin-right: 8px;
   display: inline-block;
   padding-left: 30px;
   background-size: contain !important;
   background-repeat: no-repeat !important;
+  width: 250px;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: top;
 }
 
 #board-body tr:nth-child(even) {
