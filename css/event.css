@@ -26,7 +26,7 @@ main {
 
 #result-page main {
   margin-top: 100px;
-  padding: 0 200px;
+  padding: 0 150px;
 }
 
 #event-container {
@@ -622,7 +622,7 @@ main {
 }
 
 #common-header ul {
-  padding: 0 200px;
+  padding: 0 150px;
 }
 
 #common-header li {
@@ -1076,6 +1076,10 @@ li a.red {
   margin-right: 40px;
   color: #fff77f;
   font-size: 14px;
+  display: inline-block;
+  vertical-align: bottom;
+  border-right: none;
+  width: auto;
 }
 
 .driver-stint {
