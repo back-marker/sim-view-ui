@@ -21,7 +21,7 @@ main {
 
 #events-page main {
   margin-top: 100px;
-  padding: 0 200px;
+  padding: 0 150px;
 }
 
 #result-page main {
@@ -40,7 +40,7 @@ main {
 }
 
 .event {
-  width: 420px;
+  width: 460px;
 }
 
 .event .title {
