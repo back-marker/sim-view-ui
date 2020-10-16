@@ -35,7 +35,7 @@ class Page {
   static cb_updateCarName(data) {
     if (data["status"] === "success") {
       var car = data["car"];
-      LeaderBoard.carList[car["car_id"]] = { "name": car["display_name"], "class": car["car_class"] };
+      LeaderBoard.carList[car["car_id"]] = { "name": car["display_name"], "class": car["car_class"], "ac_name": car["name"] };
       if (LeaderBoard.carColorClass.indexOf(car["car_class"]) === -1) {
         LeaderBoard.carColorClass.push(car["car_class"]);
       }
@@ -74,7 +74,7 @@ class LeaderboardPage extends Page {
     if (data["status"] === "success") {
       var event = data["event"];
       $("#event-detail").attr("data-event-id", event["event_id"]).attr("data-team-event", event["team_event"]).
-      attr("data-use-number", event["use_number"]).attr("data-track", event["track_config_id"]);
+      attr("data-use-number", event["use_number"]).attr("data-track", event["track_config_id"]).attr("data-livery-preview", event["livery_preview"]);
       $("#event-detail .title").text(event["name"]);
       $("#event-detail .server").text(event["server_name"]);
       if (event["quali_start"] !== undefined) {
@@ -258,6 +258,40 @@ class LeaderboardPage extends Page {
       }, 10 * 1000);
 
     }
+  }
+
+  static cb_updateTeamMembersInOverlay(data) {
+      if (data["status"] == "success") {
+        var driverList = data["members"];
+        var driverListHtml = "";
+        for (var idx = 0; idx < driverList.length; ++idx) {
+          var driver = driverList[idx];
+          driverListHtml += `<div class="driver">
+            ${driver["country"]? `<span class="left driver-country">
+              <img alt="N/A" src="https://www.countryflags.io/${driver["country"]}/flat/32.png">
+            </span>` : ""}
+            <span class="left driver-name">${driver["name"]}</span>
+            </div>`;
+      }
+    }
+    $("#drivers-list").html(driverListHtml);
+  }
+
+  static c_updateTeamDetailInOverlay(teamId) {
+    var team = LeaderBoard.teamList[teamId];
+    $("#team-car-class").removeClass();
+    $("#team-car-class").addClass(Util.getCarColorClass(team["car_id"]));
+    var car = LeaderBoard.carList[team["car_id"]];
+    $("#team-car-class").text(car["class"]);
+    $("#team-car").text(car["name"]);
+    if (Util.isCurrentTeamEventUseNumber()) {
+      $("#team-no").text("#" + team["team_no"]);
+    }
+    $("#team-name").text(team["name"]);
+    if (Util.isCurrentTeamEventUseLiveryPreview()) {
+      $("#livery-preview img").attr("src", `/images/ac/car/${car["ac_name"]}/livery/${team["livery_name"]}/preview`);
+    }
+    getRequest(`/api/ac/team/${teamId}/members`, LeaderboardPage.cb_updateTeamMembersInOverlay);
   }
 
   static setupRaceLeaderBoardHeader(teamEvent, userTeamNumber) {
@@ -526,7 +560,7 @@ class QualiLeaderBoardEntry {
         ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
       </td>
       ${userTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"]:""}</td>` : ""}
-      ${teamEvent? `<td class="lb-team" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"]:""}</td>` : ""}
+      ${teamEvent? `<td class="lb-team activate-overlay" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"]:""}</td>` : ""}
       <td class="lb-car" ${teamEvent? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}">
         <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')">
           ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["name"] : ""}
@@ -621,7 +655,7 @@ class RaceLeaderBoardEntry {
         ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
       </td>
       ${userTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"]:""}</td>` : ""}
-      ${teamEvent? `<td class="lb-team" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"]:""}</td>` : ""}
+      ${teamEvent? `<td class="lb-team activate-overlay" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"]:""}</td>` : ""}
       <td class="lb-car" ${teamEvent? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}">
         <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')">
           ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["name"] : ""}
@@ -781,6 +815,10 @@ class Util {
 
   static isCurrentTeamEventUseNumber() {
     return $("#event-detail").attr("data-use-number") === "1";
+  }
+
+  static isCurrentTeamEventUseLiveryPreview() {
+    return $("#event-detail").attr("data-livery-preview") === "1";
   }
 }
 
@@ -1416,6 +1454,19 @@ $(document).ready(function() {
   var page = $("body").attr("data-page");
   if (page == "lb-page") {
     getRequest("/api/ac/event/" + Util.getCurrentEvent(), LeaderboardPage.cb_updateEventInfo);
+
+    $("#board-body").click(function(e) {
+      if ($(e.target).hasClass("activate-overlay")) {
+        LeaderboardPage.c_updateTeamDetailInOverlay($(e.target).attr("data-team-id"));
+        $("#cover-preview").fadeIn();
+      }
+    });
+
+    $("#cover-preview").click(function(e) {
+      if ($(e.target).hasClass("cover-preview")) {
+        $("#cover-preview").fadeOut();
+      }
+    });
   } else if (page == "events-page") {
     if (Util.isLiveEventPage()) {
       Page.setCommonHeaderHtml("live");

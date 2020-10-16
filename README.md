@@ -19,3 +19,6 @@
 
 ### Stints Result Page
 ![Stints Result Page](/screenshots/result-practice-stints.png)
+
+### Team Preview
+![Stints Result Page](/screenshots/team-preview.png)

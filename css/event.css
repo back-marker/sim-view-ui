@@ -1216,3 +1216,92 @@ li a.red {
 .stint-driver .lb-driver {
   width: auto;
 }
+
+#cover-preview {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: #222222ba;
+  z-index: 200;
+  display: flex;
+}
+
+#cover-main {
+  width: 800px;
+  background: #262626;
+  margin: auto;
+  border: 2px solid #999;
+  padding: 25px;
+}
+
+#team-car-class,
+#team-name {
+  font-size: 40px;
+  max-width: 550px;
+}
+
+#team-car {
+  font-size: 30px;
+  text-align: center;
+  color: #979797;
+}
+
+#team-name {
+  color: #ff5757;
+  font-family: Roboto-Light;
+}
+
+#drivers-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+#team-no {
+  font-size: 20px;
+  color: #979797;
+  font-weight: bold;
+  margin-right: 30px;
+}
+
+#team-header {
+  margin-bottom: 30px;
+  border-bottom: 2px solid #ff5757;
+  padding-bottom: 10px;
+}
+
+.driver-country {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+
+.driver-name {
+  font-size: 20px;
+  color: #cecece;
+  line-height: 32px;
+}
+
+.driver {
+  margin-bottom: 20px;
+  min-width: 250px;
+}
+
+#livery-preview img {
+  width: 800px;
+  color: #ff5757;
+}
+
+.activate-overlay {
+  cursor: pointer;
+}
+
+.activate-overlay:hover {
+  color: #6db4df !important;
+}
+
+#cover-main {
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12);
+}
