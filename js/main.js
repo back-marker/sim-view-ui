@@ -255,7 +255,7 @@ class LeaderboardPage extends Page {
 
       LeaderboardPage.sessionLeaderboardIntervalHandler = setInterval(function() {
         getRequest(leaderboardApi, LeaderboardPage.cb_updateLeaderBoard);
-      }, 10 * 1000);
+      }, 6 * 1000);
 
     }
   }
