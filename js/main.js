@@ -289,7 +289,8 @@ class LeaderboardPage extends Page {
     }
     $("#team-name").text(team["name"]);
     if (Util.isCurrentTeamEventUseLiveryPreview()) {
-      $("#livery-preview img").attr("src", `/images/ac/car/${car["ac_name"]}/livery/${team["livery_name"]}/preview`);
+      var previewFileUrl = `/images/ac/car/${car["ac_name"]}/livery/${team["livery_name"]}/preview`;
+      $("#livery-preview").prepend(`<img alt="Livery Preview Not Available" src="${previewFileUrl}">`);
     }
     getRequest(`/api/ac/team/${teamId}/members`, LeaderboardPage.cb_updateTeamMembersInOverlay);
   }
@@ -1464,7 +1465,7 @@ $(document).ready(function() {
 
     $("#cover-preview").click(function(e) {
       if ($(e.target).hasClass("cover-preview")) {
-        $("#cover-preview").fadeOut();
+        $("#cover-preview").fadeOut(300, function() { $("#livery-preview img").remove(); });
       }
     });
   } else if (page == "events-page") {
