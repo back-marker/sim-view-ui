@@ -710,9 +710,6 @@ class Lap {
     sec = time % 60;
     time = Math.floor(time / 60);
     min = time;
-    if (min >= 60) {
-      return "";
-    }
 
     if (ms < 10) {
       ms = "00" + ms;
