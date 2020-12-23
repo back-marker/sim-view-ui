@@ -489,8 +489,8 @@ class QualiLeaderBoard {
     for (var idx = 0; idx < leaderboard.length; ++idx) {
       var entry = leaderboard[idx];
       var bestLap = new Lap(entry["best_lap_time"], entry["sector_1"], entry["sector_2"], entry["sector_3"]);
-      var leaderBoardEntry = new QualiLeaderBoardEntry(entry["is_connected"], entry["is_finished"], entry["team_id"], entry["user_id"],
-        entry["car_id"], bestLap, entry["gap"], entry["interval"], entry["valid_laps"]);
+      var leaderBoardEntry = new QualiLeaderBoardEntry(entry["is_connected"], entry["is_loaded"], entry["is_finished"],
+       entry["team_id"], entry["user_id"], entry["car_id"], bestLap, entry["gap"], entry["interval"], entry["valid_laps"]);
 
       qualiLeaderBoard.addEntry(leaderBoardEntry);
     }
@@ -500,13 +500,17 @@ class QualiLeaderBoard {
 }
 
 class LeaderBoardEntry {
-  static STATUS = { CONNECTED: 0, DISCONNECTED: 1, FINISHED: 2 };
+  static STATUS = { CONNECTED: 0, DISCONNECTED: 1, FINISHED: 2, LOADING: 3 };
 
-  static statusFromConnectedAndFinished(connected, finished) {
+  static statusFromConnectedAndFinished(connected, loaded, finished) {
     if (finished === 1) {
       return LeaderBoardEntry.STATUS.FINISHED;
     } else if (connected === 1) {
-      return LeaderBoardEntry.STATUS.CONNECTED;
+      if (loaded === 1) {
+        return LeaderBoardEntry.STATUS.CONNECTED;
+      } else {
+        return LeaderBoardEntry.STATUS.LOADING;
+      }
     }
     return LeaderBoardEntry.STATUS.DISCONNECTED;
   }
@@ -517,6 +521,8 @@ class LeaderBoardEntry {
         return "status-chequered";
       case LeaderBoardEntry.STATUS.CONNECTED:
         return "status-green";
+      case LeaderBoardEntry.STATUS.LOADING:
+        return "status-yellow";
       case LeaderBoardEntry.STATUS.DISCONNECTED:
         return "status-red";
     }
@@ -524,8 +530,8 @@ class LeaderBoardEntry {
 }
 
 class QualiLeaderBoardEntry {
-  constructor(connected, finished, teamId, driverId, carId, bestLap, gap, interval, totalLaps) {
-    this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, finished);
+  constructor(connected, loaded, finished, teamId, driverId, carId, bestLap, gap, interval, totalLaps) {
+    this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, loaded, finished);
     this.teamId = teamId
     this.driverId = driverId;
     this.carId = carId;
@@ -606,7 +612,7 @@ class RaceLeaderBoard {
     for (var idx = 0; idx < leaderboard.length; ++idx) {
       var entry = leaderboard[idx];
       var lastLap = new Lap(entry["last_lap_time"], entry["sector_1"], entry["sector_2"], entry["sector_3"]);
-      var leaderBoardEntry = new RaceLeaderBoardEntry(entry["is_connected"], entry["is_finished"], entry["team_id"],
+      var leaderBoardEntry = new RaceLeaderBoardEntry(entry["is_connected"], entry["is_loaded"], entry["is_finished"], entry["team_id"],
         entry["user_id"], entry["car_id"], entry["laps"], entry["gap"], entry["interval"], entry["best_lap_time"], lastLap);
 
       raceLeaderBoard.addEntry(leaderBoardEntry);
@@ -621,8 +627,8 @@ class RaceLeaderBoard {
 }
 
 class RaceLeaderBoardEntry {
-  constructor(connected, finished, teamId, driverId, carId, totalLaps, gap, interval, bestLapTime, lastLap) {
-    this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, finished);
+  constructor(connected, loaded, finished, teamId, driverId, carId, totalLaps, gap, interval, bestLapTime, lastLap) {
+    this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, loaded, finished);
     this.teamId = teamId;
     this.driverId = driverId;
     this.carId = carId;
