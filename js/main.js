@@ -876,7 +876,7 @@ class QualiResultStandingTabEntry {
     if (finishAt === 0) {
       this.finishAt = "N/A";
     } else {
-      this.finishAt = (new Date(finishAt / 1000)).toUTCString();
+      this.finishAt = (new Date(finishAt / 1000)).toLocaleString();
     }
   }
 
@@ -1001,7 +1001,7 @@ class ResultSingleStintLapEntry {
     if (finishAt === 0) {
       this.finishAt = "N/A";
     } else {
-      this.finishAt = (new Date(finishAt / 1000)).toUTCString();
+      this.finishAt = (new Date(finishAt / 1000)).toLocaleString();
     }
     this.isBestLap = isBestLap;
   }
@@ -1212,14 +1212,14 @@ class ResultPage extends Page {
       if (session["current_grip"] != -1) {
         $("#session-summary .final-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
       }
-      $("#session-summary .start .value").text((new Date(parseInt(session["start_time"]) / 1000)).toUTCString());
+      $("#session-summary .start .value").text((new Date(parseInt(session["start_time"]) / 1000)).toLocaleString());
       var finishTime = parseInt(session["finish_time"]);
       if (session["is_finished"] === 0) {
         finishTime = 0;
       }
       var finishTimeStr = "-";
       if (finishTime !== 0) {
-        finishTimeStr = (new Date(finishTime / 1000)).toUTCString();
+        finishTimeStr = (new Date(finishTime / 1000)).toLocaleString();
       }
       $("#session-summary .finish .value").text(finishTimeStr);
       if (session["laps"] === 0) {
