@@ -17,7 +17,7 @@ function setRemainingTimeTimer(start_time, duration_min) {
 
 class Page {
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
-  static VERSION = "v0.7";
+  static VERSION = "v0.8";
 
   static cb_updateTeamsName(data) {
     if (data["status"] === "success") {
@@ -1213,7 +1213,7 @@ class ResultPage extends Page {
         $("#session-summary .final-grip .value").text((session["current_grip"] * 100).toFixed(1) + "%");
       }
       $("#session-summary .start .value").text((new Date(parseInt(session["start_time"]) / 1000)).toLocaleString());
-      var finishTime = parseInt(session["finish_time"]);
+      var finishTime = session["finish_time"];
       if (session["is_finished"] === 0) {
         finishTime = 0;
       }
