@@ -13,7 +13,7 @@
 
   <div id="header-container">
     <header>
-      <div id="event-detail">
+      <div id="event-detail" class="left">
         <div class="title ellipsis"></div>
         <div class="server ellipsis"></div>
         <div class="timing">
@@ -34,13 +34,20 @@
           </div>
         </div>
       </div>
-      <div id="remaining">
-        <div id="home-link">
-          <a href="/live">Home</a>
+      <div id="header-middle">
+        <div id="remaining">
+          <div id="home-link">
+            <a href="/live">Home</a>
+          </div>
+          <span></span>
         </div>
-        <span></span>
+        <div id="lb-tabs">
+          <span data-tab="standings" class="active left">Standings</span>
+          <span data-tab="map" class="right">Map</span>
+          <div class="clear-both"></div>
+        </div>
       </div>
-      <div id="track-detail">
+      <div id="track-detail" class="right">
         <div id="track-preview">
           <img>
           <div class="name"></div>
@@ -67,17 +74,23 @@
           </div>
         </div>
       </div>
+      <div class="clear-both"></div>
     </header>
   </div>
   <div id="header-dummy"></div>
   <div id="message" class="hidden"></div>
   <main class="hidden">
-    <div id="leader-board">
+    <div id="tab-standings">
       <table>
         <thead id="board-header"></thead>
         <tbody id="board-body"></tbody>
       </table>
     </div>
+    <div id="tab-map">
+      <div id="track-map">
+        <div id="map-section-tooltip"></div>
+        <div id="track-map-svg"></div>
+      </div>
     </div>
   </main>
   <div id="cover-preview" class="cover-preview" style="display: none;">

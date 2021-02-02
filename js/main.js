@@ -88,6 +88,9 @@ class LeaderboardPage extends Page {
       getRequest("/api" + trackApi, LeaderboardPage.cb_updateTrackInfo);
       $("#track-preview img").attr("src", "/images" + trackApi + "/preview");
 
+      getRequest("/images" + trackApi + "/map", function(data) {
+        $("#track-map-svg").html(data.childNodes[0].outerHTML);
+      });
       getRequest("/api/ac/event/" + event["event_id"] + "/session/latest", LeaderboardPage.cb_updateSessionInfo);
     }
   }
@@ -234,15 +237,15 @@ class LeaderboardPage extends Page {
       }
 
       var teamEvent = Util.isCurrentTeamEvent();
-      var userTeamNumber = Util.isCurrentTeamEventUseNumber();
+      var useTeamNumber = Util.isCurrentTeamEventUseNumber();
       $("head title").text("SimView | Live " + session["type"] + " Session");
       $("#event-detail").attr("data-session", session["type"].toLocaleLowerCase());
       if (session["type"] == LeaderboardPage.SESSION_TYPE.RACE) {
-        LeaderboardPage.setupRaceLeaderBoardHeader(teamEvent, userTeamNumber);
+        LeaderboardPage.setupRaceLeaderBoardHeader(teamEvent, useTeamNumber);
       } else if (session["type"] === LeaderboardPage.SESSION_TYPE.PRACTICE) {
-        LeaderboardPage.setupPracticeLeaderBoardHeader(teamEvent, userTeamNumber);
+        LeaderboardPage.setupPracticeLeaderBoardHeader(teamEvent, useTeamNumber);
       } else if (session["type"] === LeaderboardPage.SESSION_TYPE.QUALIFYING) {
-        LeaderboardPage.setupQualiLeaderBoardHeader(teamEvent, userTeamNumber);
+        LeaderboardPage.setupQualiLeaderBoardHeader(teamEvent, useTeamNumber);
       }
 
       LeaderboardPage.sessionGripIntervalHandler = setInterval(function() {
@@ -255,7 +258,7 @@ class LeaderboardPage extends Page {
 
       LeaderboardPage.sessionLeaderboardIntervalHandler = setInterval(function() {
         getRequest(leaderboardApi, LeaderboardPage.cb_updateLeaderBoard);
-      }, 6 * 1000);
+      }, 1 * 1000);
 
     }
   }
@@ -295,11 +298,11 @@ class LeaderboardPage extends Page {
     getRequest(`/api/ac/team/${teamId}/members`, LeaderboardPage.cb_updateTeamMembersInOverlay);
   }
 
-  static setupRaceLeaderBoardHeader(teamEvent, userTeamNumber) {
+  static setupRaceLeaderBoardHeader(teamEvent, useTeamNumber) {
       var leaderboardHeader = `<tr>
       <td class="lb-hr-pos">Pos</td>
       <td class="lb-hr-car-class">Class</td>
-      ${userTeamNumber === true? `<td class="lb-hr-team-no">No.</td>` : ""}
+      ${useTeamNumber === true? `<td class="lb-hr-team-no">No.</td>` : ""}
       ${teamEvent === true? `<td class="lb-hr-team">Team</td>` : ""}
       <td class="lb-hr-car">Car</td>
       <td class="lb-hr-driver">Driver</td>
@@ -315,11 +318,11 @@ class LeaderboardPage extends Page {
     $("#board-header").html(leaderboardHeader);
   }
 
-  static setupQualiLeaderBoardHeader(teamEvent, userTeamNumber) {
+  static setupQualiLeaderBoardHeader(teamEvent, useTeamNumber) {
     var leaderboardHeader = `<tr>
       <td class="lb-hr-pos">Pos</td>
       <td class="lb-hr-car-class">Class</td>
-      ${userTeamNumber === true? `<td class="lb-hr-team-no">No.</td>` : ""}
+      ${useTeamNumber === true? `<td class="lb-hr-team-no">No.</td>` : ""}
       ${teamEvent === true? `<td class="lb-hr-team">Team</td>` : ""}
       <td class="lb-hr-car">Car</td>
       <td class="lb-hr-driver">Driver</td>
@@ -334,8 +337,8 @@ class LeaderboardPage extends Page {
     $("#board-header").html(leaderboardHeader);
   }
 
-  static setupPracticeLeaderBoardHeader(teamEvent, userTeamNumber) {
-    LeaderboardPage.setupQualiLeaderBoardHeader(teamEvent, userTeamNumber);
+  static setupPracticeLeaderBoardHeader(teamEvent, useTeamNumber) {
+    LeaderboardPage.setupQualiLeaderBoardHeader(teamEvent, useTeamNumber);
   }
 
   static setRemainingLaps(current_lap) {
@@ -490,7 +493,7 @@ class QualiLeaderBoard {
       var entry = leaderboard[idx];
       var bestLap = new Lap(entry["best_lap_time"], entry["sector_1"], entry["sector_2"], entry["sector_3"]);
       var leaderBoardEntry = new QualiLeaderBoardEntry(entry["is_connected"], entry["is_loaded"], entry["is_finished"],
-       entry["team_id"], entry["user_id"], entry["car_id"], bestLap, entry["gap"], entry["interval"], entry["valid_laps"]);
+       entry["team_id"], entry["user_id"], entry["car_id"], bestLap, entry["gap"], entry["interval"], entry["pos_x"], entry["pos_z"], entry["valid_laps"]);
 
       qualiLeaderBoard.addEntry(leaderBoardEntry);
     }
@@ -530,13 +533,15 @@ class LeaderBoardEntry {
 }
 
 class QualiLeaderBoardEntry {
-  constructor(connected, loaded, finished, teamId, driverId, carId, bestLap, gap, interval, totalLaps) {
+  constructor(connected, loaded, finished, teamId, driverId, carId, bestLap, gap, interval, posX, posZ, totalLaps) {
     this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, loaded, finished);
     this.teamId = teamId
     this.driverId = driverId;
     this.carId = carId;
     this.bestLap = bestLap;
     this.gap = gap;
+    this.posX = posX;
+    this.posZ = posZ;
     this.interval = interval;
     this.totalLaps = totalLaps;
   }
@@ -557,7 +562,9 @@ class QualiLeaderBoardEntry {
    * @param {int} bestSec2Idx
    * @param {int} bestSec3Idx
    */
-  toHTML(pos, teamEvent, userTeamNumber, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
+  toHTML(pos, teamEvent, useTeamNumber, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
+    TrackMap.syncDriverMapStatus(pos, this.status, this.teamId, this.driverId, this.carId, teamEvent, useTeamNumber, this.posX, this.posZ);
+
     return `<tr data-pos="${pos + 1}">
       <td class="lb-pos">
         <span class="pos">${pos + 1}</span>
@@ -566,7 +573,7 @@ class QualiLeaderBoardEntry {
       <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" ${teamEvent? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}">
         ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
       </td>
-      ${userTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"]:""}</td>` : ""}
+      ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"]:""}</td>` : ""}
       ${teamEvent? `<td class="lb-team activate-overlay" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"]:""}</td>` : ""}
       <td class="lb-car" ${teamEvent? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}">
         <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')">
@@ -613,7 +620,7 @@ class RaceLeaderBoard {
       var entry = leaderboard[idx];
       var lastLap = new Lap(entry["last_lap_time"], entry["sector_1"], entry["sector_2"], entry["sector_3"]);
       var leaderBoardEntry = new RaceLeaderBoardEntry(entry["is_connected"], entry["is_loaded"], entry["is_finished"], entry["team_id"],
-        entry["user_id"], entry["car_id"], entry["laps"], entry["gap"], entry["interval"], entry["best_lap_time"], lastLap);
+        entry["user_id"], entry["car_id"], entry["laps"], entry["gap"], entry["interval"], entry["pos_x"], entry["pos_z"], entry["best_lap_time"], lastLap);
 
       raceLeaderBoard.addEntry(leaderBoardEntry);
 
@@ -627,7 +634,7 @@ class RaceLeaderBoard {
 }
 
 class RaceLeaderBoardEntry {
-  constructor(connected, loaded, finished, teamId, driverId, carId, totalLaps, gap, interval, bestLapTime, lastLap) {
+  constructor(connected, loaded, finished, teamId, driverId, carId, totalLaps, gap, interval, posX, posZ, bestLapTime, lastLap) {
     this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, loaded, finished);
     this.teamId = teamId;
     this.driverId = driverId;
@@ -635,6 +642,8 @@ class RaceLeaderBoardEntry {
     this.totalLaps = totalLaps;
     this.gap = Util.getGapFromBitmap(gap);
     this.interval = Util.getGapFromBitmap(interval);
+    this.posX = posX;
+    this.posZ = posZ;
     this.bestLapTime = bestLapTime;
     this.lastLap = lastLap;
   }
@@ -652,7 +661,9 @@ class RaceLeaderBoardEntry {
    * pos count from 0
    * @param {int} pos
    */
-  toHTML(pos, teamEvent, userTeamNumber, bestLapIdx) {
+  toHTML(pos, teamEvent, useTeamNumber, bestLapIdx) {
+    TrackMap.syncDriverMapStatus(pos, this.status, this.teamId, this.driverId, this.carId, teamEvent, useTeamNumber, this.posX, this.posZ);
+
     return `<tr data-pos="${pos + 1}">
       <td class="lb-pos">
         <span class="pos">${pos + 1}</span>
@@ -661,7 +672,7 @@ class RaceLeaderBoardEntry {
       <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" ${teamEvent? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}">
         ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
       </td>
-      ${userTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"]:""}</td>` : ""}
+      ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"]:""}</td>` : ""}
       ${teamEvent? `<td class="lb-team activate-overlay" data-team-id="${this.teamId}">${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"]:""}</td>` : ""}
       <td class="lb-car" ${teamEvent? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}">
         <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')">
@@ -826,6 +837,79 @@ class Util {
   }
 }
 
+class TrackMap {
+  static DRIVER_CIRCLE_RADIUS = 15;
+  static DEFAULT_DRIVER_CIRCLE_COLOR = "#22b4e1";
+
+  static getEntityUniqueId(teamId, driverId, carId, teamEvent) {
+    if (teamEvent) {
+      return "team_" + teamId;
+    } else {
+      return "user_" + driverId + "_car_" + carId;
+    }
+  }
+
+  static getEntityDisplayName(pos, teamId, driverId, teamEvent, useTeamNumber) {
+    var name = "N/A";
+    if (teamEvent && LeaderBoard.teamList[teamId] !== undefined) {
+      if (useTeamNumber) {
+        name = LeaderBoard.teamList[teamId]["team_no"];
+      } else {
+        name = LeaderBoard.teamList[teamId]["name"].substr(0, 3).toUpperCase();
+      }
+    } else if (!teamEvent && LeaderBoard.driverList[driverId] !== undefined){
+      name = LeaderBoard.driverList[driverId].substr(0, 3).toUpperCase();
+    }
+
+    return (pos + 1) + ": " + name;
+  }
+
+  static addDriver(uniqueId, displayColorClass) {
+    if ($("#track-map svg #" + uniqueId).length !== 0) return;
+    var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.id= uniqueId;
+    $("#track-map svg").append(circle);
+    $("#track-map #" + uniqueId).attr("r", TrackMap.DRIVER_CIRCLE_RADIUS).attr("fill", TrackMap.DEFAULT_DRIVER_CIRCLE_COLOR);
+
+    $("#track-map").append(`<span class="map-driver-names" id="name_${uniqueId}">N/A</span>`);
+  }
+
+  static syncDriverMapStatus(pos, status, teamId, driverId, carId, teamEvent, useTeamNumber, posX, posZ) {
+    var uniqueId = TrackMap.getEntityUniqueId(teamId, driverId, carId, teamEvent);
+    var displayName = TrackMap.getEntityDisplayName(pos, teamId, driverId, teamEvent, useTeamNumber);
+    var displayColorClass = Util.getCarColorClass(carId);
+
+    if (status !== LeaderBoardEntry.STATUS.DISCONNECTED) {
+      TrackMap.addDriver(uniqueId);
+      TrackMap.updateDriverPosition(uniqueId, displayName, displayColorClass, posX, posZ);
+    } else {
+      TrackMap.removeDriver(uniqueId);
+    }
+  }
+
+  static updateDriverPosition(uniqueId, displayName, displayColorClass, posX, posZ) {
+    // Update driver circle position
+    var offsetX = Number.parseFloat($("#track-map-svg svg").attr("data-x-offset"));
+    var offsetY = Number.parseFloat($("#track-map-svg svg").attr("data-y-offset"));
+    if (posX === 0 && posZ === 0) { offsetX = 20; offsetY = 20; }
+    $("#track-map #" + uniqueId).attr("cx", posX + offsetX).attr("cy", posZ + offsetY).addClass("svg-" + displayColorClass);
+
+    // Update driver name tooltip position
+    var viewBox = $("#track-map svg").attr("viewBox");
+    var actualWidth = Number.parseInt(viewBox.split(" ")[2]);
+    var actualHeight = Number.parseInt(viewBox.split(" ")[3]);
+    var htmlX = 10 + $("#track-map svg").width() * (posX + offsetX) / actualWidth;
+    var htmlY =-13 + $("#track-map svg").height() * (posZ + offsetY) / actualHeight;
+    $("#track-map #name_" + uniqueId).css({ "top": htmlY + "px", "left": htmlX + "px" });
+    $("#track-map #name_" + uniqueId).text(displayName).addClass(displayColorClass);
+  }
+
+  static removeDriver(uniqueId) {
+    $("#track-map #" + uniqueId).remove();
+    $("#track-map #name_" + uniqueId).remove();
+  }
+}
+
 class ResultSectorTabEntry {
   constructor(teamId, driverId, carId, bestSectorTime, gap, interval) {
     this.teamId = teamId;
@@ -840,13 +924,13 @@ class ResultSectorTabEntry {
     return new ResultSectorTabEntry(data["team_id"], data["user_id"], data["car_id"], data["best_sector_time"], data["gap"], data["interval"]);
   }
 
-  toHTML(pos, teamEvent, userTeamNumber) {
+  toHTML(pos, teamEvent, useTeamNumber) {
     return `<tr>
       <td class="sec-pos">${pos}</td>
       <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" ${teamEvent === true? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}"}>
         ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
       </td>
-      ${userTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">
+      ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">
         ${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"] : ""}</td>` : ""}
       ${teamEvent? `<td class="lb-team" data-team-id="${this.teamId}">
         ${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"] : ""}</td>` : ""}
@@ -885,13 +969,13 @@ class QualiResultStandingTabEntry {
       data["valid_laps"], data["gap"], data["interval"], data["lap_finish_time"]);
   }
 
-  toHTML(pos, teamEvent, userTeamNumber) {
+  toHTML(pos, teamEvent, useTeamNumber) {
     return `<tr>
       <td class="st-pos">${pos}</td>
       <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
         ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
       </td>
-      ${userTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">
+      ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">
         ${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"]:""}</td>` : ""}
       ${teamEvent? `<td class="lb-team" data-team-id="${this.teamId}">
         ${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"]:""}</td>` : ""}
@@ -910,11 +994,11 @@ class QualiResultStandingTabEntry {
     </tr>`;
   }
 
-  static getHeaderHtml(teamEvent, userTeamNumber) {
+  static getHeaderHtml(teamEvent, useTeamNumber) {
     return `<tr>
       <td class="st-hr-pos">Pos</td>
       <td class="lb-hr-car-class">Class</td>
-      ${userTeamNumber? `<td class="lb-hr-team-no">No.</td>` : ""}
+      ${useTeamNumber? `<td class="lb-hr-team-no">No.</td>` : ""}
       ${teamEvent? `<td class="lb-hr-team">Team</td>` : ""}
       <td class="lb-hr-car">Car</td>
       ${!teamEvent? `<td class="lb-hr-driver">Driver</td>` : ""}
@@ -944,13 +1028,13 @@ class RaceResultStandingTabEntry {
       data["valid_laps"], data["gap"], data["interval"], data["total_time"]);
   }
 
-  toHTML(pos, teamEvent, userTeamNumber) {
+  toHTML(pos, teamEvent, useTeamNumber) {
     return `<tr>
       <td class="st-pos">${pos}</td>
       <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
         ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
       </td>
-      ${userTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">
+      ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">
         ${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["team_no"]:""}</td>` : ""}
       ${teamEvent? `<td class="lb-team" data-team-id="${this.teamId}">
         ${LeaderBoard.teamList[this.teamId] !== undefined? LeaderBoard.teamList[this.teamId]["name"]:""}</td>` : ""}
@@ -969,11 +1053,11 @@ class RaceResultStandingTabEntry {
     </tr>`;
   }
 
-  static getHeaderHtml(teamEvent, userTeamNumber) {
+  static getHeaderHtml(teamEvent, useTeamNumber) {
     return `<tr>
       <td class="st-hr-pos">Pos</td>
       <td class="lb-hr-car-class">Class</td>
-      ${userTeamNumber? `<td class="lb-hr-team-no">No.</td>` : ""}
+      ${useTeamNumber? `<td class="lb-hr-team-no">No.</td>` : ""}
       ${teamEvent? `<td class="lb-hr-team">Team</td>` : ""}
       <td class="lb-hr-car">Car</td>
       ${!teamEvent? `<td class="lb-hr-driver">Driver</td>` : ""}
@@ -1238,21 +1322,21 @@ class ResultPage extends Page {
 
       var pendingTeams = false;
       var teamEvent = Util.isCurrentTeamEvent();
-      var userTeamNumber = Util.isCurrentTeamEventUseNumber();
+      var useTeamNumber = Util.isCurrentTeamEventUseNumber();
 
       var sessionType = $("select[name='select-session'] option:selected").text().toLowerCase().split(' ')[0];
       if (sessionType === Page.SESSION_TYPE.PRACTICE.toLowerCase() || sessionType === Page.SESSION_TYPE.QUALIFYING.toLowerCase()) {
-        $("#standings-header").html(QualiResultStandingTabEntry.getHeaderHtml(teamEvent, userTeamNumber));
+        $("#standings-header").html(QualiResultStandingTabEntry.getHeaderHtml(teamEvent, useTeamNumber));
       } else {
-        $("#standings-header").html(RaceResultStandingTabEntry.getHeaderHtml(teamEvent, userTeamNumber));
+        $("#standings-header").html(RaceResultStandingTabEntry.getHeaderHtml(teamEvent, useTeamNumber));
       }
 
       var standingsHtml = "";
       for (var idx = 0; idx < standings.length; ++idx) {
         if (sessionType === Page.SESSION_TYPE.PRACTICE.toLowerCase() || sessionType === Page.SESSION_TYPE.QUALIFYING.toLowerCase()) {
-          standingsHtml += QualiResultStandingTabEntry.fromJSON(standings[idx]).toHTML(idx + 1, teamEvent, userTeamNumber);
+          standingsHtml += QualiResultStandingTabEntry.fromJSON(standings[idx]).toHTML(idx + 1, teamEvent, useTeamNumber);
         } else {
-          standingsHtml += RaceResultStandingTabEntry.fromJSON(standings[idx]).toHTML(idx + 1, teamEvent, userTeamNumber);
+          standingsHtml += RaceResultStandingTabEntry.fromJSON(standings[idx]).toHTML(idx + 1, teamEvent, useTeamNumber);
         }
 
         if (teamEvent && LeaderBoard.teamList[standings[idx]["team_id"]] === undefined) {
@@ -1288,15 +1372,15 @@ class ResultPage extends Page {
 
       var pendingTeams = false;
       var teamEvent = Util.isCurrentTeamEvent();
-      var userTeamNumber = Util.isCurrentTeamEventUseNumber();
+      var useTeamNumber = Util.isCurrentTeamEventUseNumber();
 
       for (var sectorIdx = 1; sectorIdx <= 3; ++sectorIdx) {
-        $("#sec-header-" + sectorIdx).html(ResultPage.getSectorsResultHeaderHtml(teamEvent, userTeamNumber, sectorIdx));
+        $("#sec-header-" + sectorIdx).html(ResultPage.getSectorsResultHeaderHtml(teamEvent, useTeamNumber, sectorIdx));
         var sectorList = sectors["sector" + sectorIdx];
         var sectorHtml = "";
         for (var idx = 0; idx < sectorList.length; ++idx) {
           var entry = ResultSectorTabEntry.fromJSON(sectorList[idx]);
-          sectorHtml += entry.toHTML(idx + 1, teamEvent, userTeamNumber);
+          sectorHtml += entry.toHTML(idx + 1, teamEvent, useTeamNumber);
 
           if (teamEvent && LeaderBoard.teamList[entry.teamId] === undefined) {
             pendingTeams = true;
@@ -1439,11 +1523,11 @@ class ResultPage extends Page {
     return sidebarHtml;
   }
 
-  static getSectorsResultHeaderHtml(teamEvent, userTeamNumber, sector_idx) {
+  static getSectorsResultHeaderHtml(teamEvent, useTeamNumber, sector_idx) {
     return `<tr>
         <td class="sec-hr-pos">Pos</td>
         <td class="sec-hr-car-class">Class</td>
-        ${userTeamNumber? `<td class="lb-hr-team-no">No.</td>` : ""}
+        ${useTeamNumber? `<td class="lb-hr-team-no">No.</td>` : ""}
         ${teamEvent? `<td class="lb-hr-team">Team</td>` : ""}
         <td class="sec-hr-car">Car</td>
         ${!teamEvent? `<td class="lb-hr-driver">Driver</td>` : ""}
@@ -1452,6 +1536,16 @@ class ResultPage extends Page {
         <td class="sec-hr-interval">Int.</td>
       </tr>`;
   }
+}
+
+function showMapSectionTooltip(e, sectionName) {
+$("#map-section-tooltip").text(sectionName).css({
+  left: e.pageX + 10 + "px",
+  top: e.pageY + 10 + "px"}).show();
+}
+
+function hideMapSectionTooltip() {
+  $("#map-section-tooltip").hide();
 }
 
 $(document).ready(function() {
@@ -1510,6 +1604,22 @@ $(document).ready(function() {
         stintBar.find('.arrow-up').toggleClass('rotate-180-clock');
       }
     });
-
   }
+
+  $("#tab-map").hide();
+  $("#map-section-tooltip").hide();
+  $("#lb-tabs").click(function(e) {
+    var target = $(e.target).attr("data-tab");
+    if (target === "standings") {
+      $("#tab-map").hide();
+      $("#tab-standings").fadeIn();
+      $("span[data-tab='standings']").addClass("active");
+      $("span[data-tab='map']").removeClass("active");
+    } else if (target === "map") {
+      $("#tab-standings").hide();
+      $("#tab-map").addClass("active").fadeIn();
+      $("span[data-tab='map']").addClass("active");
+      $("span[data-tab='standings']").removeClass("active");
+    }
+  });
 });

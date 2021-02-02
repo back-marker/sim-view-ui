@@ -9,6 +9,7 @@ main {
 .clear-both {
   display: block;
   clear: both;
+  width: 100%;
 }
 
 .hidden {
@@ -179,8 +180,6 @@ main {
 #lb-page header {
   padding: 20px 50px 15px 50px;
   border-bottom: 2px solid #464646;
-  display: flex;
-  justify-content: space-between;
 }
 
 #lb-page #home-link {
@@ -308,15 +307,16 @@ main {
   position: absolute;
 }
 
-#remaining {
-  position: relative;
+#header-middle {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
 }
 
 #remaining .remain-time,
 #remaining .remain-laps {
   font-size: 35px;
   color: #2db52d;
-  padding: 0 15px;
   margin-top: 25px;
   display: inline-block;
   width: 180px;
@@ -324,8 +324,8 @@ main {
   font-weight: bold;
 }
 
-#leader-board {
-  padding-top: 20px;
+#tab-standings {
+  padding-top: 10px;
   padding-bottom: 20px;
 }
 
@@ -776,7 +776,8 @@ li a.red {
   margin-bottom: 40px;
 }
 
-#result-main-tabs li {
+#result-main-tabs li,
+#lb-tabs span {
   padding: 10px 20px;
   text-transform: uppercase;
   font-size: 14px;
@@ -789,12 +790,14 @@ li a.red {
   padding: 0;
 }
 
-#result-main-tabs .active {
+#result-main-tabs .active,
+#lb-tabs .active {
   border-bottom: 2px solid #6db4df;
   background-color: #353535;
 }
 
-#result-main-tabs li:hover {
+#result-main-tabs li:hover,
+#lb-tabs span:hover {
   background-color: #353535;
   cursor: pointer;
 }
@@ -1304,4 +1307,77 @@ li a.red {
 
 #cover-main {
   box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12);
+}
+
+#track-map circle {
+  transition: cx linear 1s, cy linear 1s;
+}
+
+#track-map {
+  position: relative;
+}
+
+.map-driver-names {
+  position: absolute;
+  transition: top linear 1s, left linear 1s;
+  background-color: rgb(62, 61, 61, 0.8);
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 14px;
+  color: rgb(255, 247, 127);
+  padding: 5px 10px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.map-section {
+  opacity: 0;
+}
+
+.map-section:hover {
+  opacity: 1;
+  cursor: help;
+}
+
+#map-section-tooltip {
+  position: fixed;
+  background-color: rgb(62, 61, 61, 0.8);
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 14px;
+  color: rgb(255, 247, 127);
+  padding: 8px 12px;
+}
+
+#lb-tabs div {
+  display: inline-block;
+}
+
+#lb-tabs {
+  text-align: center;
+  margin-top: 25px;
+}
+
+#tab-map {
+  display: flex;
+  justify-content: center;
+}
+
+.svg-car-class-0 {
+  fill: #32D296 !important;
+}
+
+.svg-car-class-1 {
+  fill: #89a2d2 !important;
+}
+
+.svg-car-class-2 {
+  fill: #EC6CBB !important;
+}
+
+.svg-car-class-3 {
+  fill: #EF2D56 !important;
+}
+
+.svg-car-class-4 {
+  fill: #E38D59 !important;
 }
