@@ -1,10 +1,16 @@
-function getRequest(url, callback) {
+function getRequest(url, callback, failure) {
   $.ajax({
     type: "GET",
     url: url,
     crossDomain: true,
     success: function(data) { callback(data); },
-    error: function() { console.log(arguments); }
+    error: function() {
+      if (failure === undefined) {
+        console.log(arguments);
+      } else {
+        failure();
+      }
+    }
   });
 }
 
@@ -90,9 +96,17 @@ class LeaderboardPage extends Page {
 
       getRequest("/images" + trackApi + "/map", function(data) {
         $("#track-map-svg").html(data.childNodes[0].outerHTML);
-      });
+      }, LeaderboardPage.cb_missingTrackMap);
       getRequest("/api/ac/event/" + event["event_id"] + "/session/latest", LeaderboardPage.cb_updateSessionInfo);
     }
+  }
+
+  static cb_missingTrackMap() {
+    var trackName = $("#track-preview .name").text();
+    if (trackName === "") {
+      trackName = "this track"
+    }
+    $("#track-missing").text(`Live Track Map is missing for ${trackName}!`).removeClass("hidden");
   }
 
   static cb_updateTrackInfo(data) {
@@ -835,6 +849,10 @@ class Util {
   static isCurrentTeamEventUseLiveryPreview() {
     return $("#event-detail").attr("data-livery-preview") === "1";
   }
+
+  static isLiveTrackMapAvailable() {
+    return $("#track-map svg").length == 1;
+  }
 }
 
 class TrackMap {
@@ -875,6 +893,9 @@ class TrackMap {
   }
 
   static syncDriverMapStatus(pos, status, teamId, driverId, carId, teamEvent, useTeamNumber, posX, posZ) {
+    if(!Util.isLiveTrackMapAvailable()) {
+      return;
+    }
     var uniqueId = TrackMap.getEntityUniqueId(teamId, driverId, carId, teamEvent);
     var displayName = TrackMap.getEntityDisplayName(pos, teamId, driverId, teamEvent, useTeamNumber);
     var displayColorClass = Util.getCarColorClass(carId);

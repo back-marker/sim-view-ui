@@ -598,7 +598,8 @@ main {
   color: #E38D59 !important;
 }
 
-#message {
+#message,
+#track-missing {
   color: #cccaca;
   text-align: center;
   font-size: 20px;
