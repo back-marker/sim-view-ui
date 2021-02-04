@@ -856,7 +856,7 @@ class Util {
 }
 
 class TrackMap {
-  static DRIVER_CIRCLE_RADIUS = 15;
+  static DRIVER_CIRCLE_RADIUS = 5;
   static DEFAULT_DRIVER_CIRCLE_COLOR = "#22b4e1";
 
   static getEntityUniqueId(teamId, driverId, carId, teamEvent) {
@@ -887,7 +887,8 @@ class TrackMap {
     var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     circle.id= uniqueId;
     $("#track-map svg").append(circle);
-    $("#track-map #" + uniqueId).attr("r", TrackMap.DRIVER_CIRCLE_RADIUS).attr("fill", TrackMap.DEFAULT_DRIVER_CIRCLE_COLOR);
+    var scale = Number.parseFloat($("#track-map svg").attr("data-scale"));
+    $("#track-map #" + uniqueId).attr("r", TrackMap.DRIVER_CIRCLE_RADIUS * scale).attr("fill", TrackMap.DEFAULT_DRIVER_CIRCLE_COLOR);
 
     $("#track-map").append(`<span class="map-driver-names" id="name_${uniqueId}">N/A</span>`);
   }

@@ -1319,6 +1319,7 @@ li a.red {
 }
 
 .map-driver-names {
+  white-space: nowrap;
   position: absolute;
   transition: top linear 1s, left linear 1s;
   background-color: rgb(62, 61, 61, 0.8);
@@ -1361,6 +1362,7 @@ li a.red {
 #tab-map {
   display: flex;
   justify-content: center;
+  padding-top: 30px;
 }
 
 .svg-car-class-0 {
