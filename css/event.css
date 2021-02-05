@@ -599,7 +599,8 @@ main {
 }
 
 #message,
-#track-missing {
+#track-missing,
+#event-missing {
   color: #cccaca;
   text-align: center;
   font-size: 20px;

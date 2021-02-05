@@ -389,6 +389,15 @@ class LeaderboardPage extends Page {
 class EventsPage extends Page {
   static cb_updateAllEvents(data) {
     if (data["status"] == "success") {
+      if (data["events"].length === 0) {
+        if (Util.isLiveEventPage()) {
+          $("#event-missing").text("No live events running");
+        } else {
+          $("#event-missing").text("No Events stored");
+        }
+        $("#event-missing").removeClass("hidden");
+        return;
+      }
       var eventHtml = ""
       for (var idx = 0; idx < data["events"].length; ++idx) {
         eventHtml += EventsPage.getEventHtml(data["events"][idx]);
