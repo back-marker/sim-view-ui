@@ -880,7 +880,7 @@ class TrackMap {
     var name = "N/A";
     if (teamEvent && LeaderBoard.teamList[teamId] !== undefined) {
       if (useTeamNumber) {
-        name = LeaderBoard.teamList[teamId]["team_no"];
+        name = "#" + LeaderBoard.teamList[teamId]["team_no"];
       } else {
         name = LeaderBoard.teamList[teamId]["name"].substr(0, 3).toUpperCase();
       }
