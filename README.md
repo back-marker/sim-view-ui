@@ -11,6 +11,9 @@
 ### Live Race Sessions Page
 ![Live Race Sessions Page](/screenshots/page-race.png)
 
+### Live Track Map
+![Live Track Map](/screenshots/live-map.png)
+
 ### Standing Result Page
 ![Standing Result Page](/screenshots/result-practice-standing.png)
 
