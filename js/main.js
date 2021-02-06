@@ -23,7 +23,7 @@ function setRemainingTimeTimer(start_time, duration_min) {
 
 class Page {
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
-  static VERSION = "v0.8";
+  static VERSION = "v0.9";
 
   static cb_updateTeamsName(data) {
     if (data["status"] === "success") {
@@ -83,11 +83,24 @@ class LeaderboardPage extends Page {
       attr("data-use-number", event["use_number"]).attr("data-track", event["track_config_id"]).attr("data-livery-preview", event["livery_preview"]);
       $("#event-detail .title").text(event["name"]);
       $("#event-detail .server").text(event["server_name"]);
-      if (event["quali_start"] !== undefined) {
-        $("#event-detail .quali .date").text(event["quali_start"]);
+
+      var practiceDuration = EventsPage.getPracticeDurationStr(event);
+      var qualiDuration = EventsPage.getQualiDurationStr(event);
+      var raceDuration = EventsPage.getRaceDurationStr(event);
+      if (practiceDuration === "-") {
+        $("#event-detail .practice").addClass("disabled");
+      } else {
+        $("#event-detail .practice .date").text(practiceDuration);
       }
-      if (event["race_start"] !== undefined) {
-        $("#event-detail .race .date").text(event["race_start"]);
+      if (qualiDuration === "-") {
+        $("#event-detail .quali").addClass("disabled");
+      } else {
+        $("#event-detail .quali .date").text(qualiDuration);
+      }
+      if (raceDuration === "-") {
+        $("#event-detail .race").addClass("disabled");
+      } else {
+        $("#event-detail .race .date").text(raceDuration);
       }
 
       var trackApi = "/ac/track/" + event["track_config_id"];
@@ -433,7 +446,39 @@ class EventsPage extends Page {
     }
   }
 
+  static getPracticeDurationStr(event) {
+    return event["practice_duration"] === -1? "-" : Util.getMinuteTimeDiffString(event["practice_duration"]);
+  }
+
+  static getQualiDurationStr(event) {
+    return event["quali_duration"] === -1? "-" : Util.getMinuteTimeDiffString(event["quali_duration"]);
+  }
+
+  static getRaceDurationStr(event) {
+    var raceDuration = "-";
+    if (event["race_duration"] !== -1) {
+      if (event["race_duration_type"] === 0) {
+        raceDuration = Util.getMinuteTimeDiffString(event["race_duration"]);
+      } else {
+        raceDuration = event["race_duration"] + "Laps"
+      }
+
+      if (event["race_extra_laps"] !== 0) {
+        raceDuration += " | +" +  event["race_extra_laps"];
+      }
+      if (event["reverse_grid_positions"] !== 0) {
+        raceDuration += " | RG (" + (event["reverse_grid_positions"] === -1? "All" : event["reverse_grid_positions"]) + ")";
+      }
+    }
+
+    return raceDuration;
+  }
+
   static getEventHtml(event) {
+    var practiceDuration = EventsPage.getPracticeDurationStr(event);
+    var qualiDuration = EventsPage.getQualiDurationStr(event);
+    var raceDuration = EventsPage.getRaceDurationStr(event);
+
     return `<div class="single-event">
       <a data-event-id="${event["event_id"]}" href="${"/ac/event/" + event["event_id"] + (Util.isLiveEventPage()? "/live" : "/result")}">
         <div class="event">
@@ -446,20 +491,20 @@ class EventsPage extends Page {
             </div>
           </div>
           <div class="time">
-            <div class="practice">
+            <div class="practice ${practiceDuration === "-"? "disabled": ""}">
               <div class="live"></div>
               <span class="tag">Practice</span>
-              <span class="date">${(event["practice_start"] || "N/A")}</span>
+              <span class="date">${practiceDuration}</span>
             </div>
-            <div class="quali">
+            <div class="quali ${qualiDuration === "-"? "disabled": ""}">
               <div class="live"></div>
               <span class="tag">Qualification</span>
-              <span class="date">${(event["quali_start"] || "N/A")}</span>
+              <span class="date">${qualiDuration}</span>
             </div>
-            <div class="race">
+            <div class="race ${raceDuration === "-"? "disabled": ""}">
               <div class="live"></div>
               <span class="tag">Race</span>
-              <span class="date">${(event["race_start"] || "N/A")}</span>
+              <span class="date">${raceDuration}</span>
             </div>
           </div>
           <div class="track">
@@ -800,6 +845,10 @@ class Util {
     }
     weather.shift();
     return weather.join(" ") + (solWeather ? " (Sol)" : "");
+  }
+
+  static getMinuteTimeDiffString(diff) {
+    return Util.getTimeDiffString(diff * 60);
   }
 
   static getTimeDiffString(diff) {
