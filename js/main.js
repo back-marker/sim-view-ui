@@ -79,8 +79,12 @@ class LeaderboardPage extends Page {
   static cb_updateEventInfo(data) {
     if (data["status"] === "success") {
       var event = data["event"];
+
       $("#event-detail").attr("data-event-id", event["event_id"]).attr("data-team-event", event["team_event"]).
-      attr("data-use-number", event["use_number"]).attr("data-track", event["track_config_id"]).attr("data-livery-preview", event["livery_preview"]);
+      attr("data-use-number", event["use_number"]).attr("data-track", event["track_config_id"]).
+      attr("data-livery-preview", event["livery_preview"]).attr("data-race-extra-laps", event["race_extra_laps"]).
+      attr("data-reverse-grid", event["reverse_grid_positions"]);
+
       $("#event-detail .title").text(event["name"]);
       $("#event-detail .server").text(event["server_name"]);
 
@@ -142,7 +146,7 @@ class LeaderboardPage extends Page {
           clearInterval(LeaderboardPage.sessionGripIntervalHandler);
         }
         var sessionOverText = session["type"] + " session is over";
-        if (session["type"] !== "Race") {
+        if (session["type"] !== "Race" || $("#event-detail").attr("data-reverse-grid") !== undefined) {
           sessionOverText += ". Reloading in 5 secs";
           setTimeout(function() { window.location.reload(true); }, 5 * 1000);
         }
@@ -211,6 +215,14 @@ class LeaderboardPage extends Page {
         } else {
           LeaderboardPage.setRemainingLaps(1);
         }
+      } else if (sessionType === "race" && leaderboard.entries[0] !== undefined) {
+        if (leaderboard.entries[0].status === LeaderBoardEntry.STATUS.FINISHED) {
+          $("#event-detail").attr("data-finished", "true");
+        } else if ($("#event-detail").attr("data-total-laps") !== undefined) {
+          if (leaderboard.entries[0].totalLaps > Number.parseInt($("#event-detail").attr("data-total-laps"))) {
+            $("#event-detail").removeAttr("data-total-laps").removeAttr("data-race-extra-laps");
+          }
+        }
       }
 
       if (pendingTeams) {
@@ -277,7 +289,7 @@ class LeaderboardPage extends Page {
 
       LeaderboardPage.sessionGripIntervalHandler = setInterval(function() {
         getRequest("/api/ac/session/" + session["session_id"], LeaderboardPage.cb_updateSessionGrip);
-      }, 30 * 1000);
+      }, 5 * 1000);
 
       var leaderboardApi = "/api/ac/session/" + session["session_id"] + "/leaderboard/" +
         session["type"].toLocaleLowerCase();
@@ -386,7 +398,19 @@ class LeaderboardPage extends Page {
   static setRemainingTime(start_time, duration_min) {
     var elapsedMS = Date.now() - Math.floor(start_time / 1000);
     var diffTime = duration_min * 60 - Math.floor(elapsedMS / 1000);
-    var remainTime = Util.getTimeDiffString(diffTime);
+    var remainTime;
+    if (diffTime < 0 && $("#event-detail").attr("data-session") === "race") {
+      if ($("#event-detail").attr("data-finished") !== undefined) {
+        remainTime = "Finished";
+      } else if($("#event-detail").attr("data-race-extra-laps") === "1") {
+        remainTime = "+1 Lap";
+        $("#event-detail").attr("data-total-laps", $("#board-body [data-pos='1'] .lb-laps").text())
+      } else {
+        remainTime = "Last Lap";
+      }
+    } else {
+      remainTime = Util.getTimeDiffString(diffTime);
+    }
     $("#remaining span").text(remainTime);
 
     var nextTimeout = 60000;
