@@ -83,7 +83,7 @@ class LeaderboardPage extends Page {
       $("#event-detail").attr("data-event-id", event["event_id"]).attr("data-team-event", event["team_event"]).
       attr("data-use-number", event["use_number"]).attr("data-track", event["track_config_id"]).
       attr("data-livery-preview", event["livery_preview"]).attr("data-race-extra-laps", event["race_extra_laps"]).
-      attr("data-reverse-grid", event["reverse_grid_positions"]);
+      attr("data-race-wait-time", event["race_wait_time"]).attr("data-reverse-grid", event["reverse_grid_positions"]);
 
       $("#event-detail .title").text(event["name"]);
       $("#event-detail .server").text(event["server_name"]);
@@ -397,24 +397,33 @@ class LeaderboardPage extends Page {
 
   static setRemainingTime(start_time, duration_min) {
     var elapsedMS = Date.now() - Math.floor(start_time / 1000);
-    var diffTime = duration_min * 60 - Math.floor(elapsedMS / 1000);
+    var raceWait = Number.parseInt($("#event-detail").attr("data-race-wait-time"));
     var remainTime;
-    if (diffTime < 0 && $("#event-detail").attr("data-session") === "race") {
-      if ($("#event-detail").attr("data-finished") !== undefined) {
-        remainTime = "Finished";
-      } else if($("#event-detail").attr("data-race-extra-laps") === "1") {
-        remainTime = "+1 Lap";
-        $("#event-detail").attr("data-total-laps", $("#board-body [data-pos='1'] .lb-laps").text())
-      } else {
-        remainTime = "Last Lap";
-      }
+    var waitForGreen = (elapsedMS <= raceWait * 1000) && $("#event-detail").attr("data-session") === "race";
+    if (waitForGreen) {
+      remainTime = "- " + Util.getTimeDiffString(raceWait - Math.floor(elapsedMS / 1000)) + " -";
     } else {
-      remainTime = Util.getTimeDiffString(diffTime);
+      var diffTime = duration_min * 60 - Math.floor(elapsedMS / 1000);
+      if ($("#event-detail").attr("data-session") === "race") {
+        diffTime += raceWait;
+      }
+      if (diffTime < 0 && $("#event-detail").attr("data-session") === "race") {
+        if ($("#event-detail").attr("data-finished") !== undefined) {
+          remainTime = "Finished";
+        } else if($("#event-detail").attr("data-race-extra-laps") === "1") {
+          remainTime = "+1 Lap";
+          $("#event-detail").attr("data-total-laps", $("#board-body [data-pos='1'] .lb-laps").text())
+        } else {
+          remainTime = "Last Lap";
+        }
+      } else {
+        remainTime = Util.getTimeDiffString(diffTime);
+      }
     }
     $("#remaining span").text(remainTime);
 
     var nextTimeout = 60000;
-    if (diffTime < 60 * 60) {
+    if (waitForGreen || diffTime < 60 * 60) {
       nextTimeout = 1000;
     }
     setTimeout(function() {
