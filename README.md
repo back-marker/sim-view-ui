@@ -25,3 +25,6 @@
 
 ### Team Preview
 ![Stints Result Page](/screenshots/team-preview.png)
+
+### Best Laps Page
+![Best Laps Page](/screenshots/page-bestlap.png)

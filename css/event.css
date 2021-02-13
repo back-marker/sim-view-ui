@@ -20,12 +20,9 @@ main {
   opacity: 0 !important;
 }
 
-#events-page main {
-  margin-top: 100px;
-  padding: 0 150px;
-}
-
-#result-page main {
+#events-page main,
+#result-page main,
+#bestlap-page main {
   margin-top: 100px;
   padding: 0 150px;
 }
@@ -342,7 +339,8 @@ main {
   width: 400px;
 }
 
-#board-header td {
+#board-header td,
+#bestlaps-header td {
   color: #797979;
   text-transform: uppercase;
   font-weight: bold;
@@ -353,7 +351,8 @@ main {
   padding-bottom: 15px;
 }
 
-#board-body td {
+#board-body td,
+#bestlaps-body td {
   color: #cccaca;
   font-size: 16px;
   padding: 10px 5px;
@@ -504,7 +503,8 @@ main {
   vertical-align: top;
 }
 
-#board-body tr:nth-child(even) {
+#board-body tr:nth-child(even),
+#bestlaps-body tr:nth-child(even) {
   background-color: #2f2f2f;
 }
 
@@ -723,7 +723,10 @@ li a.red {
   cursor: pointer;
 }
 
-#select-session select {
+#select-session select,
+#event-param select,
+#track-param select,
+#cars-param select {
   width: 200px;
   padding: 10px 5px;
   border-color: transparent;
@@ -736,13 +739,17 @@ li a.red {
   border-radius: unset;
   width: 100%;
   border: none;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   background: #353535 url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwbDUgNSA1LTUiIGZpbGw9IiNhYWFhYWEiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==) no-repeat 90% 50%;
 }
 
-#select-session option {
+#select-session option,
+#event-param option,
+#track-param option,
+#cars-param option {
   color: #aaa;
   font-size: 14px;
   text-transform: uppercase;
@@ -1390,4 +1397,135 @@ li a.red {
 
 .svg-car-class-4 {
   fill: #E38D59 !important;
+}
+
+#event-param {
+  width: 400px;
+  margin-right: 20px;
+}
+
+#track-param {
+  width: 300px;
+  margin-right: 20px;
+}
+
+#cars-param {
+  width: 300px;
+  margin-right: 100px;
+}
+
+.button {
+  cursor: pointer;
+  padding: 10px 20px;
+  border: 0;
+  color: #7cceff;
+  background: #353535;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 14px;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+}
+
+#selected-cars {
+  padding: 10px;
+  margin: 20px 0;
+  border: 2px dotted #606060;
+  width: 1040px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+  margin-right: 100px;
+}
+
+.selected-car {
+  padding: 5px 10px;
+  background: #353535;
+  color: #7cceff;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+  font-size: 14px;
+  margin: 5px;
+}
+
+.selected-car:hover {
+  cursor: pointer;
+  text-decoration: line-through;
+  color: #a8a8a8;
+}
+
+.lb-hr-grip,
+.lb-grip {
+  width: 70px;
+  text-align: right;
+}
+
+.lb-hr-avg,
+.lb-avg {
+  width: 90px;
+  text-align: right;
+}
+
+.lb-hr-max,
+.lb-max {
+  width: 90px;
+  text-align: right;
+}
+
+.lb-hr-finish-time,
+.lb-finish-time {
+  width: 230px;
+  text-align: right;
+}
+
+#bestlaps {
+  margin-top: 80px;
+}
+
+#bestlaps-header .lb-hr-pos,
+#bestlaps-body .lb-pos {
+  width: 45px;
+}
+
+.lb-grip,
+.lb-max,
+.lb-finish-time {
+  font-family: Roboto-Light;
+  font-size: 15px !important;
+}
+
+.lb-finish-time {
+  text-transform: uppercase;
+}
+
+.pg-button {
+  cursor: pointer;
+  padding: 5px 15px;
+  border: 0;
+  color: #7cceff;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 18px;
+  background: transparent;
+  margin: 2px;
+}
+
+.pg-button:disabled,
+.button:disabled {
+  cursor: not-allowed;
+  color: #797979;
+}
+
+.pg-button:hover {
+  color: #ff5757;
+}
+
+.pg-button:disabled:hover {
+  color: #797979;
+}
+
+#page-current {
+  color: #ff5757;
+  font-size: 20px;
+  padding: 5px 15px;
 }

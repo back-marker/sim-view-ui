@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <title>SimView | Best Laps</title>
+  <link rel="stylesheet" type="text/css" href="/css/defaults.css">
+  <link rel="stylesheet" type="text/css" href="/css/event.css">
+</head>
+
+<body id="bestlap-page" data-page="bestlap-page">
+  <header id="common-header">
+  </header>
+  <main>
+    <div id="select-parameter">
+      <div id="event-param" class="left">
+        <select name="event-param">
+        </select>
+      </div>
+      <div id="track-param" class="left">
+        <select name="track-param">
+        </select>
+      </div>
+      <div id="cars-param" class="left">
+        <select name="cars-param">
+        </select>
+      </div>
+      <div class="left">
+        <button id="search-lap" class="button">Search</button>
+      </div>
+      <div id="pagination" class="right">
+        <ul id="page-buttons">
+          <li id="page-first" class="left"><button data-page="1" disabled="disabled" class="pg-button">&lt;&lt;</button></li>
+          <li id="page-prev" class="left"><button disabled="disabled" class="pg-button">&lt;</button></li>
+          <li id="page-current" class="left">-</li>
+          <li id="page-next" class="left"><button disabled="disabled" class="pg-button">&gt;</button></li>
+          <li id="page-last" class="left"><button data-page="0" disabled="disabled" class="pg-button">&gt;&gt;</button></li>
+        </ul>
+      </div>
+      <div class="clear-both"></div>
+      <div id="selected-cars" class="left">
+      </div>
+      <div class="clear-both"></div>
+      <div id="message"></div>
+    </div>
+    <div id="bestlaps">
+      <table>
+        <thead id="bestlaps-header">
+          <tr>
+            <td class="lb-hr-pos">Pos</td>
+            <td class="lb-hr-car-class">Class</td>
+            <td class="lb-hr-car">Car</td>
+            <td class="lb-hr-driver">Driver</td>
+            <td class="lb-hr-best-lap">Best</td>
+            <td class="lb-hr-gap">Gap</td>
+            <td class="lb-hr-gap">Gap %</td>
+            <td class="lb-hr-sec1">S1</td>
+            <td class="lb-hr-sec2">S2</td>
+            <td class="lb-hr-sec3">S3</td>
+            <td class="lb-hr-grip">Grip</td>
+            <td class="lb-hr-max">Max Speed</td>
+            <td class="lb-hr-finish-time">Finish At</td>
+          </tr>
+        </thead>
+        <tbody id="bestlaps-body"></tbody>
+      </table>
+    </div>
+    <div class="clear-both"></div>
+  </main>
+  <footer>
+  </footer>
+</body>
+<script src="/vendor/js/jquery-3.5.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+</html>

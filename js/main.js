@@ -63,6 +63,7 @@ class Page {
         <li class="${page === "live"? "active" : ""}" id="link-live"><a class="red" href="/live">Live</a></li>
         <li class="${page === "events"? "active" : ""}" id="link-events"><a href="/">Events</a></li>
         <li class="${page === "result"? "active" : ""}" id="link-result"><a href="/result">Result</a></li>
+        <li class="${page === "bestlap"? "active" : ""}" id="link-bestlap"><a href="/bestlap">Best Laps</a></li>
         <li><a href="https://www.racedepartment.com/downloads/simview.35249/" targer="_blank" rel="noreferrer noopener">SimView ${Page.VERSION}</a></li>
         <div class="clear-both"></div>
       </ul>`;
@@ -866,6 +867,22 @@ class Lap {
 
     return Lap.GAP_SYMBOL + gapString;
   }
+
+  static convertToGapPercentDisplayString(gap) {
+    if (gap === undefined) return Lap.NA_SYMBOL;
+    var gapString;
+    if (typeof gap === "string") {
+      gapString = gap;
+    } else if (gap === 0) {
+      gapString = "0.00";
+    } else if (gap < 0) {
+      return Lap.NEGATIVE_GAP_SYMBOL + (-gap * 100).toFixed(2);
+    } else {
+      gapString = (gap * 100).toFixed(2);
+    }
+
+    return Lap.GAP_SYMBOL + gapString + "%";
+  }
 }
 
 class Util {
@@ -915,6 +932,12 @@ class Util {
   static getCarColorClass(carId) {
     if (LeaderBoard.carList[carId] === undefined) return "";
     return "car-class-" + LeaderBoard.carColorClass.indexOf(LeaderBoard.carList[carId]["class"]);
+  }
+
+  static getBestLapCarColorClass(carId) {
+    var idx = BestlapPage.searched_car_class_list.indexOf(BestlapPage.CARS_LIST[carId]["car_class"]);
+    if (idx > -1) return "car-class-" + idx;
+    return "";
   }
 
   static getGapFromBitmap(gap) {
@@ -1651,6 +1674,208 @@ class ResultPage extends Page {
   }
 }
 
+class BestlapPage extends Page {
+  static EVENTS_LIST = []
+  static TRACKS_LIST = []
+  static CARS_LIST = {}
+  static search_query = { per_page: 10, page_no: 1, car_ids: []}
+  static cache_search_query = {};
+  static searched_car_class_list = [];
+
+  static cb_updateAllEvents(data) {
+    if (data["status"] === "success") {
+      var events = data["events"];
+      BestlapPage.EVENTS_LIST = events;
+      var eventHtml = `<option value="0">Select Event</option>`;
+      for (var idx = 0; idx < events.length; ++idx) {
+        eventHtml += `<option value="${events[idx]["event_id"]}">${events[idx]["name"]}</option>`
+      }
+      $("#event-param select").html(eventHtml).change(function() {
+        var eventId = $(this).val();
+        BestlapPage.search_query.by_event = true;
+        BestlapPage.search_query.by_track = false;
+        BestlapPage.search_query.event_id = eventId;
+        BestlapPage.search_query.car_ids = [];
+
+        $("#track-param select").val("0");
+        $("#search-lap").attr("disabled", "disabled");
+        getRequest("/api/ac/event/" + eventId + "/cars", BestlapPage.cb_updateEventCars);
+      });
+    }
+  }
+
+  static cb_updateEventCars(data) {
+    if (data["status"] === "success") {
+      var cars = data["cars"];
+      var carsHtml = "";
+      for (var idx = 0; idx < cars.length; ++idx) {
+        BestlapPage.search_query.car_ids.push(cars[idx]["car_id"]);
+        carsHtml += `<span class="selected-car" data-car-id="${cars[idx]["car_id"]}">${cars[idx]["display_name"]}</span>`;
+      }
+      $("#selected-cars").html(carsHtml);
+    }
+    $("#search-lap").removeAttr("disabled");
+  }
+
+  static cb_updateAllTracks(data) {
+    if (data["status"] === "success") {
+      var tracks = data["tracks"];
+      BestlapPage.TRACKS_LIST = tracks;
+      var trackHtml = `<option value="0">Select Track</option>`;
+      for (var idx = 0; idx < tracks.length; ++idx) {
+        trackHtml += `<option value="${tracks[idx]["track_config_id"]}">${tracks[idx]["display_name"]}</option>`
+      }
+      $("#track-param select").html(trackHtml).change(function() {
+        var trackId = $(this).val();
+        BestlapPage.search_query.by_event = false;
+        BestlapPage.search_query.by_track = true;
+        BestlapPage.search_query.track_id = trackId;
+        $("#event-param select").val("0");
+      });
+    }
+  }
+
+  static cb_updateAllCars(data) {
+    if (data["status"] === "success") {
+      var cars = data["cars"];
+      var carsHtml = `<option value="0">Select Cars</option>`;
+      for (var idx = 0; idx < cars.length; ++idx) {
+        BestlapPage.CARS_LIST[cars[idx]["car_id"]] = cars[idx];
+        carsHtml += `<option value="${cars[idx]["car_id"]}">${cars[idx]["display_name"]}</option>`
+      }
+      $("#cars-param select").html(carsHtml).change(function() {
+        var carId = $(this).val();
+        if (BestlapPage.search_query.car_ids.indexOf(carId) === -1) {
+          BestlapPage.search_query.car_ids.push(carId);
+          var carName = $("#cars-param select option:selected").text();
+          $("#selected-cars").append(`<span class="selected-car" data-car-id="${carId}">${carName}</span>`);
+        }
+        $("#cars-param select").val("0");
+      });
+    }
+  }
+
+  static searchBestLaps(pageId) {
+    if(BestlapPage.cache_search_query.car_ids.length === 0) {
+      $("#message").text("Select a Car to view laps").show();
+      return;
+    }
+    $("#message").hide();
+    $("#bestlaps tbody").html("");
+    var url = "/api/ac/bestlap/";
+    if (BestlapPage.cache_search_query.by_event) {
+      url += "event/" + BestlapPage.cache_search_query.event_id;
+    } else if (BestlapPage.cache_search_query.by_track) {
+      url += "track/" + BestlapPage.cache_search_query.track_id;
+    }
+    url += "/cars/" + BestlapPage.cache_search_query.car_ids.join(",");
+    url += "/page/" + pageId;
+    for (var idx = 0; idx < BestlapPage.cache_search_query.car_ids.length; ++idx) {
+      var carClass = BestlapPage.CARS_LIST[BestlapPage.cache_search_query.car_ids[idx]]["car_class"];
+      if (BestlapPage.searched_car_class_list.indexOf(carClass) == -1) {
+        BestlapPage.searched_car_class_list.push(carClass);
+      }
+    }
+    getRequest(url, BestlapPage.cb_updateBestLapResult);
+  }
+
+  static updatePaginationButton(buttons) {
+    var disabled = "disabled";
+
+    if (buttons["first"]) {
+      $("#page-first button").removeAttr(disabled);
+    } else {
+      $("#page-first button").attr(disabled, disabled);
+    }
+    if (buttons["prev"]) {
+      $("#page-prev button").removeAttr(disabled).attr("data-page", buttons["page"] - 1);
+    } else {
+      $("#page-prev button").attr(disabled, disabled);
+    }
+
+    $("#page-current").text(buttons["page"]);
+
+    if (buttons["next"]) {
+      $("#page-next button").removeAttr(disabled).attr("data-page", buttons["page"] + 1);
+    } else {
+      $("#page-next button").attr(disabled, disabled);
+    }
+    if(buttons["last"]) {
+      $("#page-last button").removeAttr(disabled);
+    } else {
+      $("#page-last button").attr(disabled, disabled);
+    }
+  }
+
+  static cb_updateBestLapResult(data) {
+    if (data["status"] === "success") {
+      var response = data["bestlaps"];
+      var bestlaps = response["laps"];
+      if(bestlaps.length === 0) {
+        $("#message").text("No laps found for this combination").show();
+        return;
+      }
+      var offset = (response["page"] - 1) * response["per_page"];
+      var lapsHtml = "";
+      var driverList = [];
+      BestlapPage.updatePaginationButton(response);
+
+      for (var idx = 0; idx < bestlaps.length; ++idx) {
+        var lapEntry = BestLapEntry.fromJSON(bestlaps[idx]);
+        driverList.push(lapEntry.driverId);
+        lapsHtml += lapEntry.toHTML(offset + idx);
+      }
+      $("#bestlaps tbody").html(lapsHtml);
+      for (var idx = 0; idx < driverList.length; ++idx) {
+        getRequest("/api/ac/user/" + driverList[idx], Page.cb_updateDriverName);
+      }
+    }
+  }
+}
+
+class BestLapEntry {
+  constructor(lapId, driverId, carId, bestLap, gap, gapPer, grip, avgSpeed, maxSpeed, finishedAt) {
+    this.lapId = lapId;
+    this.driverId = driverId;
+    this.carId = carId;
+    this.bestLap = bestLap;
+    this.gap = gap;
+    this.gapPer = gapPer;
+    this.grip = grip;
+    this.avgSpeed = avgSpeed;
+    this.maxSpeed = maxSpeed;
+    this.finishedAt = (new Date(finishedAt / 1000)).toLocaleString();
+  }
+
+  static fromJSON(data) {
+    var lap = new Lap(data["time"], data["sector_1"], data["sector_2"], data["sector_3"]);
+    return new BestLapEntry(data["lap_id"], data["user_id"], data["car_id"], lap, data["gap"],
+      data["gap_per"], data["grip"], data["avg_speed"], data["max_speed"], data["finished_at"]);
+  }
+
+  toHTML(pos) {
+    return `<tr>
+      <td class="lb-pos">${pos + 1}</td>
+      <td class="lb-car-class ${Util.getBestLapCarColorClass(this.carId)}">${BestlapPage.CARS_LIST[this.carId]["car_class"]}</td>
+      <td class="lb-car">
+        <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')">
+        ${BestlapPage.CARS_LIST[this.carId]["display_name"]}
+      </td>
+      <td class="lb-driver" data-driver-id="${this.driverId}"></td>
+      <td class="lb-best-lap">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
+      <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
+      <td class="lb-gap">${Lap.convertToGapPercentDisplayString(this.gapPer)}</td>
+      <td class="lb-sec1">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</td>
+      <td class="lb-sec2">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</td>
+      <td class="lb-sec3">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</td>
+      <td class="lb-grip">${(this.grip * 100).toFixed(2)}</td>
+      <td class="lb-max">${this.maxSpeed}</td>
+      <td class="lb-finish-time">${this.finishedAt}</td>
+    </tr>`;
+  }
+}
+
+
 function showMapSectionTooltip(e, sectionName) {
 $("#map-section-tooltip").text(sectionName).css({
   left: e.pageX + 10 + "px",
@@ -1717,6 +1942,32 @@ $(document).ready(function() {
         stintBar.find('.arrow-up').toggleClass('rotate-180-clock');
       }
     });
+  } else if (page == "bestlap-page") {
+    Page.setCommonHeaderHtml("bestlap");
+    getRequest("/api/ac/events", BestlapPage.cb_updateAllEvents);
+    getRequest("/api/ac/tracks", BestlapPage.cb_updateAllTracks);
+    getRequest("/api/ac/cars", BestlapPage.cb_updateAllCars);
+    $("#search-lap").click(function() {
+      BestlapPage.cache_search_query = JSON.parse(JSON.stringify(BestlapPage.search_query));
+      BestlapPage.searchBestLaps(1);
+    });
+
+    $("#page-buttons button").click(function() {
+      BestlapPage.searchBestLaps($(this).attr("data-page"));
+    });
+
+    $("#selected-cars").click(function(e) {
+      var carId = $(e.target).attr("data-car-id");
+      if (carId !== undefined) {
+        carId = Number.parseInt(carId);
+        $(e.target).remove();
+        var idx = BestlapPage.search_query.car_ids.indexOf(carId);
+        if (idx > -1) {
+          BestlapPage.search_query.car_ids.splice(idx, 1);
+        }
+      }
+    });
+    $("#message").hide();
   }
 
   $("#tab-map").hide();
