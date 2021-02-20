@@ -691,7 +691,7 @@ class QualiLeaderBoardEntry {
       <td class="lb-sec1${(bestSec1Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</td>
       <td class="lb-sec2${(bestSec2Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</td>
       <td class="lb-sec3${(bestSec3Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</td>
-      <td class="lb-laps">${this.totalLaps}</td>
+      <td class="lb-laps">${this.totalLaps === 0? "-" : this.totalLaps}</td>
     </tr>`;
   }
 }
@@ -784,7 +784,7 @@ class RaceLeaderBoardEntry {
       </td>
       <td class="lb-driver" data-driver-id="${this.driverId}">
         ${(this.driverId !== undefined && LeaderBoard.driverList[this.driverId] !== undefined) ? LeaderBoard.driverList[this.driverId] : ""}</td>
-      <td class="lb-laps">${this.totalLaps}</td>
+      <td class="lb-laps">${this.totalLaps === 0? "-" : this.totalLaps}</td>
       <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
       <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
       <td class="lb-best-lap${(this.isPurpleLap(pos, bestLapIdx) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</td>
