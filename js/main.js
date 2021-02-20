@@ -60,8 +60,8 @@ class Page {
 
   static setCommonHeaderHtml(page) {
     var header = `<ul>
-        <li class="${page === "live"? "active" : ""}" id="link-live"><a class="red" href="/live">Live</a></li>
-        <li class="${page === "events"? "active" : ""}" id="link-events"><a href="/">Events</a></li>
+        <li class="${page === "live"? "active" : ""}" id="link-live"><a class="red" href="/">Live</a></li>
+        <li class="${page === "events"? "active" : ""}" id="link-events"><a href="/events">Events</a></li>
         <li class="${page === "result"? "active" : ""}" id="link-result"><a href="/result">Result</a></li>
         <li class="${page === "bestlap"? "active" : ""}" id="link-bestlap"><a href="/bestlap">Best Laps</a></li>
         <li class="${page === "driver"? "active" : ""}" id="link-driver"><a href="/driver">Driver</a></li>
@@ -966,7 +966,7 @@ class Util {
   }
 
   static isLiveEventPage() {
-    return window.location.toString().endsWith("/live");
+    return window.location.pathname === "/";
   }
 
   static getCarColorClass(carId) {
