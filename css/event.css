@@ -348,7 +348,6 @@ main {
   font-size: 16px;
   padding-left: 5px;
   padding-right: 5px;
-  border-bottom: 2px solid #464646;
   padding-bottom: 15px;
 }
 
@@ -532,7 +531,7 @@ main {
 }
 
 .green-sec {
-  color: #2db52d !important;
+  color: #59f459 !important;
 }
 
 .status-green {
@@ -1471,13 +1470,13 @@ li a.red {
 
 .lb-hr-max,
 .lb-max {
-  width: 90px;
+  width: 100px;
   text-align: right;
 }
 
 .lb-hr-finish-time,
 .lb-finish-time {
-  width: 230px;
+  width: 220px;
   text-align: right;
 }
 
@@ -1488,6 +1487,12 @@ li a.red {
 #bestlaps-header .lb-hr-pos,
 #bestlaps-body .lb-pos {
   width: 45px;
+}
+
+#board-body,
+#bestlaps-body {
+  border-top: 2px solid #464646;
+  border-bottom: 2px solid #464646;
 }
 
 .lb-grip,

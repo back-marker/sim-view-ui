@@ -1874,7 +1874,8 @@ class BestlapPage extends Page {
 }
 
 class BestLapEntry {
-  constructor(lapId, driverId, carId, bestLap, gap, gapPer, grip, avgSpeed, maxSpeed, finishedAt) {
+  constructor(lapId, driverId, carId, bestLap, gap, gapPer, grip, avgSpeed, maxSpeed,
+    carBest, classBest, sec1CarBest, sec1ClassBest, sec2CarBest, sec2ClassBest, sec3CarBest, sec3ClassBest, finishedAt) {
     this.lapId = lapId;
     this.driverId = driverId;
     this.carId = carId;
@@ -1884,13 +1885,32 @@ class BestLapEntry {
     this.grip = grip;
     this.avgSpeed = avgSpeed;
     this.maxSpeed = maxSpeed;
+    this.carBest = carBest;
+    this.classBest = classBest;
+    this.sec1CarBest = sec1CarBest;
+    this.sec2CarBest = sec2CarBest;
+    this.sec3CarBest = sec3CarBest;
+    this.sec1ClassBest = sec1ClassBest;
+    this.sec2ClassBest = sec2ClassBest;
+    this.sec3ClassBest = sec3ClassBest;
     this.finishedAt = (new Date(finishedAt / 1000)).toLocaleString();
   }
 
   static fromJSON(data) {
     var lap = new Lap(data["time"], data["sector_1"], data["sector_2"], data["sector_3"]);
     return new BestLapEntry(data["lap_id"], data["user_id"], data["car_id"], lap, data["gap"],
-      data["gap_per"], data["grip"], data["avg_speed"], data["max_speed"], data["finished_at"]);
+      data["gap_per"], data["grip"], data["avg_speed"], data["max_speed"], data["car_best"], data["class_best"],
+      data["sector_1_car_best"], data["sector_1_class_best"], data["sector_2_car_best"], data["sector_2_class_best"],
+      data["sector_3_car_best"], data["sector_3_class_best"], data["finished_at"]);
+  }
+
+  getLapStatus(classBest, carBest) {
+    if (classBest === 1) {
+      return "purple-sec";
+    } else if (carBest === 1) {
+      return "green-sec";
+    }
+    return "";
   }
 
   toHTML(pos) {
@@ -1902,14 +1922,14 @@ class BestLapEntry {
         ${BestlapPage.CARS_LIST[this.carId]["display_name"]}
       </td>
       <td class="lb-driver" data-driver-id="${this.driverId}"></td>
-      <td class="lb-best-lap">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
+      <td class="lb-best-lap ${this.getLapStatus(this.classBest, this.carBest)}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
       <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
       <td class="lb-gap">${Lap.convertToGapPercentDisplayString(this.gapPer)}</td>
-      <td class="lb-sec1">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</td>
-      <td class="lb-sec2">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</td>
-      <td class="lb-sec3">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</td>
-      <td class="lb-grip">${(this.grip * 100).toFixed(2)}</td>
-      <td class="lb-max">${this.maxSpeed}</td>
+      <td class="lb-sec1 ${this.getLapStatus(this.sec1ClassBest, this.sec1CarBest)}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</td>
+      <td class="lb-sec2 ${this.getLapStatus(this.sec2ClassBest, this.sec2CarBest)}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</td>
+      <td class="lb-sec3 ${this.getLapStatus(this.sec3ClassBest, this.sec3CarBest)}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</td>
+      <td class="lb-grip">${(this.grip * 100).toFixed(2)} %</td>
+      <td class="lb-max">${this.maxSpeed} KM/HR</td>
       <td class="lb-finish-time">${this.finishedAt}</td>
     </tr>`;
   }
