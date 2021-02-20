@@ -64,6 +64,7 @@ class Page {
         <li class="${page === "events"? "active" : ""}" id="link-events"><a href="/">Events</a></li>
         <li class="${page === "result"? "active" : ""}" id="link-result"><a href="/result">Result</a></li>
         <li class="${page === "bestlap"? "active" : ""}" id="link-bestlap"><a href="/bestlap">Best Laps</a></li>
+        <li class="${page === "driver"? "active" : ""}" id="link-driver"><a href="/driver">Driver</a></li>
         <li><a href="https://www.racedepartment.com/downloads/simview.35249/" targer="_blank" rel="noreferrer noopener">SimView ${Page.VERSION}</a></li>
         <div class="clear-both"></div>
       </ul>`;
@@ -311,7 +312,7 @@ class LeaderboardPage extends Page {
           var driver = driverList[idx];
           driverListHtml += `<div class="driver">
             ${driver["country"]? `<span class="left driver-country">
-              <img alt="N/A" src="https://www.countryflags.io/${driver["country"]}/flat/32.png">
+              <img alt="N/A" src="${Util.getCountryFlagUrl(driver["country"])}">
             </span>` : ""}
             <span class="left driver-name">${driver["name"]}</span>
             </div>`;
@@ -919,6 +920,45 @@ class Util {
       }
       return Math.floor(diff / 60) + "H " + (diff % 60) + "M";
     }
+  }
+
+  static getPluralSuffix(count) {
+    return count === 1? "" : "s";
+  }
+
+  static getTimeAgoString(secs) {
+    if (secs < 0) {
+      return "Unknown";
+    }
+    else if (secs >= 0 && secs < 60) {
+      return "Online";
+    }
+
+    var min = Math.floor(secs / 60);
+    if (min < 60) {
+      return min + " min" + Util.getPluralSuffix(min);
+    }
+    var hr = Math.floor(min / 60);
+    if (hr < 24) {
+      return hr + " hour" + Util.getPluralSuffix(hr);
+    }
+    var days = Math.floor(hr / 24);
+    if (days < 7) {
+      return days + " day" + Util.getPluralSuffix(days);
+    }
+    var weeks = Math.floor(days / 7);
+    if (weeks < 4) {
+      return weeks + " week" + Util.getPluralSuffix(weeks);
+    }
+    return "+1 Month"
+  }
+
+  static isSuccessResponse(data) {
+    return data["status"] === "success";
+  }
+
+  static getCountryFlagUrl(code, size = 32) {
+    return `https://www.countryflags.io/${code}/flat/${size}.png`;
   }
 
   static getCurrentEvent() {
@@ -1875,6 +1915,132 @@ class BestLapEntry {
   }
 }
 
+class DriverPage extends Page {
+  static CHART_WIDTH = 720;
+  static CHART_HEIGHT = 400;
+
+  static cb_updateDriversList(data) {
+    if (Util.isSuccessResponse(data)) {
+      var drivers = data["users"];
+      var selectHtml = `<option value="0">SELECT DRIVER</option>`;
+      drivers.forEach(function(driver) {
+        selectHtml += `<option data-country="${driver.country || ""}" value="${driver.user_id}">${driver.name}</option>`;
+      });
+      $("#driver-param select").html(selectHtml).change(function() {
+        var driverId = $(this).val();
+        var selected = $("#driver-param select option:selected");
+
+        $(".ds-driver-name").text(selected.text());
+
+        var country = selected.attr("data-country");
+        if (country !== undefined && country !== "") {
+          $(".ds-driver-country").html(`<img alt="Flag" src="${Util.getCountryFlagUrl(country)}">`);
+        } else {
+          $(".ds-driver-country img").remove();
+        }
+
+        getRequest(`/api/ac/user/${driverId}/summary`, DriverPage.cb_updateDriverSummary);
+      });
+    }
+  }
+
+  static cb_updateDriverSummary(data) {
+    if (Util.isSuccessResponse(data)) {
+      var driver = data["driver"];
+      $("#basic-info .ds-car-events .ds-value").text(driver["total_events"]);
+      $("#basic-info .ds-total-distance .ds-value").text(driver["total_distance_driven_km"] + " KM");
+      $("#basic-info .ds-laps .ds-value").text(driver["total_laps"]);
+      $("#basic-info .ds-valid-laps .ds-value").text(driver["total_valid_laps"]);
+
+      var eventHtml = '';
+      driver["events"].forEach(function(event){
+        eventHtml += `<tr>
+        <td class="ds-event">${event["event_name"]}</td>
+        <td class="ds-track">${event["track_name"]}</td>
+        <td class="ds-team">${event["team_name"] === undefined? "-" : event["team_name"]}</td>
+        <td class="ds-distance">${event["distance_driven_km"]} KM</td>
+        <td class="ds-laps">${event["total_laps"]}</td>
+        <td class="ds-valid-laps">${event["total_valid_laps"]}</td>
+        <td class="ds-last-seen">${Util.getTimeAgoString(event["time_ago_sec"])} ago</td>
+        </tr>`;
+      });
+
+      $("#driver-events tbody").html(eventHtml);
+      DriverPage.createDriverTopCombosChart("tracks", "ds-top-tracks-chart", "Top driven tracks", driver["top_tracks"], "track_name", "distance_driven");
+      DriverPage.createDriverTopCombosChart("cars", "ds-top-cars-chart", "Top driven cars", driver["top_cars"], "car_name", "distance_driven");
+    }
+  }
+
+  static createDriverTopCombosChart(container, canvas_id, chart_label, data, label_key, value_key) {
+    $("#" + canvas_id).remove();
+    $(`#top-${container} .canvas-container`).append(`<canvas id="${canvas_id}" width="${DriverPage.CHART_WIDTH}" height="${DriverPage.CHART_HEIGHT}"></canvas>`);
+    var canvas = document.getElementById(canvas_id);
+    var ctx = canvas.getContext('2d');
+
+    var scaleLabelColor = '#a8a8a8';
+    var mainGridLineColor = '#a8a8a87a';
+
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(function(e){ return e[label_key]; }),
+          datasets: [{
+            label: chart_label,
+            data: data.map(function(e) { return e[value_key]; }),
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            yAxes: [{
+              position: (container === "cars"? "right" : "left"),
+              gridLines: {
+                drawOnChartArea: false,
+                color: mainGridLineColor
+              },
+              scaleLabel: {
+                display: true,
+                labelString: 'Distance in KM',
+                fontColor: scaleLabelColor
+              },
+              ticks: {
+                beginAtZero: true,
+                fontColor: scaleLabelColor,
+                fontSize: 14
+              }
+            }],
+            xAxes: [{
+              gridLines: {
+                drawOnChartArea: false,
+                color: mainGridLineColor
+              },
+              ticks: {
+                fontColor: scaleLabelColor,
+                fontSize: 14
+              }
+            }],
+          },
+          legend: {
+            display: false
+          }
+        }
+    });
+  }
+}
 
 function showMapSectionTooltip(e, sectionName) {
 $("#map-section-tooltip").text(sectionName).css({
@@ -1968,6 +2134,9 @@ $(document).ready(function() {
       }
     });
     $("#message").hide();
+  } else if (page == "driver-page") {
+    Page.setCommonHeaderHtml("driver");
+    getRequest("/api/ac/users", DriverPage.cb_updateDriversList);
   }
 
   $("#tab-map").hide();

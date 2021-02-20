@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <title>SimView | Driver Summary</title>
+  <link rel="stylesheet" type="text/css" href="/css/defaults.css">
+  <link rel="stylesheet" type="text/css" href="/css/event.css">
+</head>
+
+<body id="driver-page" data-page="driver-page">
+  <header id="common-header">
+  </header>
+  <main>
+    <div>
+      <div id="select-parameter" class="left">
+        <div id="driver-param">
+          <select name="driver-param" class="red-select">
+          </select>
+        </div>
+      </div>
+      <span class="ds-driver-country left">
+      </span>
+      <span class="ds-driver-name"></span>
+    </div>
+    <div class="clear-both"></div>
+    </div>
+    <div id="driver-detail">
+      <div id="ds-top">
+        <div id="basic-info">
+          <ul>
+            <li class="ds-car-events">
+              <span class="ds-tag">Total Events</span><span class="ds-value">-</span>
+            </li>
+            <li class="ds-total-distance">
+              <span class="ds-tag">Total Distance Driven</span><span class="ds-value">-</span></li>
+            <li class="ds-laps">
+              <span class="ds-tag">Total Laps</span><span class="ds-value">-</span>
+            </li>
+            <li class="ds-valid-laps">
+              <span class="ds-tag">Total Valid Laps</span><span class="ds-value">-</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div id="ds-graphs">
+        <div id="top-tracks">
+          <p class="driver-stats-label">Top Driven Tracks</p>
+          <div class="canvas-container"></div>
+        </div>
+        <div id="top-cars">
+          <p class="driver-stats-label text-right">Top Driven Cars</p>
+          <div class="canvas-container"></div>
+        </div>
+      </div>
+      <div id="ds-main">
+        <div id="driver-events">
+          <p class="driver-stats-label">All Events</p>
+          <table class="driver-stats-table">
+            <thead>
+              <tr>
+                <td class="ds-hr-event">Event</td>
+                <td class="ds-hr-track">Track</td>
+                <td class="ds-hr-team">Team</td>
+                <td class="ds-hr-distance text-right">Driven</td>
+                <td class="ds-hr-laps text-right">Laps</td>
+                <td class="ds-hr-valid-laps text-right">Valid Laps</td>
+                <td class="ds-hr-last-seen text-right">Last Seen</td>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    </div>
+  </main>
+  <footer>
+  </footer>
+</body>
+
+<script src="/vendor/js/jquery-3.5.1.min.js"></script>
+<script src="/vendor/js/Chart.min.js"></script>
+<script src="/js/main.js"></script>
+
+</html>

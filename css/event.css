@@ -22,7 +22,8 @@ main {
 
 #events-page main,
 #result-page main,
-#bestlap-page main {
+#bestlap-page main,
+#driver-page main {
   margin-top: 100px;
   padding: 0 150px;
 }
@@ -726,7 +727,8 @@ li a.red {
 #select-session select,
 #event-param select,
 #track-param select,
-#cars-param select {
+#cars-param select,
+.red-select {
   width: 200px;
   padding: 10px 5px;
   border-color: transparent;
@@ -749,7 +751,8 @@ li a.red {
 #select-session option,
 #event-param option,
 #track-param option,
-#cars-param option {
+#cars-param option,
+.red-select option {
   color: #aaa;
   font-size: 14px;
   text-transform: uppercase;
@@ -1528,4 +1531,179 @@ li a.red {
   color: #ff5757;
   font-size: 20px;
   padding: 5px 15px;
+}
+
+#driver-param {
+  width: 300px;
+  margin-right: 30px;
+}
+
+#driver-param select {
+  text-transform: none;
+}
+
+.driver-stats-label {
+  font-size: 14px;
+  color: #7cceff;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.driver-stats-table thead td {
+  color: #797979;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 14px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom: 2px solid #464646;
+  padding-bottom: 10px;
+}
+
+.driver-stats-table tbody td {
+  color: #cccaca;
+  font-size: 16px;
+  padding: 8px 5px;
+}
+
+.driver-stats-table tbody tr:nth-child(even) {
+  background-color: #2f2f2f;
+}
+
+.driver-stats-table td:first-child {
+  padding-left: 10px;
+}
+
+.driver-stats-table td:last-child {
+  text-align: right;
+  padding-right: 10px;
+}
+
+.driver-stats-table tbody tr:last-child {
+  border-bottom: 2px solid #464646;
+}
+
+.ds-hr-event,
+.ds-event {
+  width: 500px;
+}
+
+.ds-hr-track,
+.ds-track {
+  width: 350px;
+}
+
+.ds-hr-distance,
+.ds-distance {
+  width: 120px;
+}
+
+.ds-hr-last-seen,
+.ds-last-seen {
+  width: 130px;
+}
+
+.ds-event,
+.ds-track,
+.ds-team {
+  word-break: break-all;
+}
+
+.ds-hr-laps,
+.ds-laps {
+  width: 80px;
+}
+
+.ds-hr-valid-laps,
+.ds-valid-laps {
+  width: 110px;
+}
+
+.ds-hr-team,
+.ds-team {
+  width: 200px;
+}
+
+.ds-distance,
+.ds-laps,
+.ds-valid-laps,
+.ds-last-seen {
+  font-family: Roboto-Light;
+  font-size: 15px !important;
+  text-align: right;
+}
+
+.ds-team {
+  border-right: 2px solid #464646;
+}
+
+#ds-middle,
+#ds-bottom {
+  display: flex;
+  justify-content: space-between;
+}
+
+.text-right {
+  text-align: right;
+}
+
+#basic-info ul {
+  display: flex;
+  justify-content: space-between;
+}
+
+#basic-info li {
+  width: 120px;
+  height: 80px;
+  padding: 10px;
+  border: 1px dotted #737373;
+  background-color: #353535;
+}
+
+.ds-tag,
+.ds-value {
+  display: block;
+}
+
+.ds-tag {
+  text-align: center;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #7cceff;
+  font-weight: bold;
+  height: 50px;
+}
+
+.ds-value {
+  text-align: center;
+  font-size: 20px;
+  color: #fff77f;
+}
+
+.ds-driver-name {
+  color: #ff5757;
+  line-height: 40px;
+  font-size: 20px;
+}
+
+.ds-driver-country {
+  margin-right: 30px;
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+}
+
+#driver-detail {
+  margin-bottom: 70px;
+}
+
+#ds-top {
+  margin-top: 50px;
+}
+
+#ds-graphs {
+  display: flex;
+  justify-content: space-between;
+  padding: 80px 0;
 }
