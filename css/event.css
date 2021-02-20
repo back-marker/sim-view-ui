@@ -975,7 +975,6 @@ li a.red {
   font-size: 16px;
   padding-left: 5px;
   padding-right: 5px;
-  border-bottom: 2px solid #464646;
   padding-bottom: 15px;
 }
 
@@ -1489,6 +1488,17 @@ li a.red {
   width: 45px;
 }
 
+#standings-body .lb-car,
+#sec-body-1 .lb-car,
+#sec-body-2 .lb-car,
+#sec-body-3 .lb-car {
+  border-right: 2px solid #464646;
+}
+
+#standings-body,
+#sec-body-1,
+#sec-body-2,
+#sec-body-3,
 #board-body,
 #bestlaps-body {
   border-top: 2px solid #464646;
