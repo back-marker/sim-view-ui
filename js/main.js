@@ -1025,6 +1025,7 @@ class Util {
 class TrackMap {
   static DRIVER_CIRCLE_RADIUS = 5;
   static DEFAULT_DRIVER_CIRCLE_COLOR = "#22b4e1";
+  static DRIVER_NAME_CHARACTER_LIMIT = 10;
 
   static getEntityUniqueId(teamId, driverId, carId, teamEvent) {
     if (teamEvent) {
@@ -1040,10 +1041,10 @@ class TrackMap {
       if (useTeamNumber) {
         name = "#" + LeaderBoard.teamList[teamId]["team_no"];
       } else {
-        name = LeaderBoard.teamList[teamId]["name"].substr(0, 3).toUpperCase();
+        name = LeaderBoard.teamList[teamId]["name"].substr(0, TrackMap.DRIVER_NAME_CHARACTER_LIMIT);
       }
     } else if (!teamEvent && LeaderBoard.driverList[driverId] !== undefined){
-      name = LeaderBoard.driverList[driverId].substr(0, 3).toUpperCase();
+      name = LeaderBoard.driverList[driverId].substr(0, TrackMap.DRIVER_NAME_CHARACTER_LIMIT);
     }
 
     return (pos + 1) + ": " + name;
