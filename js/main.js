@@ -116,6 +116,7 @@ class LeaderboardPage extends Page {
 
       getRequest("/images" + trackApi + "/map", function(data) {
         $("#track-map-svg").html(data.childNodes[0].outerHTML);
+        $("#track-map-svg svg").css(Util.getOptimalWidthAndHeightForMap("#track-map-svg svg"));
       }, LeaderboardPage.cb_missingTrackMap);
       getRequest("/api/ac/event/" + event["event_id"] + "/session/latest", LeaderboardPage.cb_updateSessionInfo);
     }
@@ -1007,6 +1008,17 @@ class Util {
 
   static isLiveTrackMapAvailable() {
     return $("#track-map svg").length == 1;
+  }
+
+  static getOptimalWidthAndHeightForMap(svg_selector) {
+    var viewbox = $(svg_selector).attr("viewBox");
+    var width = Number.parseInt(viewbox.split(" ")[2]);
+    var height = Number.parseInt(viewbox.split(" ")[3]);
+    var maxWidth = Number.parseInt($(svg_selector).css("max-width"));
+    var maxHeight = Number.parseInt($(svg_selector).css("max-height"));
+    var k = Math.min(maxWidth / width, maxHeight / height);
+
+    return { "width": (width * k) + "px", "height": (height * k) + "px" };
   }
 }
 
