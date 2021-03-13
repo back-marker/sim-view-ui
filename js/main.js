@@ -23,7 +23,7 @@ function setRemainingTimeTimer(start_time, duration_min) {
 
 class Page {
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
-  static VERSION = "v0.9.1";
+  static VERSION = "v1.0";
 
   static cb_updateTeamsName(data) {
     if (data["status"] === "success") {
@@ -73,11 +73,45 @@ class Page {
   }
 }
 
+class SessionFeed {
+  static getFeedMsg(type, detail) {
+    switch (type) {
+      case 0:
+        return getCollisionCarMsg(detail);
+      case 1:
+        return getCollisionEnv(detail);
+      case 2:
+        return getUserConnectedMsg(detail);
+      case 3:
+        return getUserDisconnectedMsg(detail);
+      case 4:
+        return getStintBestLapMsg(detail);
+      case 5:
+        return getSessionClassBestLapMsg(detail);
+      case 6:
+        return getTeamDriverChange(detail);
+      default:
+        return "-"
+    }
+  }
+
+  static getCollisionCarMsg(detail) {}
+  static getCollisionEnv(detail) {}
+  static getUserConnectedMsg(detail) {
+
+    ``
+  }
+  static getUserDisconnectedMsg(detail) {}
+  static getStintBestLapMsg(detail) {}
+  static getSessionClassBestLapMsg(detail) {}
+  static getTeamDriverChange(detail) {}
+}
 class LeaderboardPage extends Page {
 
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
   static sessionGripIntervalHandler = -1;
   static sessionLeaderboardIntervalHandler = -1;
+  static sessionFeedLastId = -1;
 
   static cb_updateEventInfo(data) {
     if (data["status"] === "success") {
@@ -171,7 +205,8 @@ class LeaderboardPage extends Page {
 
   static cb_updateLeaderBoard(data) {
     if (data["status"] == "success") {
-      var leaderboard = data["leaderboard"];
+      var leaderboard = data["leaderboard"]["standings"];
+      var feed = data["leaderboard"]["feed"];
       var leaderboardHtml = "";
 
       var pendingTeams = false;
@@ -238,6 +273,8 @@ class LeaderboardPage extends Page {
       pendingDriverList.forEach(function(user_id) {
         getRequest("/api/ac/user/" + user_id, Page.cb_updateDriverName);
       });
+
+      $("#feeds tbody").append(LeaderboardPage.getFeedHtml(feed));
     }
   }
 
@@ -339,6 +376,26 @@ class LeaderboardPage extends Page {
       $("#livery-preview").prepend(`<img alt="Livery Preview Not Available" src="${previewFileUrl}">`);
     }
     getRequest(`/api/ac/team/${teamId}/members`, LeaderboardPage.cb_updateTeamMembersInOverlay);
+  }
+
+  static getFeedHtml(feedList) {
+    var feedHtml = "";
+    var lastFeedId = LeaderboardPage.sessionFeedLastId;
+    for (var idx = 0; idx < feedList.length; ++idx) {
+      var feed = feedList[idx];
+      if (LeaderboardPage.sessionFeedLastId !== -1 &&
+        feed["session_feed_id"] <= LeaderboardPage.sessionFeedLastId) continue;
+
+      feedHtml += `<tr>
+        <td class="sf-time">${(new Date(feed["time"] / 1000)).toTimeString().split(' ')[0]}</td>
+        <td class="sf-car-class car-class-1">${feed["type"] != 0? LeaderBoard.carList[feed["detail"]["car_id"]]["class"] : "-"}</td>
+        <td class="sf-detail">${SessionFeed.getFeedMsg(feed["type"], feed["detail"])}</td>
+      </tr>`;
+      lastFeedId = feed["session_feed_id"];
+    }
+    LeaderboardPage.sessionFeedLastId = lastFeedId;
+
+    return feedHtml;
   }
 
   static setupRaceLeaderBoardHeader(teamEvent, useTeamNumber) {

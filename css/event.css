@@ -575,11 +575,11 @@ main {
   padding-right: 10px;
 }
 
-#race-feed .feeds {
+#race-feed #feeds {
   margin-top: 15px;
 }
 
-.feeds li {
+#feeds li {
   color: #e3e3e3;
   padding: 2px 0;
 }
@@ -1375,8 +1375,9 @@ li a.red {
 
 #tab-map {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   padding-top: 30px;
+  width: 100%;
 }
 
 .svg-car-class-0 {
@@ -1736,4 +1737,42 @@ li a.red {
   border: 1px solid #424242;
   border-bottom: none;
   border-top: none;
+}
+
+#live-session-feed .title {
+  padding: 10px 0;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: bold;
+  color: #aaa;
+  border-bottom: 1px dotted;
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+#live-session-feed #feeds {
+  max-height: 600px;
+  overflow: auto;
+}
+
+.sf-time {
+  color: #aaa;
+}
+
+.sf-car-class {
+  width: 120px;
+  text-align: center;
+}
+
+.sf-detail {
+  width: 700px;
+  color: #aaa;
+}
+
+#feeds td {
+  padding: 8px 0;
+}
+
+#feeds tr:nth-child(even) {
+  background-color: #2f2f2f;
 }
