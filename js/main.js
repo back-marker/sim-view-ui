@@ -331,6 +331,7 @@ class LeaderboardPage extends Page {
 
       LeaderboardPage.updateFeedTimestamp();
       $("#feeds tbody").append(LeaderboardPage.getFeedHtml(feed));
+      $("#feeds").scrollTop($("#feeds").prop("scrollHeight"));
     }
   }
 
