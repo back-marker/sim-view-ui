@@ -588,20 +588,40 @@ main {
   color: #32D296 !important;
 }
 
+.car-class-0-bg {
+  background-color: #32D296 !important;
+}
+
 .car-class-1 {
   color: #89a2d2 !important;
+}
+
+.car-class-1-bg {
+  background-color: #89a2d2 !important;
 }
 
 .car-class-2 {
   color: #EC6CBB !important;
 }
 
+.car-class-2-bg {
+  background-color: #EC6CBB !important;
+}
+
 .car-class-3 {
   color: #EF2D56 !important;
 }
 
+.car-class-3-bg {
+  background-color: #EF2D56 !important;
+}
+
 .car-class-4 {
   color: #E38D59 !important;
+}
+
+.car-class-4-bg {
+  background-color: #E38D59 !important;
 }
 
 #message,
@@ -1337,12 +1357,25 @@ li a.red {
   position: absolute;
   transition: top linear 1s, left linear 1s;
   background-color: rgb(62, 61, 61, 0.8);
-  border-radius: 5px;
   font-weight: bold;
   font-size: 14px;
   color: rgb(255, 247, 127);
-  padding: 5px 10px;
+  border-radius: 5px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.map-driver-names .driver-pos {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  padding: 5px 8px;
+  display: inline-block;
+  color: #000;
+}
+
+.map-driver-names .display-name {
+  padding: 5px 8px;
+  border-radius: 5px;
+  display: inline-block;
 }
 
 .map-section {
@@ -1757,6 +1790,8 @@ li a.red {
 
 .sf-time {
   color: #aaa;
+  width: 140px;
+  text-align: center;
 }
 
 .sf-car-class {
@@ -1765,7 +1800,7 @@ li a.red {
 }
 
 .sf-detail {
-  width: 700px;
+  width: 600px;
   color: #aaa;
 }
 
@@ -1791,4 +1826,8 @@ li a.red {
 
 #track-map-svg {
   text-align: center;
+}
+
+#live-session-feed {
+  max-width: 50%;
 }

@@ -1152,7 +1152,7 @@ class Util {
 class TrackMap {
   static DRIVER_CIRCLE_RADIUS = 5;
   static DEFAULT_DRIVER_CIRCLE_COLOR = "#22b4e1";
-  static DRIVER_NAME_CHARACTER_LIMIT = 10;
+  static DRIVER_NAME_CHARACTER_LIMIT = 3;
 
   static getEntityUniqueId(teamId, driverId, carId, teamEvent) {
     if (teamEvent) {
@@ -1162,7 +1162,7 @@ class TrackMap {
     }
   }
 
-  static getEntityDisplayName(pos, teamId, driverId, teamEvent, useTeamNumber) {
+  static getEntityDisplayName(teamId, driverId, teamEvent, useTeamNumber) {
     var name = "N/A";
     if (teamEvent && LeaderBoard.teamList[teamId] !== undefined) {
       if (useTeamNumber) {
@@ -1174,7 +1174,7 @@ class TrackMap {
       name = LeaderBoard.driverList[driverId].substr(0, TrackMap.DRIVER_NAME_CHARACTER_LIMIT);
     }
 
-    return (pos + 1) + ": " + name;
+    return name.toUpperCase();
   }
 
   static addDriver(uniqueId, displayColorClass) {
@@ -1184,8 +1184,9 @@ class TrackMap {
     $("#track-map svg").append(circle);
     var scale = Number.parseFloat($("#track-map svg").attr("data-scale"));
     $("#track-map #" + uniqueId).attr("r", TrackMap.DRIVER_CIRCLE_RADIUS * scale).attr("fill", TrackMap.DEFAULT_DRIVER_CIRCLE_COLOR);
-
-    $("#track-map").append(`<span class="map-driver-names" id="name_${uniqueId}">N/A</span>`);
+    
+    var driverPosAndName = `<div class="map-driver-names" id="name_${uniqueId}"><span class="driver-pos">-</span><span class="display-name">N/A</span></div>`
+    $("#track-map").append(driverPosAndName);
   }
 
   static syncDriverMapStatus(pos, status, teamId, driverId, carId, teamEvent, useTeamNumber, posX, posZ) {
@@ -1193,18 +1194,18 @@ class TrackMap {
       return;
     }
     var uniqueId = TrackMap.getEntityUniqueId(teamId, driverId, carId, teamEvent);
-    var displayName = TrackMap.getEntityDisplayName(pos, teamId, driverId, teamEvent, useTeamNumber);
+    var displayName = TrackMap.getEntityDisplayName(teamId, driverId, teamEvent, useTeamNumber);
     var displayColorClass = Util.getCarColorClass(carId);
 
     if (status !== LeaderBoardEntry.STATUS.DISCONNECTED) {
       TrackMap.addDriver(uniqueId);
-      TrackMap.updateDriverPosition(uniqueId, displayName, displayColorClass, posX, posZ);
+      TrackMap.updateDriverPosition(uniqueId, pos + 1, displayName, displayColorClass, posX, posZ);
     } else {
       TrackMap.removeDriver(uniqueId);
     }
   }
 
-  static updateDriverPosition(uniqueId, displayName, displayColorClass, posX, posZ) {
+  static updateDriverPosition(uniqueId, driverPos, displayName, displayColorClass, posX, posZ) {
     // Update driver circle position
     var offsetX = Number.parseFloat($("#track-map-svg svg").attr("data-x-offset"));
     var offsetY = Number.parseFloat($("#track-map-svg svg").attr("data-y-offset"));
@@ -1218,7 +1219,14 @@ class TrackMap {
     var htmlX = 10 + $("#track-map svg").width() * (posX + offsetX) / actualWidth;
     var htmlY =-13 + $("#track-map svg").height() * (posZ + offsetY) / actualHeight;
     $("#track-map #name_" + uniqueId).css({ "top": htmlY + "px", "left": htmlX + "px" });
-    $("#track-map #name_" + uniqueId).text(displayName).addClass(displayColorClass);
+    
+    var displayColorClassBG = "";
+    if (displayColorClass != "") {
+      displayColorClassBG = displayColorClass + "-bg";
+    }
+
+    $("#track-map #name_" + uniqueId + " .driver-pos").text(driverPos).addClass(displayColorClassBG);
+    $("#track-map #name_" + uniqueId + " .display-name").text(displayName).addClass(displayColorClass);
   }
 
   static removeDriver(uniqueId) {
