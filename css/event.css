@@ -1784,3 +1784,11 @@ li a.red {
 .feed-car {
   color: #fff77f;
 }
+
+#live-track-map {
+  width: 50%;
+}
+
+#track-map-svg {
+  text-align: center;
+}
