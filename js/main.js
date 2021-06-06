@@ -91,7 +91,11 @@ class SessionFeed {
         case "speed": msg += parts[idx][1] + " Km/Hr" + elem;
         break;
 
-        case "nsp": msg += parts[idx][1] + " [Map location]" + elem;
+        case "nsp":
+          var sectionName = Util.getSectionNameFromNSP(parts[idx][1]);
+          if (sectionName !== "") {
+            msg += "near " + sectionName;
+          }  
         break;
         
         case "personal_lap_time": msg += `<span class="green-sec">${Lap.convertMSToTimeString(parts[idx][1])}</span>` + elem;
@@ -129,11 +133,11 @@ class SessionFeed {
   }
 
   static getCollisionCarMsg(detail) {
-    return this.prepareMessage`${["user", detail["user_id_1"]]} and ${["user", detail["user_id_2"]]} involved in collision near ${["nsp", detail["nsp"]]}`
+    return this.prepareMessage`${["user", detail["user_id_1"]]} and ${["user", detail["user_id_2"]]} involved in collision ${["nsp", detail["nsp"]]}`
   }
 
   static getCollisionEnv(detail) {
-    return this.prepareMessage`${["user", detail["user_id"]]} collided with wall at ${["speed", detail["speed"]]} near ${["nsp", detail["nsp"]]}`;
+    return this.prepareMessage`${["user", detail["user_id"]]} collided with wall at ${["speed", detail["speed"]]} ${["nsp", detail["nsp"]]}`;
   }
 
   static getUserConnectedMsg(detail) {
@@ -1053,6 +1057,19 @@ class Util {
 
   static getPluralSuffix(count) {
     return count === 1? "" : "s";
+  }
+
+  static getSectionNameFromNSP(nsp) {
+    var sectionName = ""
+    $("#track-map-svg .map-section").each(function(idx, e){
+      var nspStart = $(e).attr("data-nsp-start");
+      var nspEnd = $(e).attr("data-nsp-end");
+      if (nspStart <= nsp && nsp < nspEnd) {
+        sectionName = $(e).attr("data-section-name");
+      }
+    });
+
+    return sectionName;
   }
 
   static getTimeAgoString(secs) {
