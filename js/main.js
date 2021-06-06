@@ -74,38 +74,89 @@ class Page {
 }
 
 class SessionFeed {
+
+  static prepareMessage(strings, ...parts) {
+    var msg = strings[0];
+    strings.slice(1).forEach(function(elem, idx){
+      switch(parts[idx][0]) {
+        case "user": msg += `<span class="feed-driver">${LeaderBoard.driverList[parts[idx][1]]}</span>` + elem;
+        break;
+
+        case "car": msg += `<span class="feed-car ${Util.getCarColorClass(parts[idx][1])}">${LeaderBoard.carList[parts[idx][1]]["name"]}</span>` + elem;
+        break;
+
+        case "team": msg += `<span class="feed-team">${LeaderBoard.teamList[parts[idx][1]]["name"]}</span>` + elem;
+        break;
+        
+        case "speed": msg += parts[idx][1] + " Km/Hr" + elem;
+        break;
+
+        case "nsp": msg += parts[idx][1] + " [Map location]" + elem;
+        break;
+        
+        case "personal_lap_time": msg += `<span class="green-sec">${Lap.convertMSToTimeString(parts[idx][1])}</span>` + elem;
+        break;
+
+        case "session_lap_time": msg += `<span class="purple-sec">${Lap.convertMSToTimeString(parts[idx][1])}</span>` + elem;
+        break;
+
+        default: msg += parts[idx][1] + elem;
+      }
+    });
+
+    return msg;
+  }
+
   static getFeedMsg(type, detail) {
     switch (type) {
       case 0:
-        return getCollisionCarMsg(detail);
+        return this.getCollisionCarMsg(detail);
       case 1:
-        return getCollisionEnv(detail);
+        return this.getCollisionEnv(detail);
       case 2:
-        return getUserConnectedMsg(detail);
+        return this.getUserConnectedMsg(detail);
       case 3:
-        return getUserDisconnectedMsg(detail);
+        return this.getUserDisconnectedMsg(detail);
       case 4:
-        return getStintBestLapMsg(detail);
+        return this.getStintBestLapMsg(detail);
       case 5:
-        return getSessionClassBestLapMsg(detail);
+        return this.getSessionClassBestLapMsg(detail);
       case 6:
-        return getTeamDriverChange(detail);
+        return this.getTeamDriverChange(detail);
       default:
         return "-"
     }
   }
 
-  static getCollisionCarMsg(detail) {}
-  static getCollisionEnv(detail) {}
-  static getUserConnectedMsg(detail) {
-
-    ``
+  static getCollisionCarMsg(detail) {
+    return this.prepareMessage`${["user", detail["user_id_1"]]} and ${["user", detail["user_id_2"]]} involved in collision near ${["nsp", detail["nsp"]]}`
   }
-  static getUserDisconnectedMsg(detail) {}
-  static getStintBestLapMsg(detail) {}
-  static getSessionClassBestLapMsg(detail) {}
-  static getTeamDriverChange(detail) {}
+
+  static getCollisionEnv(detail) {
+    return this.prepareMessage`${["user", detail["user_id"]]} collided with wall at ${["speed", detail["speed"]]} near ${["nsp", detail["nsp"]]}`;
+  }
+
+  static getUserConnectedMsg(detail) {
+    return this.prepareMessage`${["user", detail["user_id"]]} joined to drive ${["car", detail["car_id"]]}`;
+  }
+
+  static getUserDisconnectedMsg(detail) {
+    return this.prepareMessage`${["user", detail["user_id"]]} disconnected, was driving ${["car", detail["car_id"]]}`;
+  }
+
+  static getStintBestLapMsg(detail) {
+    return this.prepareMessage`${["user", detail["user_id"]]} sets stint best lap of ${["personal_lap_time", detail["lap_time"]]}`;
+  }
+  
+  static getSessionClassBestLapMsg(detail) {
+    return this.prepareMessage`${["user", detail["user_id"]]} sets session best lap of ${["session_lap_time", detail["lap_time"]]}`;
+  }
+  
+  static getTeamDriverChange(detail) {
+    return this.prepareMessage`${["team", detail["team_id"]]} team swapped ${["user", detail["user_id_1"]]} with ${["user", detail["user_id_2"]]} driver`
+  }
 }
+
 class LeaderboardPage extends Page {
 
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
@@ -274,6 +325,7 @@ class LeaderboardPage extends Page {
         getRequest("/api/ac/user/" + user_id, Page.cb_updateDriverName);
       });
 
+      LeaderboardPage.updateFeedTimestamp();
       $("#feeds tbody").append(LeaderboardPage.getFeedHtml(feed));
     }
   }
@@ -378,6 +430,23 @@ class LeaderboardPage extends Page {
     getRequest(`/api/ac/team/${teamId}/members`, LeaderboardPage.cb_updateTeamMembersInOverlay);
   }
 
+  static updateFeedTimestamp() {
+    $("#feeds tbody .sf-time").each(function(idx, e) {
+      $(e).text(LeaderboardPage.getFeedTimestamp(Number.parseInt($(e).attr("data-timestamp-ms"))));
+    });
+  }
+
+  static getFeedTimestamp(millis) {
+    var timeAgoSec = Util.getTimeAgoString(Date.now() / 1000 -  millis / 1000);
+    if (timeAgoSec === "Online") {
+      timeAgoSec = "Just now";
+    } else {
+      timeAgoSec += " ago";
+    }
+
+    return timeAgoSec;
+  }
+
   static getFeedHtml(feedList) {
     var feedHtml = "";
     var lastFeedId = LeaderboardPage.sessionFeedLastId;
@@ -385,10 +454,11 @@ class LeaderboardPage extends Page {
       var feed = feedList[idx];
       if (LeaderboardPage.sessionFeedLastId !== -1 &&
         feed["session_feed_id"] <= LeaderboardPage.sessionFeedLastId) continue;
-
+      
+      var timeAgoSec = this.getFeedTimestamp(feed["time"] / 1000);
       feedHtml += `<tr>
-        <td class="sf-time">${(new Date(feed["time"] / 1000)).toTimeString().split(' ')[0]}</td>
-        <td class="sf-car-class car-class-1">${feed["type"] != 0? LeaderBoard.carList[feed["detail"]["car_id"]]["class"] : "-"}</td>
+        <td class="sf-time" data-timestamp-ms="${feed["time"] / 1000}">${timeAgoSec}</td>
+        <td class="sf-car-class ${Util.getCarColorClass(feed["detail"]["car_id"])}">${feed["type"] != 0? LeaderBoard.carList[feed["detail"]["car_id"]]["class"] : "-"}</td>
         <td class="sf-detail">${SessionFeed.getFeedMsg(feed["type"], feed["detail"])}</td>
       </tr>`;
       lastFeedId = feed["session_feed_id"];

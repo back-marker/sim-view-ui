@@ -1776,3 +1776,11 @@ li a.red {
 #feeds tr:nth-child(even) {
   background-color: #2f2f2f;
 }
+
+.feed-driver,.feed-team {
+  color: #6db4df;
+}
+
+.feed-car {
+  color: #fff77f;
+}
