@@ -1204,7 +1204,7 @@ class TrackMap {
     $("#track-map #" + uniqueId).attr("r", TrackMap.DRIVER_CIRCLE_RADIUS * scale).attr("fill", TrackMap.DEFAULT_DRIVER_CIRCLE_COLOR);
     
     var driverPosAndName = `<div class="map-driver-names" id="name_${uniqueId}"><span class="driver-pos">-</span><span class="display-name">N/A</span></div>`
-    $("#track-map").append(driverPosAndName);
+    $("#track-map-svg").append(driverPosAndName);
   }
 
   static syncDriverMapStatus(pos, status, teamId, driverId, carId, teamEvent, useTeamNumber, posX, posZ) {

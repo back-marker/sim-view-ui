@@ -1349,7 +1349,8 @@ li a.red {
 }
 
 #track-map {
-  position: relative;
+  display: flex;
+  justify-content: center;
 }
 
 .map-driver-names {
@@ -1825,9 +1826,13 @@ li a.red {
 }
 
 #track-map-svg {
-  text-align: center;
+  position: relative;
 }
 
 #live-session-feed {
   max-width: 50%;
+}
+
+#track-missing {
+  margin: 0;
 }
