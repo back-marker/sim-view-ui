@@ -79,7 +79,17 @@ class SessionFeed {
     var msg = strings[0];
     strings.slice(1).forEach(function(elem, idx){
       switch(parts[idx][0]) {
-        case "user": msg += `<span class="feed-driver">${LeaderBoard.driverList[parts[idx][1]]}</span>` + elem;
+        case "user": 
+        if (parts[idx].length === 3 && parts[idx][2] !== undefined) {
+          // Team name also should be in feed
+          msg += `<span class="feed-team">${LeaderBoard.teamList[parts[idx][2]]["name"]}</span>`;
+          msg += " [ "
+        }
+        msg += `<span class="feed-driver">${LeaderBoard.driverList[parts[idx][1]]}</span>`;
+        if (parts[idx].length === 3 && parts[idx][2] !== undefined) {
+          msg += " ]";
+        }
+        msg += elem;
         break;
 
         case "car": msg += `<span class="feed-car ${Util.getCarColorClass(parts[idx][1])}">${LeaderBoard.carList[parts[idx][1]]["name"]}</span>` + elem;
@@ -91,7 +101,7 @@ class SessionFeed {
         case "speed": 
         var status = "green";
         var speed = parts[idx][1];
-        if (speed > 50) {
+        if (speed > 50 && speed <= 100) {
           status = "yellow";
         } else if (speed > 100) {
           status = "red";
@@ -141,31 +151,31 @@ class SessionFeed {
   }
 
   static getCollisionCarMsg(detail) {
-    return this.prepareMessage`${["user", detail["user_id_1"]]} and ${["user", detail["user_id_2"]]} involved in collision ${["nsp", detail["nsp"]]}`
+    return this.prepareMessage`${["user", detail["user_id_1"], detail["team_id_1"]]} and ${["user", detail["user_id_2"], detail["team_id_2"]]} involved in collision ${["nsp", detail["nsp"]]}`
   }
 
   static getCollisionEnv(detail) {
-    return this.prepareMessage`${["user", detail["user_id"]]} collided with wall at ${["speed", detail["speed"]]} ${["nsp", detail["nsp"]]}`;
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} collided with wall at ${["speed", detail["speed"]]} ${["nsp", detail["nsp"]]}`;
   }
 
   static getUserConnectedMsg(detail) {
-    return this.prepareMessage`${["user", detail["user_id"]]} joined to drive ${["car", detail["car_id"]]}`;
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} joined to drive ${["car", detail["car_id"]]}`;
   }
 
   static getUserDisconnectedMsg(detail) {
-    return this.prepareMessage`${["user", detail["user_id"]]} disconnected, was driving ${["car", detail["car_id"]]}`;
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} disconnected, was driving ${["car", detail["car_id"]]}`;
   }
 
   static getStintBestLapMsg(detail) {
-    return this.prepareMessage`${["user", detail["user_id"]]} sets stint best lap of ${["personal_lap_time", detail["lap_time"]]}`;
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} sets stint best lap of ${["personal_lap_time", detail["lap_time"]]}`;
   }
   
   static getSessionClassBestLapMsg(detail) {
-    return this.prepareMessage`${["user", detail["user_id"]]} sets session best lap of ${["session_lap_time", detail["lap_time"]]}`;
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} sets session best lap of ${["session_lap_time", detail["lap_time"]]}`;
   }
   
   static getTeamDriverChange(detail) {
-    return this.prepareMessage`${["team", detail["team_id"]]} team swapped ${["user", detail["user_id_1"]]} with ${["user", detail["user_id_2"]]} driver`
+    return this.prepareMessage`${["team", detail["team_id_1"]]} team swapped ${["user", detail["user_id_1"]]} with ${["user", detail["user_id_2"]]} driver`
   }
 }
 
