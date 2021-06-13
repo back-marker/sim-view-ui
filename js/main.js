@@ -23,7 +23,7 @@ function setRemainingTimeTimer(start_time, duration_min) {
 
 class Page {
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
-  static VERSION = "v1.0";
+  static VERSION = "v0.10";
 
   static cb_updateTeamsName(data) {
     if (data["status"] === "success") {
