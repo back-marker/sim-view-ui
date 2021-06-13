@@ -1836,3 +1836,15 @@ li a.red {
 #track-missing {
   margin: 0;
 }
+
+.speed-status-green {
+  color: #2db52d;
+}
+
+.speed-status-yellow {
+  color: #fff77f;
+}
+
+.speed-status-red {
+  color: #e34e4e;
+}

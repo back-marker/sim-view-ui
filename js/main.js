@@ -88,7 +88,15 @@ class SessionFeed {
         case "team": msg += `<span class="feed-team">${LeaderBoard.teamList[parts[idx][1]]["name"]}</span>` + elem;
         break;
         
-        case "speed": msg += parts[idx][1] + " Km/Hr" + elem;
+        case "speed": 
+        var status = "green";
+        var speed = parts[idx][1];
+        if (speed > 50) {
+          status = "yellow";
+        } else if (speed > 100) {
+          status = "red";
+        }
+        msg += `<span class="speed-status-${status}">${parts[idx][1]} Km/Hr</span>` + elem;
         break;
 
         case "nsp":
