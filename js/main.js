@@ -121,6 +121,9 @@ class SessionFeed {
 
         case "session_lap_time": msg += `<span class="purple-sec">${Lap.convertMSToTimeString(parts[idx][1])}</span>` + elem;
         break;
+        
+        case "msg": msg += `<span class="feed_user_msg">${parts[idx][1]}</span>` + elem;
+        break;
 
         default: msg += parts[idx][1] + elem;
       }
@@ -145,6 +148,8 @@ class SessionFeed {
         return this.getSessionClassBestLapMsg(detail);
       case 6:
         return this.getTeamDriverChange(detail);
+      case 7:
+        return this.getUserChatMsg(detail);
       default:
         return "-"
     }
@@ -176,6 +181,10 @@ class SessionFeed {
   
   static getTeamDriverChange(detail) {
     return this.prepareMessage`${["team", detail["team_id_1"]]} team swapped ${["user", detail["user_id_1"]]} with ${["user", detail["user_id_2"]]} driver`
+  }
+
+  static getUserChatMsg(detail) {
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]}: ${["msg", detail["msg"]]}`
   }
 }
 
@@ -470,6 +479,26 @@ class LeaderboardPage extends Page {
     return timeAgoSec;
   }
 
+  static getFeedTypeString(type, detail) {
+    if (type === 0) {
+      return "CRASH";
+    } else if (type === 7) {
+      return "CHAT";
+    } else {
+      return LeaderBoard.carList[detail["car_id"]]["class"];
+    }
+  }
+
+  static getFeedTypeColorClass(type, detail) {
+    if (type === 0) {
+      return "speed-status-red";
+    } else if (type === 7) {
+      return "chat-hr-color";
+    } else {
+      return Util.getCarColorClass(detail["car_id"]);
+    }
+  }
+
   static getFeedHtml(feedList) {
     var feedHtml = "";
     var lastFeedId = LeaderboardPage.sessionFeedLastId;
@@ -481,7 +510,7 @@ class LeaderboardPage extends Page {
       var timeAgoSec = this.getFeedTimestamp(feed["time"] / 1000);
       feedHtml += `<tr>
         <td class="sf-time" data-timestamp-ms="${feed["time"] / 1000}">${timeAgoSec}</td>
-        <td class="sf-car-class ${Util.getCarColorClass(feed["detail"]["car_id"])}">${feed["type"] != 0? LeaderBoard.carList[feed["detail"]["car_id"]]["class"] : "-"}</td>
+        <td class="sf-car-class ${this.getFeedTypeColorClass(feed["type"], feed["detail"])}">${this.getFeedTypeString(feed["type"], feed["detail"])}</td>
         <td class="sf-detail">${SessionFeed.getFeedMsg(feed["type"], feed["detail"])}</td>
       </tr>`;
       lastFeedId = feed["session_feed_id"];

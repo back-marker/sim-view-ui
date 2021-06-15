@@ -1848,3 +1848,11 @@ li a.red {
 .speed-status-red {
   color: #e34e4e;
 }
+
+.chat-hr-color {
+  color: #728ee1;
+}
+
+.feed_user_msg {
+  color: #fff77f;
+}
