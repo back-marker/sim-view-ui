@@ -2024,6 +2024,7 @@ class BestlapPage extends Page {
     }
     url += "/cars/" + BestlapPage.cache_search_query.car_ids.join(",");
     url += "/page/" + pageId;
+    url += "/entries/" + BestlapPage.cache_search_query.per_page;
     for (var idx = 0; idx < BestlapPage.cache_search_query.car_ids.length; ++idx) {
       var carClass = BestlapPage.CARS_LIST[BestlapPage.cache_search_query.car_ids[idx]]["car_class"];
       if (BestlapPage.searched_car_class_list.indexOf(carClass) == -1) {
@@ -2388,5 +2389,10 @@ $(document).ready(function() {
       $("span[data-tab='map']").addClass("active");
       $("span[data-tab='standings']").removeClass("active");
     }
+  });
+
+  $("#bestlap-page #entries-param select").change(function(){
+    var entries = Number.parseInt($(this).val());
+    BestlapPage.search_query.per_page = entries;
   });
 });

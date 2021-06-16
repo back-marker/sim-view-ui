@@ -746,6 +746,7 @@ li a.red {
 #event-param select,
 #track-param select,
 #cars-param select,
+#entries-param select,
 .red-select {
   width: 200px;
   padding: 10px 5px;
@@ -770,6 +771,7 @@ li a.red {
 #event-param option,
 #track-param option,
 #cars-param option,
+#entries-param option,
 .red-select option {
   color: #aaa;
   font-size: 14px;
@@ -1444,9 +1446,13 @@ li a.red {
   margin-right: 20px;
 }
 
+#entries-param {
+  margin-right: 70px;
+}
+
 #cars-param {
   width: 300px;
-  margin-right: 100px;
+  margin-right: 20px;
 }
 
 .button {
@@ -1465,7 +1471,7 @@ li a.red {
   padding: 10px;
   margin: 20px 0;
   border: 2px dotted #606060;
-  width: 1040px;
+  width: 1140px;
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
@@ -1515,6 +1521,7 @@ li a.red {
 
 #bestlaps {
   margin-top: 80px;
+  margin-bottom: 80px
 }
 
 #bestlaps-header .lb-hr-pos,
