@@ -2007,7 +2007,7 @@ class BestlapPage extends Page {
         trackHtml += `<option value="${tracks[idx]["track_config_id"]}">${tracks[idx]["display_name"]}</option>`
       }
       $("#track-param select").html(trackHtml).change(function() {
-        var trackId = $(this).val();
+        var trackId = Number.parseInt($(this).val());
         BestlapPage.search_query.by_event = false;
         BestlapPage.search_query.by_track = true;
         BestlapPage.search_query.track_id = trackId;
@@ -2025,7 +2025,7 @@ class BestlapPage extends Page {
         carsHtml += `<option value="${cars[idx]["car_id"]}">${cars[idx]["display_name"]}</option>`
       }
       $("#cars-param select").html(carsHtml).change(function() {
-        var carId = $(this).val();
+        var carId = Number.parseInt($(this).val());
         if (BestlapPage.search_query.car_ids.indexOf(carId) === -1) {
           BestlapPage.search_query.car_ids.push(carId);
           var carName = $("#cars-param select option:selected").text();
