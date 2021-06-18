@@ -124,6 +124,12 @@ class SessionFeed {
         
         case "msg": msg += `<span class="feed_user_msg">${parts[idx][1]}</span>` + elem;
         break;
+        
+        case "pos_gain": msg += `<span class="speed-status-green">${parts[idx][1]}</span>` + elem;
+        break;
+
+        case "pos_lose": msg += `<span class="speed-status-red">${parts[idx][1]}</span>` + elem;
+        break;
 
         default: msg += parts[idx][1] + elem;
       }
@@ -155,6 +161,8 @@ class SessionFeed {
         return this.getTeamDriverChange(detail);
       case 7:
         return this.getUserChatMsg(detail);
+      case 10:
+        return this.getPositionChangeMsg(detail);
       default:
         return "-"
     }
@@ -190,6 +198,14 @@ class SessionFeed {
 
   static getUserChatMsg(detail) {
     return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]}: ${["msg", detail["msg"]]}`
+  }
+
+  static getPositionChangeMsg(detail) {
+    if (detail["pos_change"] > 0) {
+      return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} gained ${["pos_gain", detail["pos_change"]]} position, now at P${["pos_gain", detail["final_pos"] + 1]}`;
+    } else if (detail["pos_change"] < 0) {
+      return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} lose ${["pos_lose", -detail["pos_change"]]} position, now at P${["pos_lose", detail["final_pos"] + 1]}`;
+    }
   }
 }
 

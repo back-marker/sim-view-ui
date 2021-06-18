@@ -1867,3 +1867,21 @@ li a.red {
 #track-map .collision-indicator {
   background-color: #ee4040 !important;
 }
+
+.position-gain-arrow {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 10px solid #2db52d;
+  display: inline-block;
+}
+
+.position-lose-arrow {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid #e34e4e;
+  display: inline-block;
+}
