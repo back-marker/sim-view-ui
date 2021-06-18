@@ -1985,6 +1985,15 @@ class BestlapPage extends Page {
     }
   }
 
+  static updateEntriesSelection() {
+    $("#entries-param select").html(`<option value="10">Entries</option>
+    <option value="10" selected="selected">10</option>
+    <option value="20">20</option>
+    <option value="30">30</option>
+    <option value="40">40</option>
+    <option value="50">50</option>`);
+  }
+
   static cb_updateEventCars(data) {
     if (data["status"] === "success") {
       var cars = data["cars"];
@@ -2372,6 +2381,7 @@ $(document).ready(function() {
     });
   } else if (page == "bestlap-page") {
     Page.setCommonHeaderHtml("bestlap");
+    BestlapPage.updateEntriesSelection();
     getRequest("/api/ac/events", BestlapPage.cb_updateAllEvents);
     getRequest("/api/ac/tracks", BestlapPage.cb_updateAllTracks);
     getRequest("/api/ac/cars", BestlapPage.cb_updateAllCars);
