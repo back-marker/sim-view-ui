@@ -132,11 +132,16 @@ class SessionFeed {
     return msg;
   }
 
-  static getFeedMsg(type, detail) {
+  static getFeedMsg(feedTime, type, detail) {
     switch (type) {
       case 0:
+        // Update map to show collided car
+        var teamEvent = Util.isCurrentTeamEvent();
+        TrackMap.setCollisionCar(feedTime, detail["team_id_1"], detail["user_id_1"], detail["car_id_1"], teamEvent);
+        TrackMap.setCollisionCar(feedTime, detail["team_id_2"], detail["user_id_2"], detail["car_id_2"], teamEvent);
         return this.getCollisionCarMsg(detail);
       case 1:
+        TrackMap.setCollisionCar(feedTime, detail["team_id"], detail["user_id"], detail["car_id"], teamEvent);
         return this.getCollisionEnv(detail);
       case 2:
         return this.getUserConnectedMsg(detail);
@@ -511,7 +516,7 @@ class LeaderboardPage extends Page {
       feedHtml += `<tr>
         <td class="sf-time" data-timestamp-ms="${feed["time"] / 1000}">${timeAgoSec}</td>
         <td class="sf-car-class ${this.getFeedTypeColorClass(feed["type"], feed["detail"])}">${this.getFeedTypeString(feed["type"], feed["detail"])}</td>
-        <td class="sf-detail">${SessionFeed.getFeedMsg(feed["type"], feed["detail"])}</td>
+        <td class="sf-detail">${SessionFeed.getFeedMsg(feed["time"], feed["type"], feed["detail"])}</td>
       </tr>`;
       lastFeedId = feed["session_feed_id"];
     }
@@ -1218,6 +1223,7 @@ class TrackMap {
   static DRIVER_CIRCLE_RADIUS = 5;
   static DEFAULT_DRIVER_CIRCLE_COLOR = "#22b4e1";
   static DRIVER_NAME_CHARACTER_LIMIT = 3;
+  static COLLISION_INDICATOR_TIMEOUT = 10 * 1000;
 
   static getEntityUniqueId(teamId, driverId, carId, teamEvent) {
     if (teamEvent) {
@@ -1240,6 +1246,27 @@ class TrackMap {
     }
 
     return name.toUpperCase();
+  }
+
+  static removeCollisionCar(id) {
+    $("#name_" + id + " .driver-pos").removeClass("collision-indicator").removeAttr("data-clear-handle");
+  }
+
+  static setCollisionCar(collisionTime, teamId, driverId, carId, teamEvent) {
+    collisionTime /= 1000;
+    if(Date.now() - collisionTime >= TrackMap.COLLISION_INDICATOR_TIMEOUT) {
+      return;
+    }
+    var id = this.getEntityUniqueId(teamId, driverId, carId, teamEvent);
+    var elem = $("#name_" + id + " .driver-pos");
+
+    if(!elem.hasClass("collision-indicator")) { 
+      elem.addClass("collision-indicator");
+    } else {
+      clearTimeout(Number.parseInt(elem.attr("data-clear-handle")));
+    }
+    var handle = setTimeout(function() { TrackMap.removeCollisionCar(id) }, TrackMap.COLLISION_INDICATOR_TIMEOUT);
+    elem.attr("data-clear-handle", handle);
   }
 
   static addDriver(uniqueId, displayColorClass) {

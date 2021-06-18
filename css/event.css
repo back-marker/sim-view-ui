@@ -1863,3 +1863,7 @@ li a.red {
 .feed_user_msg {
   color: #fff77f;
 }
+
+#track-map .collision-indicator {
+  background-color: #ee4040 !important;
+}
