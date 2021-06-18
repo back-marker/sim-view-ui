@@ -202,9 +202,9 @@ class SessionFeed {
 
   static getPositionChangeMsg(detail) {
     if (detail["pos_change"] > 0) {
-      return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} gained ${["pos_gain", detail["pos_change"]]} position, now at P${["pos_gain", detail["final_pos"] + 1]}`;
+      return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} gained ${["pos_gain", detail["pos_change"]]} position, now at ${["pos_gain", "P" + (detail["final_pos"] + 1)]}`;
     } else if (detail["pos_change"] < 0) {
-      return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} lose ${["pos_lose", -detail["pos_change"]]} position, now at P${["pos_lose", detail["final_pos"] + 1]}`;
+      return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} lose ${["pos_lose", -detail["pos_change"]]} position, now at ${["pos_lose", "P" + (detail["final_pos"] + 1)]}`;
     }
   }
 }
@@ -505,6 +505,8 @@ class LeaderboardPage extends Page {
       return "CRASH";
     } else if (type === 7) {
       return "CHAT";
+    } else if (type === 10) {
+      return "-";
     } else {
       return LeaderBoard.carList[detail["car_id"]]["class"];
     }
@@ -515,6 +517,8 @@ class LeaderboardPage extends Page {
       return "speed-status-red";
     } else if (type === 7) {
       return "chat-hr-color";
+    } else if (type === 10) {
+      return ""
     } else {
       return Util.getCarColorClass(detail["car_id"]);
     }

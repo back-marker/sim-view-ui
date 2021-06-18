@@ -1805,6 +1805,7 @@ li a.red {
 .sf-car-class {
   width: 120px;
   text-align: center;
+  color: #aaa;
 }
 
 .sf-detail {
