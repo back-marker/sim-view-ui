@@ -1786,7 +1786,6 @@ li a.red {
   font-size: 14px;
   font-weight: bold;
   color: #aaa;
-  border-bottom: 1px dotted;
   margin-bottom: 20px;
   text-align: right;
 }
@@ -1800,6 +1799,8 @@ li a.red {
   color: #aaa;
   width: 140px;
   text-align: center;
+  border-right: 2px solid #464646;
+  border-left: 2px solid #464646;
 }
 
 .sf-car-class {
