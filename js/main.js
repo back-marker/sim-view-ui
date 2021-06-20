@@ -2000,7 +2000,7 @@ class BestlapPage extends Page {
         eventHtml += `<option value="${events[idx]["event_id"]}">${events[idx]["name"]}</option>`
       }
       $("#event-param select").html(eventHtml).change(function() {
-        var eventId = $(this).val();
+        var eventId = Number.parseInt($(this).val());
         BestlapPage.search_query.by_event = true;
         BestlapPage.search_query.by_track = false;
         BestlapPage.search_query.event_id = eventId;
