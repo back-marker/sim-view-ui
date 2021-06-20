@@ -1979,9 +1979,17 @@ class BestlapPage extends Page {
   static EVENTS_LIST = []
   static TRACKS_LIST = []
   static CARS_LIST = {}
-  static search_query = { per_page: 10, page_no: 1, car_ids: []}
-  static cache_search_query = {};
+  static search_query = BestlapPage.getSearchQueryFromCache() || { per_page: 10, page_no: 1, car_ids: []};
+  static cache_search_query = JSON.parse(localStorage.getItem("best_lap_page_cache_query")) || {};
   static searched_car_class_list = [];
+
+  static getSearchQueryFromCache() {
+    var parsed = JSON.parse(localStorage.getItem("best_lap_page_cache_query"));
+    if (parsed !== null) {
+      parsed.car_ids = [];
+    }
+    return parsed;
+  }
 
   static cb_updateAllEvents(data) {
     if (data["status"] === "success") {
@@ -2002,11 +2010,15 @@ class BestlapPage extends Page {
         $("#search-lap").attr("disabled", "disabled");
         getRequest("/api/ac/event/" + eventId + "/cars", BestlapPage.cb_updateEventCars);
       });
+
+      if (BestlapPage.cache_search_query.by_event === true) {
+        $("#event-param select").val(BestlapPage.cache_search_query.event_id);
+      }
     }
   }
 
   static updateEntriesSelection() {
-    $("#entries-param select").html(`<option value="10">Entries</option>
+    $("#entries-param select").html(`<option value="0">Entries</option>
     <option value="10" selected="selected">10</option>
     <option value="20">20</option>
     <option value="30">30</option>
@@ -2042,6 +2054,10 @@ class BestlapPage extends Page {
         BestlapPage.search_query.track_id = trackId;
         $("#event-param select").val("0");
       });
+
+      if (BestlapPage.cache_search_query.by_track === true) {
+        $("#track-param select").val(BestlapPage.cache_search_query.track_id);
+      }
     }
   }
 
@@ -2062,6 +2078,14 @@ class BestlapPage extends Page {
         }
         $("#cars-param select").val("0");
       });
+
+      if (BestlapPage.cache_search_query.car_ids !== undefined && BestlapPage.cache_search_query.car_ids.length !== 0) {
+        BestlapPage.cache_search_query.car_ids.forEach(function(id){ $("#cars-param select").val(id).change(); });
+      }
+
+      if (Object.entries(BestlapPage.cache_search_query).length) {
+        BestlapPage.searchBestLaps(1);
+      }
     }
   }
 
@@ -2086,6 +2110,9 @@ class BestlapPage extends Page {
       if (BestlapPage.searched_car_class_list.indexOf(carClass) == -1) {
         BestlapPage.searched_car_class_list.push(carClass);
       }
+    }
+    if (pageId === 1) {
+      localStorage.setItem('best_lap_page_cache_query', JSON.stringify(BestlapPage.cache_search_query));
     }
     getRequest(url, BestlapPage.cb_updateBestLapResult);
   }
@@ -2405,6 +2432,10 @@ $(document).ready(function() {
     getRequest("/api/ac/events", BestlapPage.cb_updateAllEvents);
     getRequest("/api/ac/tracks", BestlapPage.cb_updateAllTracks);
     getRequest("/api/ac/cars", BestlapPage.cb_updateAllCars);
+    if (BestlapPage.cache_search_query.per_page !== undefined) {
+      $("#bestlap-page #entries-param select").val(BestlapPage.cache_search_query.per_page);
+    }
+
     $("#search-lap").click(function() {
       BestlapPage.cache_search_query = JSON.parse(JSON.stringify(BestlapPage.search_query));
       BestlapPage.searchBestLaps(1);
