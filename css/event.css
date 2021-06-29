@@ -1887,3 +1887,11 @@ li a.red {
   border-top: 10px solid #e34e4e;
   display: inline-block;
 }
+
+.lb-row-pit {
+  background-color: #5353ffb3;
+}
+
+.lb-row-offtrack {
+  background-color: #939314e8;
+}
