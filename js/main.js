@@ -163,6 +163,10 @@ class SessionFeed {
         return this.getUserChatMsg(detail);
       case 10:
         return this.getPositionChangeMsg(detail);
+      case 11:
+        return this.getPitEntryMsg(detail);
+      case 12:
+        return this.getPitExitMsg(detail);
       default:
         return "-"
     }
@@ -206,6 +210,14 @@ class SessionFeed {
     } else if (detail["pos_change"] < 0) {
       return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} lose ${["pos_lose", -detail["pos_change"]]} position, now at ${["pos_lose", "P" + (detail["final_pos"] + 1)]}`;
     }
+  }
+
+  static getPitEntryMsg(detail) {
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} entered pit lane`;
+  }
+
+  static getPitExitMsg(detail) {
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} exits pit. Estimated pit stop time ${["pit_time", detail["pit_time"]]}`
   }
 }
 
