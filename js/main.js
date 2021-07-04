@@ -221,7 +221,7 @@ class SessionFeed {
   }
 
   static getPitExitMsg(detail) {
-    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} exits pit. Estimated pit stop time ${["pit_time", detail["pit_time"]]}`;
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} exits pit. Estimated pit stop time ${["pit_time", Lap.convertMSToTimeString(detail["pit_time"])]}`;
   }
 
   static getOfftrackMsg(detail) {
