@@ -167,6 +167,10 @@ class SessionFeed {
         return this.getPitEntryMsg(detail);
       case 12:
         return this.getPitExitMsg(detail);
+      case 13: 
+        return this.getOfftrackMsg(detail);
+      case 14: 
+        return this.getRejoinsTrackMsg(detail);
       default:
         return "-"
     }
@@ -217,7 +221,15 @@ class SessionFeed {
   }
 
   static getPitExitMsg(detail) {
-    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} exits pit. Estimated pit stop time ${["pit_time", detail["pit_time"]]}`
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} exits pit. Estimated pit stop time ${["pit_time", detail["pit_time"]]}`;
+  }
+
+  static getOfftrackMsg(detail) {
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} went offtrack ${["nsp", detail["nsp"]]}`;
+  }
+
+  static getRejoinsTrackMsg(detail) {
+    return this.prepareMessage`${["user", detail["user_id"], detail["team_id"]]} rejoins track ${["nsp", detail["nsp"]]}`;
   }
 }
 
@@ -886,6 +898,8 @@ class QualiLeaderBoardEntry {
     this.interval = interval;
     this.totalLaps = totalLaps;
     this.trackStatus = LeaderBoardEntry.getTrackStatus(connected, loaded, inPit, isOfftrack);
+    this.inPit = inPit === 1;
+    this.isOfftrack = isOfftrack === 1;
   }
 
   /**
@@ -905,7 +919,7 @@ class QualiLeaderBoardEntry {
    * @param {int} bestSec3Idx
    */
   toHTML(pos, teamEvent, useTeamNumber, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
-    TrackMap.syncDriverMapStatus(pos, this.status, this.teamId, this.driverId, this.carId, teamEvent, useTeamNumber, this.posX, this.posZ);
+    TrackMap.syncDriverMapStatus(pos, this.status, this.teamId, this.driverId, this.carId, teamEvent, useTeamNumber, this.posX, this.posZ, this.inPit, this.isOfftrack);
     return `<tr class="${this.trackStatus}" data-pos="${pos + 1}">
       <td class="lb-pos">
         <span class="pos">${pos + 1}</span>
@@ -989,6 +1003,8 @@ class RaceLeaderBoardEntry {
     this.bestLapTime = bestLapTime;
     this.lastLap = lastLap;
     this.trackStatus = LeaderBoardEntry.getTrackStatus(connected, loaded, inPit, isOfftrack);
+    this.inPit = inPit === 1;
+    this.isOfftrack = isOfftrack === 1;
   }
 
   /**
@@ -1005,7 +1021,7 @@ class RaceLeaderBoardEntry {
    * @param {int} pos
    */
   toHTML(pos, teamEvent, useTeamNumber, bestLapIdx) {
-    TrackMap.syncDriverMapStatus(pos, this.status, this.teamId, this.driverId, this.carId, teamEvent, useTeamNumber, this.posX, this.posZ);
+    TrackMap.syncDriverMapStatus(pos, this.status, this.teamId, this.driverId, this.carId, teamEvent, useTeamNumber, this.posX, this.posZ, this.inPit, this.isOfftrack);
 
     return `<tr class="${this.trackStatus}" data-pos="${pos + 1}">
       <td class="lb-pos">
@@ -1313,7 +1329,10 @@ class TrackMap {
     }
     var id = this.getEntityUniqueId(teamId, driverId, carId, teamEvent);
     var elem = $("#name_" + id + " .driver-pos");
+    
+    if(elem.hasClass("pit-indicator")) return;
 
+    elem.removeClass("offtrack-indicator");
     if(!elem.hasClass("collision-indicator")) { 
       elem.addClass("collision-indicator");
     } else {
@@ -1335,7 +1354,31 @@ class TrackMap {
     $("#track-map-svg").append(driverPosAndName);
   }
 
-  static syncDriverMapStatus(pos, status, teamId, driverId, carId, teamEvent, useTeamNumber, posX, posZ) {
+  static setPitStatus(id) {
+    var elem = $("#name_" + id + " .driver-pos");
+    if (!elem.hasClass("pit-indicator")) {
+      elem.addClass("pit-indicator");
+    }
+  }
+
+  static removePitStatus(id) {
+    var elem = $("#name_" + id + " .driver-pos");
+    elem.removeClass("pit-indicator");
+  }
+
+  static setOfftrackStatus(id) {
+    var elem = $("#name_" + id + " .driver-pos");
+    if (!elem.hasClass("collision-indicator") && !elem.hasClass("offtrack-indicator")) {
+      elem.addClass("offtrack-indicator");
+    }
+  }
+
+  static removeOfftrackStatus(id) {
+    var elem = $("#name_" + id + " .driver-pos");
+    elem.removeClass("offtrack-indicator");
+  }
+
+  static syncDriverMapStatus(pos, status, teamId, driverId, carId, teamEvent, useTeamNumber, posX, posZ, inPit, isOfftrack) {
     if(!Util.isLiveTrackMapAvailable()) {
       return;
     }
@@ -1346,6 +1389,19 @@ class TrackMap {
     if (status !== LeaderBoardEntry.STATUS.DISCONNECTED) {
       TrackMap.addDriver(uniqueId);
       TrackMap.updateDriverPosition(uniqueId, pos + 1, displayName, displayColorClass, posX, posZ);
+      if (inPit) {
+        TrackMap.removeOfftrackStatus(uniqueId);
+        TrackMap.removeCollisionCar(uniqueId);
+        TrackMap.setPitStatus(uniqueId);
+      } else {
+        TrackMap.removePitStatus(uniqueId);
+      }
+      if (!inPit && isOfftrack) {
+        TrackMap.removePitStatus(uniqueId);
+        TrackMap.setOfftrackStatus(uniqueId);
+      } else {
+        TrackMap.removeOfftrackStatus(uniqueId);
+      }
     } else {
       TrackMap.removeDriver(uniqueId);
     }

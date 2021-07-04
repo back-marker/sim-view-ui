@@ -589,15 +589,15 @@ main {
 }
 
 .car-class-0-bg {
-  background-color: #32D296 !important;
+  background-color: #32D296;
 }
 
 .car-class-1 {
-  color: #89a2d2 !important;
+  color: #89a2d2 !important
 }
 
 .car-class-1-bg {
-  background-color: #89a2d2 !important;
+  background-color: #89a2d2;
 }
 
 .car-class-2 {
@@ -605,7 +605,7 @@ main {
 }
 
 .car-class-2-bg {
-  background-color: #EC6CBB !important;
+  background-color: #EC6CBB;
 }
 
 .car-class-3 {
@@ -613,7 +613,7 @@ main {
 }
 
 .car-class-3-bg {
-  background-color: #EF2D56 !important;
+  background-color: #EF2D56;
 }
 
 .car-class-4 {
@@ -621,7 +621,7 @@ main {
 }
 
 .car-class-4-bg {
-  background-color: #E38D59 !important;
+  background-color: #E38D59;
 }
 
 #message,
@@ -1888,10 +1888,10 @@ li a.red {
   display: inline-block;
 }
 
-.lb-row-pit {
+.lb-row-pit, .map-driver-names .pit-indicator {
   background-color: #5353ffb3;
 }
 
-.lb-row-offtrack {
+.lb-row-offtrack, .map-driver-names .offtrack-indicator {
   background-color: #939314e8;
 }
