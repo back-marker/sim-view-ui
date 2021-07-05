@@ -1902,3 +1902,8 @@ li a.red {
 .lb-row-offtrack, .map-driver-names .offtrack-indicator {
   background-color: #939314e8;
 }
+
+td .tooltip {
+  border-bottom: 2px dotted;
+  cursor: help;
+}

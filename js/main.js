@@ -571,41 +571,41 @@ class LeaderboardPage extends Page {
 
   static setupRaceLeaderBoardHeader(teamEvent, useTeamNumber) {
       var leaderboardHeader = `<tr>
-      <td class="lb-hr-status">C</td>
-      <td class="lb-hr-pos">Pos</td>
+      <td class="lb-hr-status"><a class="tooltip" title="Connection status">C</a></td>
+      <td class="lb-hr-pos"><a class="tooltip" title="Overall position">POS</a></td>
       <td class="lb-hr-car-class">Class</td>
-      ${useTeamNumber === true? `<td class="lb-hr-team-no">No.</td>` : ""}
+      ${useTeamNumber === true? `<td class="lb-hr-team-no"><a class="tooltip" title="Team number">No.</a></td>` : ""}
       ${teamEvent === true? `<td class="lb-hr-team">Team</td>` : ""}
       <td class="lb-hr-car">Car</td>
-      <td class="lb-hr-driver">Driver</td>
-      <td class="lb-hr-laps">Laps</td>
-      <td class="lb-hr-gap">Gap</td>
-      <td class="lb-hr-interval">Int.</td>
-      <td class="lb-hr-best-lap">Best</td>
-      <td class="lb-hr-last-lap">Last</td>
-      <td class="lb-hr-sec1">S1</td>
-      <td class="lb-hr-sec2">S2</td>
-      <td class="lb-hr-sec3">S3</td>
+      <td class="lb-hr-driver">${teamEvent === true? `<a class="tooltip" title="Current driver">Driver</a>` : `Driver`}</td>
+      <td class="lb-hr-laps"><a class="tooltip" title="Total laps">Laps</a></td>
+      <td class="lb-hr-gap"><a class="tooltip" title="Gap to leader">Gap</a></td>
+      <td class="lb-hr-interval"><a class="tooltip" title="Gap to car ahead">Int.</a></td>
+      <td class="lb-hr-best-lap"><a class="tooltip" title="Best lap">Best</a></td>
+      <td class="lb-hr-last-lap"><a class="tooltip" title="Last lap">Last</a></td>
+      <td class="lb-hr-sec1"><a class="tooltip" title="Sector 1 time of current lap">S1</a></td>
+      <td class="lb-hr-sec2"><a class="tooltip" title="Sector 2 time of current lap">S1</a></td>
+      <td class="lb-hr-sec3"><a class="tooltip" title="Sector 3 time of current lap">S1</a></td>
     </tr>`;
     $("#board-header").html(leaderboardHeader);
   }
 
   static setupQualiLeaderBoardHeader(teamEvent, useTeamNumber) {
     var leaderboardHeader = `<tr>
-      <td class="lb-hr-status">C</td>
-      <td class="lb-hr-pos">Pos</td>
+      <td class="lb-hr-status"><a class="tooltip" title="Connection status">C</a></td>
+      <td class="lb-hr-pos"><a class="tooltip" title="Overall position">POS</a></td>
       <td class="lb-hr-car-class">Class</td>
-      ${useTeamNumber === true? `<td class="lb-hr-team-no">No.</td>` : ""}
+      ${useTeamNumber === true? `<td class="lb-hr-team-no"><a class="tooltip" title="Team number">No.</a></td>` : ""}
       ${teamEvent === true? `<td class="lb-hr-team">Team</td>` : ""}
       <td class="lb-hr-car">Car</td>
-      <td class="lb-hr-driver">Driver</td>
-      <td class="lb-hr-best-lap">Best</td>
-      <td class="lb-hr-gap">Gap</td>
-      <td class="lb-hr-interval">Int.</td>
-      <td class="lb-hr-sec1">S1</td>
-      <td class="lb-hr-sec2">S2</td>
-      <td class="lb-hr-sec3">S3</td>
-      <td class="lb-hr-laps">Laps</td>
+      <td class="lb-hr-driver">${teamEvent === true? `<a class="tooltip" title="Current driver">Driver</a>` : `Driver`}</td>
+      <td class="lb-hr-best-lap"><a class="tooltip" title="Best lap">Best</a></td>
+      <td class="lb-hr-gap"><a class="tooltip" title="Gap to leader">Gap</a></td>
+      <td class="lb-hr-interval"><a class="tooltip" title="Gap to car ahead">Int.</a></td>
+      <td class="lb-hr-sec1"><a class="tooltip" title="Sector 1 time of best lap">S1</a></td>
+      <td class="lb-hr-sec2"><a class="tooltip" title="Sector 2 time of best lap">S2</a></td>
+      <td class="lb-hr-sec3"><a class="tooltip" title="Sector 3 time of best lap">S3</a></td>
+      <td class="lb-hr-laps"><a class="tooltip" title="Total valid laps">Laps</a></td>
     </tr>`;
     $("#board-header").html(leaderboardHeader);
   }
