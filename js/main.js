@@ -571,6 +571,7 @@ class LeaderboardPage extends Page {
 
   static setupRaceLeaderBoardHeader(teamEvent, useTeamNumber) {
       var leaderboardHeader = `<tr>
+      <td class="lb-hr-status">C</td>
       <td class="lb-hr-pos">Pos</td>
       <td class="lb-hr-car-class">Class</td>
       ${useTeamNumber === true? `<td class="lb-hr-team-no">No.</td>` : ""}
@@ -591,6 +592,7 @@ class LeaderboardPage extends Page {
 
   static setupQualiLeaderBoardHeader(teamEvent, useTeamNumber) {
     var leaderboardHeader = `<tr>
+      <td class="lb-hr-status">C</td>
       <td class="lb-hr-pos">Pos</td>
       <td class="lb-hr-car-class">Class</td>
       ${useTeamNumber === true? `<td class="lb-hr-team-no">No.</td>` : ""}
@@ -787,6 +789,7 @@ class LeaderBoard {
   static carList = {};
   static driverList = {};
   static carColorClass = [];
+  static driverPosChangeCounterList = {};
 }
 
 class QualiLeaderBoard {
@@ -827,7 +830,7 @@ class QualiLeaderBoard {
       var bestLap = new Lap(entry["best_lap_time"], entry["sector_1"], entry["sector_2"], entry["sector_3"]);
       var leaderBoardEntry = new QualiLeaderBoardEntry(entry["is_connected"], entry["is_loaded"], entry["is_finished"],
        entry["team_id"], entry["user_id"], entry["car_id"], bestLap, entry["gap"], entry["interval"], entry["pos_x"],
-       entry["pos_z"], entry["valid_laps"], entry["in_pit"], entry["is_offtrack"]);
+       entry["pos_z"], entry["valid_laps"], entry["in_pit"], entry["is_offtrack"], entry["pos_change"]);
 
       qualiLeaderBoard.addEntry(leaderBoardEntry);
     }
@@ -883,10 +886,30 @@ class LeaderBoardEntry {
       }
     }
   }
+
+  static getPositionChangeClass(teamId, driverId, carId, teamEvent, posChange) {
+    var uniqueId = TrackMap.getEntityUniqueId(teamId, driverId, carId, teamEvent);
+    if (posChange != 0) {
+      LeaderBoard.driverPosChangeCounterList[uniqueId] = {"pos_change": posChange, "counter": 10};
+    }
+    if (LeaderBoard.driverPosChangeCounterList[uniqueId] !== undefined && LeaderBoard.driverPosChangeCounterList[uniqueId]["counter"] >= 0) {
+      var oldPosChange = LeaderBoard.driverPosChangeCounterList[uniqueId]["pos_change"];
+      var posChangeClass = "position-" + (oldPosChange > 0? "gain" : (oldPosChange < 0? "lose" : "")) + "-arrow";
+      if (LeaderBoard.driverPosChangeCounterList[uniqueId]["counter"] === 0) {
+        LeaderBoard.driverPosChangeCounterList[uniqueId] = undefined;
+      } else {
+        --LeaderBoard.driverPosChangeCounterList[uniqueId]["counter"];
+      }
+
+      return posChangeClass
+    }
+
+    return "";
+  }
 }
 
 class QualiLeaderBoardEntry {
-  constructor(connected, loaded, finished, teamId, driverId, carId, bestLap, gap, interval, posX, posZ, totalLaps, inPit, isOfftrack) {
+  constructor(connected, loaded, finished, teamId, driverId, carId, bestLap, gap, interval, posX, posZ, totalLaps, inPit, isOfftrack, posChange) {
     this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, loaded, finished);
     this.teamId = teamId
     this.driverId = driverId;
@@ -900,6 +923,7 @@ class QualiLeaderBoardEntry {
     this.trackStatus = LeaderBoardEntry.getTrackStatus(connected, loaded, inPit, isOfftrack);
     this.inPit = inPit === 1;
     this.isOfftrack = isOfftrack === 1;
+    this.posChange = posChange;
   }
 
   /**
@@ -919,11 +943,13 @@ class QualiLeaderBoardEntry {
    * @param {int} bestSec3Idx
    */
   toHTML(pos, teamEvent, useTeamNumber, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
+    this.posChangeClass = LeaderBoardEntry.getPositionChangeClass(this.teamId, this.driverId, this.carId, teamEvent, this.posChange);
     TrackMap.syncDriverMapStatus(pos, this.status, this.teamId, this.driverId, this.carId, teamEvent, useTeamNumber, this.posX, this.posZ, this.inPit, this.isOfftrack);
     return `<tr class="${this.trackStatus}" data-pos="${pos + 1}">
+      <td class="lb-status"><span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span></td>
       <td class="lb-pos">
         <span class="pos">${pos + 1}</span>
-        <span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span>
+        <span class="${this.posChangeClass}"></span>
       </td>
       <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" ${teamEvent? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}">
         ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
@@ -976,7 +1002,7 @@ class RaceLeaderBoard {
       var lastLap = new Lap(entry["last_lap_time"], entry["sector_1"], entry["sector_2"], entry["sector_3"]);
       var leaderBoardEntry = new RaceLeaderBoardEntry(entry["is_connected"], entry["is_loaded"], entry["is_finished"], entry["team_id"],
         entry["user_id"], entry["car_id"], entry["laps"], entry["gap"], entry["interval"], entry["pos_x"], entry["pos_z"],
-        entry["best_lap_time"], lastLap, entry["in_pit"], entry["is_offtrack"]);
+        entry["best_lap_time"], lastLap, entry["in_pit"], entry["is_offtrack"], entry["pos_change"]);
 
       raceLeaderBoard.addEntry(leaderBoardEntry);
 
@@ -990,7 +1016,7 @@ class RaceLeaderBoard {
 }
 
 class RaceLeaderBoardEntry {
-  constructor(connected, loaded, finished, teamId, driverId, carId, totalLaps, gap, interval, posX, posZ, bestLapTime, lastLap, inPit, isOfftrack) {
+  constructor(connected, loaded, finished, teamId, driverId, carId, totalLaps, gap, interval, posX, posZ, bestLapTime, lastLap, inPit, isOfftrack, posChange) {
     this.status = LeaderBoardEntry.statusFromConnectedAndFinished(connected, loaded, finished);
     this.teamId = teamId;
     this.driverId = driverId;
@@ -1005,6 +1031,7 @@ class RaceLeaderBoardEntry {
     this.trackStatus = LeaderBoardEntry.getTrackStatus(connected, loaded, inPit, isOfftrack);
     this.inPit = inPit === 1;
     this.isOfftrack = isOfftrack === 1;
+    this.posChange = posChange;
   }
 
   /**
@@ -1021,12 +1048,14 @@ class RaceLeaderBoardEntry {
    * @param {int} pos
    */
   toHTML(pos, teamEvent, useTeamNumber, bestLapIdx) {
+    this.posChangeClass = LeaderBoardEntry.getPositionChangeClass(this.teamId, this.driverId, this.carId, teamEvent, this.posChange);
     TrackMap.syncDriverMapStatus(pos, this.status, this.teamId, this.driverId, this.carId, teamEvent, useTeamNumber, this.posX, this.posZ, this.inPit, this.isOfftrack);
 
     return `<tr class="${this.trackStatus}" data-pos="${pos + 1}">
+    <td class="lb-status"><span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span></td>
       <td class="lb-pos">
         <span class="pos">${pos + 1}</span>
-        <span class="status ${LeaderBoardEntry.getDriverStatusClass(this.status)}"></span>
+        <span class="${this.posChangeClass}"></span>
       </td>
       <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" ${teamEvent? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}">
         ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}

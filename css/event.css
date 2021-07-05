@@ -366,6 +366,10 @@ main {
   text-align: left;
 }
 
+.lb-hr-pos {
+  text-align: center;
+}
+
 .lb-pos .pos {
   width: 30px;
   display: inline-block;
@@ -383,7 +387,10 @@ main {
 
 .lb-status,
 .lb-hr-status {
-  width: 70px;
+  width: 30px;
+}
+.lb-status {
+  border-right: 2px solid #464646;
   text-align: center;
 }
 
@@ -557,7 +564,7 @@ main {
   height: 0 !important;
 }
 
-.lb-pos .status {
+.lb-status .status {
   display: inline-block;
   width: 14px;
   height: 14px;
