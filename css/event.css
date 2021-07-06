@@ -1388,6 +1388,13 @@ li a.red {
   display: inline-block;
 }
 
+.map-driver-names .full-display-name {
+  padding-right: 8px;
+  display: none;
+}
+.map-driver-names:hover .full-display-name {
+  display: inline-block;
+}
 .map-section {
   opacity: 0;
 }

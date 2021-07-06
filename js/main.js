@@ -1348,6 +1348,17 @@ class TrackMap {
     return name.toUpperCase();
   }
 
+  static getEntityFullDisplayName(teamId, driverId, teamEvent, useTeamNumber) {
+    var name = "N/A";
+    if (teamEvent && LeaderBoard.teamList[teamId] !== undefined) {
+      name = LeaderBoard.teamList[teamId]["name"];
+    } else if (!teamEvent && LeaderBoard.driverList[driverId] !== undefined) {
+      name = LeaderBoard.driverList[driverId];
+    }
+
+    return name;
+  }
+
   static removeCollisionCar(id) {
     $("#name_" + id + " .driver-pos").removeClass("collision-indicator").removeAttr("data-clear-handle");
   }
@@ -1381,7 +1392,11 @@ class TrackMap {
     var scale = Number.parseFloat($("#track-map svg").attr("data-scale"));
     $("#track-map #" + uniqueId).attr("r", TrackMap.DRIVER_CIRCLE_RADIUS * scale).attr("fill", TrackMap.DEFAULT_DRIVER_CIRCLE_COLOR).attr("data-car-class", carClassName);
     
-    var driverPosAndName = `<div class="map-driver-names" data-car-class="${carClassName}" id="name_${uniqueId}"><span class="driver-pos">-</span><span class="display-name">N/A</span></div>`
+    var driverPosAndName = `<div class="map-driver-names" data-car-class="${carClassName}" id="name_${uniqueId}">
+      <span class="driver-pos">-</span>
+      <span class="display-name">N/A</span>
+      <span class="full-display-name ${carClassName}">N/A</span>
+      </div>`
     $("#track-map-svg").append(driverPosAndName);
   }
 
@@ -1415,13 +1430,14 @@ class TrackMap {
     }
     var uniqueId = TrackMap.getEntityUniqueId(teamId, driverId, carId, teamEvent);
     var displayName = TrackMap.getEntityDisplayName(teamId, driverId, teamEvent, useTeamNumber);
+    var fullDisplayName = TrackMap.getEntityFullDisplayName(teamId, driverId, teamEvent, useTeamNumber);
     var displayColorClass = Util.getCarColorClass(carId);
     var carClassName = LeaderBoard.carList[carId] === undefined? "" : LeaderBoard.carList[carId]["class"];
     carClassName = carClassName.toLowerCase();
 
     if (status !== LeaderBoardEntry.STATUS.DISCONNECTED) {
       TrackMap.addDriver(uniqueId, carClassName);
-      TrackMap.updateDriverPosition(uniqueId, pos + 1, displayName, displayColorClass, carClassName, posX, posZ);
+      TrackMap.updateDriverPosition(uniqueId, pos + 1, displayName, fullDisplayName, displayColorClass, carClassName, posX, posZ);
       if (inPit) {
         TrackMap.removeOfftrackStatus(uniqueId);
         TrackMap.removeCollisionCar(uniqueId);
@@ -1456,7 +1472,7 @@ class TrackMap {
     }
   }
 
-  static updateDriverPosition(uniqueId, driverPos, displayName, displayColorClass, carClassName, posX, posZ) {
+  static updateDriverPosition(uniqueId, driverPos, displayName, fullDisplayName, displayColorClass, carClassName, posX, posZ) {
     if (carClassName !== "" && TrackMap.carClasses.indexOf(carClassName) === -1) {
       TrackMap.carClasses.push(carClassName);
       $("#track-class-control").append(`<div>
@@ -1485,6 +1501,7 @@ class TrackMap {
 
     $("#track-map #name_" + uniqueId + " .driver-pos").text(driverPos).addClass(displayColorClassBG);
     $("#track-map #name_" + uniqueId + " .display-name").text(displayName).addClass(displayColorClass);
+    $("#track-map #name_" + uniqueId + " .full-display-name").text(fullDisplayName).addClass(displayColorClass);
   }
 
   static removeDriver(uniqueId) {
