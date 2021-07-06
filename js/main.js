@@ -1323,6 +1323,7 @@ class TrackMap {
   static DEFAULT_DRIVER_CIRCLE_COLOR = "#22b4e1";
   static DRIVER_NAME_CHARACTER_LIMIT = 3;
   static COLLISION_INDICATOR_TIMEOUT = 10 * 1000;
+  static carClasses = [];
 
   static getEntityUniqueId(teamId, driverId, carId, teamEvent) {
     if (teamEvent) {
@@ -1371,15 +1372,16 @@ class TrackMap {
     elem.attr("data-clear-handle", handle);
   }
 
-  static addDriver(uniqueId, displayColorClass) {
+  static addDriver(uniqueId, carClassName) {
     if ($("#track-map svg #" + uniqueId).length !== 0) return;
+    
     var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     circle.id= uniqueId;
     $("#track-map svg").append(circle);
     var scale = Number.parseFloat($("#track-map svg").attr("data-scale"));
-    $("#track-map #" + uniqueId).attr("r", TrackMap.DRIVER_CIRCLE_RADIUS * scale).attr("fill", TrackMap.DEFAULT_DRIVER_CIRCLE_COLOR);
+    $("#track-map #" + uniqueId).attr("r", TrackMap.DRIVER_CIRCLE_RADIUS * scale).attr("fill", TrackMap.DEFAULT_DRIVER_CIRCLE_COLOR).attr("data-car-class", carClassName);
     
-    var driverPosAndName = `<div class="map-driver-names" id="name_${uniqueId}"><span class="driver-pos">-</span><span class="display-name">N/A</span></div>`
+    var driverPosAndName = `<div class="map-driver-names" data-car-class="${carClassName}" id="name_${uniqueId}"><span class="driver-pos">-</span><span class="display-name">N/A</span></div>`
     $("#track-map-svg").append(driverPosAndName);
   }
 
@@ -1414,10 +1416,12 @@ class TrackMap {
     var uniqueId = TrackMap.getEntityUniqueId(teamId, driverId, carId, teamEvent);
     var displayName = TrackMap.getEntityDisplayName(teamId, driverId, teamEvent, useTeamNumber);
     var displayColorClass = Util.getCarColorClass(carId);
+    var carClassName = LeaderBoard.carList[carId] === undefined? "" : LeaderBoard.carList[carId]["class"];
+    carClassName = carClassName.toLowerCase();
 
     if (status !== LeaderBoardEntry.STATUS.DISCONNECTED) {
-      TrackMap.addDriver(uniqueId);
-      TrackMap.updateDriverPosition(uniqueId, pos + 1, displayName, displayColorClass, posX, posZ);
+      TrackMap.addDriver(uniqueId, carClassName);
+      TrackMap.updateDriverPosition(uniqueId, pos + 1, displayName, displayColorClass, carClassName, posX, posZ);
       if (inPit) {
         TrackMap.removeOfftrackStatus(uniqueId);
         TrackMap.removeCollisionCar(uniqueId);
@@ -1436,12 +1440,35 @@ class TrackMap {
     }
   }
 
-  static updateDriverPosition(uniqueId, driverPos, displayName, displayColorClass, posX, posZ) {
+  static hideCarOfClassType(carClassName) {
+    $("#track-map [data-car-class="+carClassName.toLowerCase()+"]").addClass("hidden");
+  }
+
+  static showCarOfClassType(carClassName) {
+    $("#track-map [data-car-class="+carClassName.toLowerCase()+"]").removeClass("hidden");
+  }
+
+  static toggleCarClasses(carClassName) {
+    if($("input[name=" + carClassName + "_toggle]").prop("checked") === true) {
+      TrackMap.hideCarOfClassType(carClassName);
+    } else {
+      TrackMap.showCarOfClassType(carClassName);
+    }
+  }
+
+  static updateDriverPosition(uniqueId, driverPos, displayName, displayColorClass, carClassName, posX, posZ) {
+    if (carClassName !== "" && TrackMap.carClasses.indexOf(carClassName) === -1) {
+      TrackMap.carClasses.push(carClassName);
+      $("#track-class-control").append(`<div>
+        <input type="checkbox" name="${carClassName}_toggle" value="${carClassName}" onClick="TrackMap.toggleCarClasses('${carClassName}')">
+        <label class="${displayColorClass}" for="${carClassName}_toggle">Hide ${carClassName.toUpperCase()}</label><br>
+      </div>`);
+    }
     // Update driver circle position
     var offsetX = Number.parseFloat($("#track-map-svg svg").attr("data-x-offset"));
     var offsetY = Number.parseFloat($("#track-map-svg svg").attr("data-y-offset"));
     if (posX === 0 && posZ === 0) { offsetX = 20; offsetY = 20; }
-    $("#track-map #" + uniqueId).attr("cx", posX + offsetX).attr("cy", posZ + offsetY).addClass("svg-" + displayColorClass);
+    $("#track-map #" + uniqueId).attr("cx", posX + offsetX).attr("cy", posZ + offsetY).attr("data-car-class", carClassName).addClass("svg-" + displayColorClass);
 
     // Update driver name tooltip position
     var viewBox = $("#track-map svg").attr("viewBox");
@@ -1449,7 +1476,7 @@ class TrackMap {
     var actualHeight = Number.parseInt(viewBox.split(" ")[3]);
     var htmlX = 10 + $("#track-map svg").width() * (posX + offsetX) / actualWidth;
     var htmlY =-13 + $("#track-map svg").height() * (posZ + offsetY) / actualHeight;
-    $("#track-map #name_" + uniqueId).css({ "top": htmlY + "px", "left": htmlX + "px" });
+    $("#track-map #name_" + uniqueId).css({ "top": htmlY + "px", "left": htmlX + "px" }).attr("data-car-class", carClassName);
     
     var displayColorClassBG = "";
     if (displayColorClass != "") {

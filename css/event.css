@@ -1907,3 +1907,18 @@ td .tooltip {
   border-bottom: 2px dotted;
   cursor: help;
 }
+
+#track-class-control {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+#track-class-control label {
+  padding: 5px;
+  margin-right: 20px;
+}
+
+#track-class-control div:last-child label {
+  margin-right: 0;
+}
