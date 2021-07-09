@@ -1596,16 +1596,16 @@ class QualiResultStandingTabEntry {
 
   static getHeaderHtml(teamEvent, useTeamNumber) {
     return `<tr>
-      <td class="st-hr-pos">Pos</td>
+      <td class="st-hr-pos"><a class="tooltip" title="Overall position">Pos</a></td>
       <td class="lb-hr-car-class">Class</td>
-      ${useTeamNumber? `<td class="lb-hr-team-no">No.</td>` : ""}
+      ${useTeamNumber? `<td class="lb-hr-team-no"><a class="tooltip" title="Team No">No.</a></td>` : ""}
       ${teamEvent? `<td class="lb-hr-team">Team</td>` : ""}
       <td class="lb-hr-car">Car</td>
       ${!teamEvent? `<td class="lb-hr-driver">Driver</td>` : ""}
-      <td class="lb-hr-best-lap">Best</td>
-      <td class="st-hr-valid-laps">V. Laps</td>
-      <td class="lb-hr-gap">Gap</td>
-      <td class="lb-hr-interval">Int.</td>
+      <td class="lb-hr-best-lap"><a class="tooltip" title="Best lap">Best</a></td>
+      <td class="st-hr-valid-laps"><a class="tooltip" title="Total valid laps">V. Laps</a></td>
+      <td class="lb-hr-gap"><a class="tooltip" title="Gap to leader">Gap</a></td>
+      <td class="lb-hr-interval"><a class="tooltip" title="Gap to car ahead">Int.</a></td>
       <td class="st-hr-finish-at">Finish At</td>
     </tr>`;
   }
@@ -1655,17 +1655,17 @@ class RaceResultStandingTabEntry {
 
   static getHeaderHtml(teamEvent, useTeamNumber) {
     return `<tr>
-      <td class="st-hr-pos">Pos</td>
+      <td class="st-hr-pos"><a class="tooltip" title="Overall position">Pos</a></td>
       <td class="lb-hr-car-class">Class</td>
-      ${useTeamNumber? `<td class="lb-hr-team-no">No.</td>` : ""}
+      ${useTeamNumber? `<td class="lb-hr-team-no"><a class="tooltip" title="Team No">No.</a></td>` : ""}
       ${teamEvent? `<td class="lb-hr-team">Team</td>` : ""}
       <td class="lb-hr-car">Car</td>
       ${!teamEvent? `<td class="lb-hr-driver">Driver</td>` : ""}
-      <td class="lb-hr-laps">Laps</td>
-      <td class="st-hr-valid-laps">V. Laps</td>
-      <td class="lb-hr-gap">Gap</td>
-      <td class="lb-hr-interval">Int.</td>
-      <td class="st-total">Total</td>
+      <td class="lb-hr-laps"><a class="tooltip" title="Total laps">Laps</a></td>
+      <td class="st-hr-valid-laps"><a class="tooltip" title="Total valid laps">V. Laps</a></td>
+      <td class="lb-hr-gap"><a class="tooltip" title="Gap to leader">Gap</a></td>
+      <td class="lb-hr-interval"><a class="tooltip" title="Gap to car ahead">Int.</a></td>
+      <td class="st-total"><a class="tooltip" title="Total time of laps">Total</a></td>
     </tr>`;
   }
 }
@@ -2125,15 +2125,15 @@ class ResultPage extends Page {
 
   static getSectorsResultHeaderHtml(teamEvent, useTeamNumber, sector_idx) {
     return `<tr>
-        <td class="sec-hr-pos">Pos</td>
+        <td class="sec-hr-pos"><a class="tooltip" title="Overall position">Pos</a></td>
         <td class="sec-hr-car-class">Class</td>
-        ${useTeamNumber? `<td class="lb-hr-team-no">No.</td>` : ""}
+        ${useTeamNumber? `<td class="lb-hr-team-no"><a class="tooltip" title="Team no">No.</a></td>` : ""}
         ${teamEvent? `<td class="lb-hr-team">Team</td>` : ""}
         <td class="sec-hr-car">Car</td>
         ${!teamEvent? `<td class="lb-hr-driver">Driver</td>` : ""}
-        <td class="sec-hr-sec">BS ${sector_idx}</td>
-        <td class="sec-hr-gap">Gap</td>
-        <td class="sec-hr-interval">Int.</td>
+        <td class="sec-hr-sec"><a class="tooltip" title="Best sector ${sector_idx} time">BS ${sector_idx}</a></td>
+        <td class="sec-hr-gap"><a class="tooltip" title="Gap to leader">Gap</a></td>
+        <td class="sec-hr-interval"><a class="tooltip" title="Gap to car ahead">Int.</a></td>
       </tr>`;
   }
 }
