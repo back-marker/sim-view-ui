@@ -389,6 +389,7 @@ main {
 .lb-hr-status {
   width: 30px;
 }
+
 .lb-status {
   border-right: 2px solid #464646;
   text-align: center;
@@ -1392,9 +1393,11 @@ li a.red {
   padding-right: 8px;
   display: none;
 }
+
 .map-driver-names:hover .full-display-name {
   display: inline-block;
 }
+
 .map-section {
   opacity: 0;
 }
@@ -1836,7 +1839,8 @@ li a.red {
   background-color: #2f2f2f;
 }
 
-.feed-driver,.feed-team {
+.feed-driver,
+.feed-team {
   color: #6db4df;
 }
 
@@ -1902,12 +1906,14 @@ li a.red {
   display: inline-block;
 }
 
-.lb-row-pit, .map-driver-names .pit-indicator {
-  background-color: #5353ffb3;
+.lb-row-pit,
+.map-driver-names .pit-indicator {
+  background-color: #5353ffb3 !important;
 }
 
-.lb-row-offtrack, .map-driver-names .offtrack-indicator {
-  background-color: #61381B;
+.lb-row-offtrack,
+.map-driver-names .offtrack-indicator {
+  background-color: #61381B !important;
 }
 
 td .tooltip {
