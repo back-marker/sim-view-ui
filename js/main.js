@@ -549,8 +549,6 @@ class LeaderboardPage extends Page {
       return "speed-status-red";
     } else if (type === 7) {
       return "chat-hr-color";
-    } else if (type === 10) {
-      return ""
     } else {
       return Util.getCarColorClass(detail["car_id"]);
     }
