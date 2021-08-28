@@ -179,6 +179,8 @@ class SessionFeed {
         return this.getOfftrackMsg(detail);
       case 14:
         return this.getRejoinsTrackMsg(detail);
+      case 15:
+        return this.getPitTeleportMsg(detail);
       default:
         return "-"
     }
@@ -238,6 +240,10 @@ class SessionFeed {
 
   static getRejoinsTrackMsg(detail) {
     return this.prepareMessage `${["user", detail["user_id"], detail["team_id"]]} rejoins track with speed ${["speed", detail["speed"]]} ${["nsp", detail["nsp"]]}`;
+  }
+
+  static getPitTeleportMsg(detail) {
+    return this.prepareMessage `${["user", detail["user_id"], detail["team_id"]]} teleported to pit`;
   }
 }
 
