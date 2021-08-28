@@ -596,8 +596,8 @@ class LeaderboardPage extends Page {
       <td class="lb-hr-best-lap"><a class="tooltip" title="Best lap">Best</a></td>
       <td class="lb-hr-last-lap"><a class="tooltip" title="Last lap">Last</a></td>
       <td class="lb-hr-sec1"><a class="tooltip" title="Sector 1 time of current lap">S1</a></td>
-      <td class="lb-hr-sec2"><a class="tooltip" title="Sector 2 time of current lap">S1</a></td>
-      <td class="lb-hr-sec3"><a class="tooltip" title="Sector 3 time of current lap">S1</a></td>
+      <td class="lb-hr-sec2"><a class="tooltip" title="Sector 2 time of current lap">S2</a></td>
+      <td class="lb-hr-sec3"><a class="tooltip" title="Sector 3 time of current lap">S3</a></td>
     </tr>`;
     $("#board-header").html(leaderboardHeader);
   }
