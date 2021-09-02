@@ -14,10 +14,10 @@ function getRequest(url, callback, failure) {
   });
 }
 
-function setRemainingTimeTimer(start_time, duration_min) {
-  LeaderboardPage.setRemainingTime(start_time, duration_min);
+function setRemainingTimeTimer(elapsed_ms, duration_min) {
+  LeaderboardPage.setRemainingTime(elapsed_ms, duration_min);
   setTimeout(function() {
-    LeaderboardPage.setRemainingTime(start_time, duration_min);
+    LeaderboardPage.setRemainingTime(elapsed_ms + 1000, duration_min);
   }, 1000);
 }
 
@@ -285,6 +285,8 @@ class LeaderboardPage extends Page {
         $("#event-detail .race .date").text(raceDuration);
       }
 
+      getRequest("/api/ac/event/" + event["event_id"] + "/session/latest", LeaderboardPage.cb_updateSessionInfo);
+
       var trackApi = "/ac/track/" + event["track_config_id"];
       getRequest("/api" + trackApi, LeaderboardPage.cb_updateTrackInfo);
       $("#track-preview img").attr("src", "/images" + trackApi + "/preview");
@@ -293,7 +295,6 @@ class LeaderboardPage extends Page {
         $("#track-map-svg").html(data.childNodes[0].outerHTML);
         $("#track-map-svg svg").css(Util.getOptimalWidthAndHeightForMap("#track-map-svg svg"));
       }, LeaderboardPage.cb_missingTrackMap);
-      getRequest("/api/ac/event/" + event["event_id"] + "/session/latest", LeaderboardPage.cb_updateSessionInfo);
     }
   }
 
@@ -453,7 +454,7 @@ class LeaderboardPage extends Page {
       if (session["duration_min"] != 0) {
         $("#remaining").attr("data-session-type", "time");
         $("#remaining span").addClass("remain-time");
-        setRemainingTimeTimer(session["start_time"], session["duration_min"]);
+        setRemainingTimeTimer(session["elapsed_ms"], session["duration_min"]);
       } else {
         $("#remaining span").addClass("remain-laps");
         $("#remaining").attr("data-laps", session["laps"]);
@@ -641,19 +642,14 @@ class LeaderboardPage extends Page {
     $("#remaining span").text(remainLapsText);
   }
 
-  static setRemainingTime(start_time, duration_min) {
-    var elapsedMS = Date.now() - Math.floor(start_time / 1000);
-    var raceWait = Number.parseInt($("#event-detail").attr("data-race-wait-time"));
+  static setRemainingTime(elapsed_ms, duration_min) {
     var remainTime;
-    var waitForGreen = (elapsedMS <= raceWait * 1000) && $("#event-detail").attr("data-session") === "race";
+    var waitForGreen = (elapsed_ms < 0) && $("#event-detail").attr("data-session") === "race";
     if (waitForGreen) {
-      remainTime = "- " + Util.getTimeDiffString(raceWait - Math.floor(elapsedMS / 1000)) + " -";
+      remainTime = "-- " + Util.getTimeDiffString(Math.floor(-elapsed_ms / 1000)) + " --";
     } else {
-      var diffTime = duration_min * 60 - Math.floor(elapsedMS / 1000);
-      if ($("#event-detail").attr("data-session") === "race") {
-        diffTime += raceWait;
-      }
-      if (diffTime < 0 && $("#event-detail").attr("data-session") === "race") {
+      var leftTime = Math.floor((duration_min * 60000 - elapsed_ms) / 1000);
+      if (leftTime < 0 && $("#event-detail").attr("data-session") === "race") {
         if ($("#event-detail").attr("data-finished") !== undefined) {
           remainTime = "Finished";
         } else if($("#event-detail").attr("data-race-extra-laps") === "1") {
@@ -663,17 +659,17 @@ class LeaderboardPage extends Page {
           remainTime = "Last Lap";
         }
       } else {
-        remainTime = Util.getTimeDiffString(diffTime);
+        remainTime = Util.getTimeDiffString(leftTime);
       }
     }
     $("#remaining span").text(remainTime);
 
     var nextTimeout = 60000;
-    if (waitForGreen || diffTime < 60 * 60) {
+    if (waitForGreen || leftTime < 60 * 60) {
       nextTimeout = 1000;
     }
     setTimeout(function() {
-      LeaderboardPage.setRemainingTime(start_time, duration_min);
+      LeaderboardPage.setRemainingTime(elapsed_ms + nextTimeout, duration_min);
     }, nextTimeout);
   }
 }
