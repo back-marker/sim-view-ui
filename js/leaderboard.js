@@ -59,8 +59,12 @@ class LeaderBoardEntry {
     this.currentLap = currentLap;
     this.lastLapTime = lastLapTime;
 
-    this.gap = gap;
-    this.interval = interval;
+    if (gap != -1) {
+      this.gap = gap;
+    }
+    if (interval != -1) {
+      this.interval = interval;
+    }
     this.posChange = posChange;
   }
 
