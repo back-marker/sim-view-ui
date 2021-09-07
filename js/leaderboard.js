@@ -122,7 +122,7 @@ class LeaderBoardEntry {
   }
 
   isQualiPurpleLap(pos) {
-    return pos === 0 && this.status === LeaderBoardEntry.CONNECTION_STATUS.CONNECTED && this.bestLap.lapTime !== 0;
+    return pos === 0 && this.connectionStatus === LeaderBoardEntry.CONNECTION_STATUS.CONNECTED && this.bestLap.lapTime !== 0;
   }
 
   toQualiHTML(pos, teamEvent, useTeamNumber, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
@@ -156,7 +156,7 @@ class LeaderBoardEntry {
       </tr>`;
   }
 
-  isRacePurpleLap(pos) {
+  isRacePurpleLap(pos, bestLapIdx) {
     return pos === bestLapIdx && this.bestLap.lapTime !== 0;
   }
 
@@ -237,7 +237,7 @@ class QualiLeaderBoard extends LeaderBoard {
   addEntry(entry) {
     var idx = this.entries.length;
     this.entries.push(entry);
-    if (entry.status === LeaderBoardEntry.CONNECTION_STATUS.CONNECTED) {
+    if (entry.connectionStatus === LeaderBoardEntry.CONNECTION_STATUS.CONNECTED) {
       if (entry.bestLap.sec1 !== 0 && (this.bestSec1Idx == -1 ||
           entry.bestLap.sec1 < this.entries[this.bestSec1Idx].bestLap.sec1)) {
         this.bestSec1Idx = idx;
@@ -366,7 +366,6 @@ class LeaderBoardDeserialiser {
     const trackStatus = (mask & 15)
     mask = mask >> 4;
     const connectionStatus = mask;
-
     const laps = this.readUint16();
     const validLaps = this.readUint16();
 
