@@ -122,8 +122,7 @@ class LeaderBoardEntry {
   }
 
   toQualiHTML(pos, teamEvent, useTeamNumber, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
-
-      // TrackMap.syncDriverMapStatus(pos, this.status, this.id.teamID, this.id.userID, this.id.carID, teamEvent, useTeamNumber, this.posX, this.posZ, this.inPit, this.isOfftrack);
+      TrackMap.syncDriverMapStatus(pos, this.connectionStatus, this.id, teamEvent, useTeamNumber, this.telemetry, this.trackStatus);
 
       return `<tr class="${this.getTrackStatusClass()}" data-pos="${pos + 1}">
         <td class="lb-status"><span class="status ${this.getDriverStatusClass()}"></span></td>
@@ -158,8 +157,8 @@ class LeaderBoardEntry {
   }
 
   toRaceHTML(pos, teamEvent, useTeamNumber, bestLapIdx) {
+    TrackMap.syncDriverMapStatus(pos, this.connectionStatus, this.id, teamEvent, useTeamNumber, this.telemetry, this.trackStatus);
 
-    // TrackMap.syncDriverMapStatus(pos, this.status, this.id.teamID, this.id.userID, this.id.carID, teamEvent, useTeamNumber, this.posX, this.posZ, this.inPit, this.isOfftrack);
     return `<tr class="${this.getTrackStatusClass()}" data-pos="${pos + 1}">
     <td class="lb-status"><span class="status ${this.getDriverStatusClass()}"></span></td>
       <td class="lb-pos">

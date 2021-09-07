@@ -116,28 +116,28 @@ class TrackMap {
     elem.removeClass("offtrack-indicator");
   }
 
-  static syncDriverMapStatus(pos, status, teamId, driverId, carId, teamEvent, useTeamNumber, posX, posZ, inPit, isOfftrack) {
+  static syncDriverMapStatus(pos, connectionStatus, id, teamEvent, useTeamNumber, telemetry, trackStatus) {
     if (!Util.isLiveTrackMapAvailable()) {
       return;
     }
-    var uniqueId = TrackMap.getEntityUniqueId(teamId, driverId, carId, teamEvent);
-    var displayName = TrackMap.getEntityDisplayName(teamId, driverId, teamEvent, useTeamNumber);
-    var fullDisplayName = TrackMap.getEntityFullDisplayName(teamId, driverId, teamEvent, useTeamNumber);
-    var displayColorClass = Util.getCarColorClass(carId);
-    var carClassName = LeaderBoard.carList[carId] === undefined ? "" : LeaderBoard.carList[carId]["class"];
+    var uniqueId = id.getUniqueID();
+    var displayName = TrackMap.getEntityDisplayName(id.teamID, id.userID, teamEvent, useTeamNumber);
+    var fullDisplayName = TrackMap.getEntityFullDisplayName(id.teamID, id.userID, teamEvent, useTeamNumber);
+    var displayColorClass = Util.getCarColorClass(id.carID);
+    var carClassName = LeaderBoard.carList[id.carID] === undefined ? "" : LeaderBoard.carList[id.carID]["class"];
     carClassName = carClassName.toLowerCase();
 
-    if (status !== LeaderBoardEntry.STATUS.DISCONNECTED) {
+    if (connectionStatus !== LeaderBoardEntry.CONNECTION_STATUS.DISCONNECTED) {
       TrackMap.addDriver(uniqueId, carClassName);
-      TrackMap.updateDriverPosition(uniqueId, pos + 1, displayName, fullDisplayName, displayColorClass, carClassName, posX, posZ);
-      if (inPit) {
+      TrackMap.updateDriverPosition(uniqueId, pos + 1, displayName, fullDisplayName, displayColorClass, carClassName, telemetry.posX, telemetry.posZ);
+      if (trackStatus == LeaderBoardEntry.TRACK_STATUS.PIT_LANE) {
         TrackMap.removeOfftrackStatus(uniqueId);
         TrackMap.removeCollisionCar(uniqueId);
         TrackMap.setPitStatus(uniqueId);
       } else {
         TrackMap.removePitStatus(uniqueId);
       }
-      if (!inPit && isOfftrack) {
+      if (trackStatus == LeaderBoardEntry.TRACK_STATUS.OFF_TRACK) {
         TrackMap.removePitStatus(uniqueId);
         TrackMap.setOfftrackStatus(uniqueId);
       } else {
