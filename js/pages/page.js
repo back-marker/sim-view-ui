@@ -1,6 +1,6 @@
 class Page {
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
-  static VERSION = "v0.12";
+  static VERSION = "v1.0";
 
   static cb_updateTeamsName(data) {
     if (data["status"] === "success") {
