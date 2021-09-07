@@ -671,6 +671,10 @@ main {
   border-bottom: 3px solid #6db4df;
 }
 
+#common-header #link-live.active {
+  border-bottom: 3px solid #ff5757;
+}
+
 #common-header li:first-child {
   padding-left: 0;
 }
