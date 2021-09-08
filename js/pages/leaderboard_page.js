@@ -383,7 +383,7 @@ class LeaderboardPage extends Page {
       } else {
         var totalLap = Number($("#remaining").attr("data-laps"));
         if (totalLap == current_lap) {
-          remainLapsText = "Last Lap";
+          remainLapsText = "Final Lap";
         } else {
           remainLapsText = current_lap + " / " + totalLap;
         }
@@ -405,7 +405,7 @@ class LeaderboardPage extends Page {
             remainTime = "+1 Lap";
             $("#event-detail").attr("data-total-laps", $("#board-body [data-pos='1'] .lb-laps").text())
           } else {
-            remainTime = "Last Lap";
+            remainTime = "Final Lap";
           }
         } else {
           remainTime = Util.getTimeDiffString(leftTime);
