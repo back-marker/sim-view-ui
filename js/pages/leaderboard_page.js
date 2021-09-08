@@ -156,19 +156,19 @@ class LeaderboardPage extends Page {
     $("#board-body").html(leaderboardHtml);
     if ($("#remaining span").hasClass("remain-laps")) {
       if (leaderboard.entries[0] !== undefined) {
-        if (leaderboard.entries[0].status === LeaderBoardEntry.CONNECTION_STATUS.FINISHED) {
+        if (leaderboard.entries[0].isFinished) {
           LeaderboardPage.setRemainingLaps(-1);
         } else {
-          LeaderboardPage.setRemainingLaps(leaderboard.entries[0].totalLaps + 1)
+          LeaderboardPage.setRemainingLaps(leaderboard.entries[0].laps + 1)
         }
       } else {
         LeaderboardPage.setRemainingLaps(1);
       }
-    } else if (sessionType === "race" && leaderboard.entries[0] !== undefined) {
-      if (leaderboard.entries[0].status === LeaderBoardEntry.CONNECTION_STATUS.FINISHED) {
+    } else if (raceSession && leaderboard.entries[0] !== undefined) {
+      if (leaderboard.entries[0].isFinished) {
         $("#event-detail").attr("data-finished", "true");
       } else if ($("#event-detail").attr("data-total-laps") !== undefined) {
-        if (leaderboard.entries[0].totalLaps > Number.parseInt($("#event-detail").attr("data-total-laps"))) {
+        if (leaderboard.entries[0].laps > Number.parseInt($("#event-detail").attr("data-total-laps"))) {
           $("#event-detail").removeAttr("data-total-laps").removeAttr("data-race-extra-laps");
         }
       }

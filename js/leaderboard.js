@@ -361,9 +361,9 @@ class LeaderBoardDeserialiser {
     //3 bits for connection status
     //4 bits for track status
     //1 bit for is finished
-    const isFinished = (mask & 1) === 1
+    const isFinished = (mask & 1) === 1;
     mask = mask >> 1;
-    const trackStatus = (mask & 15)
+    const trackStatus = (mask & 15);
     mask = mask >> 4;
     const connectionStatus = mask;
     const laps = this.readUint16();
