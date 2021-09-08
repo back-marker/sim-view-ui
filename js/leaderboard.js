@@ -345,7 +345,6 @@ class LeaderBoardDeserialiser {
     }
 
     const feedCount = this.readUint8();
-    console.log(feedCount);
     for (var i = 0; i < feedCount; ++i) {
       leaderboard.addFeed(this.deserialiseFeed());
     }
@@ -393,7 +392,6 @@ class LeaderBoardDeserialiser {
     const timestamp = this.readInt64();
     const size = this.readUint16();
     const detail = this.readStr(size);
-    console.log(detail);
     return new SessionFeedEntry(feedType, timestamp, JSON.parse(detail));
   }
 }
