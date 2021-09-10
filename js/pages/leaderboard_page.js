@@ -5,12 +5,19 @@ class LeaderboardPage extends Page {
   static sessionLeaderboardIntervalHandler = -1;
   static sessionFeedLastId = -1;
 
-  static setupLeaderboardAPI() {
-    const socket = new WebSocket('ws://localhost:10003/live');
+  static setupLeaderboardAPI(websocketPort) {
+    const hostName = window.location.hostname;
+    const protocol = "ws";
+    const leaderBoardUrl = `${protocol}://${hostName}:${websocketPort}/live`;
+    const socket = new WebSocket(leaderBoardUrl);
     socket.binaryType = "arraybuffer";
 
     socket.addEventListener('open', function(event) {
       console.log("Connected to leaderboard API");
+    });
+
+    socket.addEventListener('close', function(event) {
+      console.log("Disconnected from leaderboard API");
     });
 
     socket.addEventListener('message', function(event) {
@@ -243,15 +250,7 @@ class LeaderboardPage extends Page {
         getRequest("/api/ac/session/" + session["session_id"], LeaderboardPage.cb_updateSessionGrip);
       }, 5 * 1000);
 
-      LeaderboardPage.setupLeaderboardAPI();
-      // var leaderboardApi = "/api/ac/session/" + session["session_id"] + "/leaderboard/" +
-      //   session["type"].toLocaleLowerCase();
-      // getRequest(leaderboardApi, LeaderboardPage.cb_updateLeaderBoard);
-
-      // LeaderboardPage.sessionLeaderboardIntervalHandler = setInterval(function() {
-      //   getRequest(leaderboardApi, LeaderboardPage.cb_updateLeaderBoard);
-      // }, 1 * 1000);
-
+      LeaderboardPage.setupLeaderboardAPI(session["http_port"]);
     }
   }
 
