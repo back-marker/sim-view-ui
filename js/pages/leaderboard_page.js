@@ -16,9 +16,13 @@ class LeaderboardPage extends Page {
       console.log("Connected to leaderboard API");
     });
 
-    socket.addEventListener('close', function(event) {
-      console.log("Disconnected from leaderboard API");
-    });
+    const showLeaderBoardNotConnectedMsg = function() {
+      $("#message").text("Cannot connect to leaderboard server");
+      $("#message").removeClass("hidden");
+    }
+
+    socket.addEventListener('close', showLeaderBoardNotConnectedMsg);
+    socket.addEventListener('error', showLeaderBoardNotConnectedMsg);
 
     socket.addEventListener('message', function(event) {
       if (event.data instanceof ArrayBuffer) {
