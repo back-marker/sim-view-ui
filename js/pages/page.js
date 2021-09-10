@@ -2,36 +2,34 @@ class Page {
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
   static VERSION = "v1.0";
 
+  static isLiveEventPage() {
+    return window.location.pathname === "/";
+  }
+
   static cb_updateTeamsName(data) {
     if (data["status"] === "success") {
-      var teams = data["teams"];
-      LeaderBoard.teamList = {};
-      for (var idx = 0; idx < teams.length; ++idx) {
-        var team = teams[idx];
-        LeaderBoard.teamList[team["team_id"]] = team;
-        $(".lb-team-no[data-team-id='" + team["team_id"] + "']").text(team["team_no"]);
-        $(".lb-team[data-team-id='" + team["team_id"] + "']").text(team["name"]);
+      for (const team of data.teams) {
+        DataStore.addTeam(team.team_id, team);
+        $(`.lb-team-no[data-team-id="${team.team_id}"]`).text(team.team_no);
+        $(`.lb-team[data-team-id="${team.team_id}"]`).text(team.name);
       }
     }
   }
 
   static cb_updateCarName(data) {
     if (data["status"] === "success") {
-      var car = data["car"];
-      LeaderBoard.carList[car["car_id"]] = { "name": car["display_name"], "class": car["car_class"], "ac_name": car["name"] };
-      if (LeaderBoard.carColorClass.indexOf(car["car_class"]) === -1) {
-        LeaderBoard.carColorClass.push(car["car_class"]);
-      }
-      $(".lb-car[data-car-id=" + car["car_id"] + "] .car-name").text(car["display_name"]);
-      $(".lb-car-class[data-car-id=" + car["car_id"] + "]").text(car["car_class"]).addClass(Util.getCarColorClass(car["car_id"]));
+      const car = data.car;
+      DataStore.addCar(car.car_id, car);
+      $(`.lb-car[data-car-id="${car.car_id}"] .car-name`).text(car.display_name);
+      $(`.lb-car-class[data-car-id="${car.car_id}"]`).text(car.car_class).addClass(DataStore.getCarColorClass(car.car_id));
     }
   }
 
   static cb_updateDriverName(data) {
     if (data["status"] === "success") {
-      var user = data["user"];
-      $(".lb-driver[data-driver-id=" + user["user_id"] + "]").text(user["name"]);
-      LeaderBoard.driverList[user["user_id"]] = user["name"];
+      const user = data.user;
+      $(`.lb-driver[data-driver-id="${user.user_id}"]`).text(user.name);
+      DataStore.addUser(user.user_id, user);
     }
   }
 

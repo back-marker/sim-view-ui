@@ -15,7 +15,7 @@ class ResultSectorTabEntry {
   toHTML(pos, teamEvent, useTeamNumber) {
       return `<tr>
         <td class="sec-pos">${pos}</td>
-        <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" ${teamEvent === true? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}"}>
+        <td class="lb-car-class ${DataStore.getCarColorClass(this.carId)}" ${teamEvent === true? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}"}>
           ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
         </td>
         ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">
@@ -60,7 +60,7 @@ class ResultSectorTabEntry {
     toHTML(pos, teamEvent, useTeamNumber) {
       return `<tr>
         <td class="st-pos">${pos}</td>
-        <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
+        <td class="lb-car-class ${DataStore.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
           ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
         </td>
         ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">
@@ -119,7 +119,7 @@ class ResultSectorTabEntry {
     toHTML(pos, teamEvent, useTeamNumber) {
       return `<tr>
         <td class="st-pos">${pos}</td>
-        <td class="lb-car-class ${Util.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
+        <td class="lb-car-class ${DataStore.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
           ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
         </td>
         ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">
@@ -318,7 +318,7 @@ class ResultSectorTabEntry {
             ${LeaderBoard.driverList[this.driverId] !== undefined? LeaderBoard.driverList[this.driverId] : ""}
           </div>`}
           <div class="left">|</div>
-          <div class="left stint-driver-class lb-car-class ${Util.getCarColorClass(this.carId)}" ${teamEvent? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}">
+          <div class="left stint-driver-class lb-car-class ${DataStore.getCarColorClass(this.carId)}" ${teamEvent? `data-team-id="${this.teamId}"` : ""} data-car-id="${this.carId}">
             ${LeaderBoard.carList[this.carId] !== undefined? LeaderBoard.carList[this.carId]["class"] : ""}
           </div>
           <div class="left">|</div>

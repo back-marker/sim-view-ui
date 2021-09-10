@@ -17,7 +17,7 @@ class SessionFeed {
           break;
 
         case "car":
-          msg += `<span class="feed-car ${Util.getCarColorClass(parts[idx][1])}">${LeaderBoard.carList[parts[idx][1]]["name"]}</span>` + elem;
+          msg += `<span class="feed-car ${DataStore.getCarColorClass(parts[idx][1])}">${LeaderBoard.carList[parts[idx][1]]["name"]}</span>` + elem;
           break;
 
         case "team":

@@ -123,7 +123,7 @@ class TrackMap {
     var uniqueId = id.getUniqueID();
     var displayName = TrackMap.getEntityDisplayName(id.teamID, id.userID, teamEvent, useTeamNumber);
     var fullDisplayName = TrackMap.getEntityFullDisplayName(id.teamID, id.userID, teamEvent, useTeamNumber);
-    var displayColorClass = Util.getCarColorClass(id.carID);
+    var displayColorClass = DataStore.getCarColorClass(id.carID);
     var carClassName = LeaderBoard.carList[id.carID] === undefined ? "" : LeaderBoard.carList[id.carID]["class"];
     carClassName = carClassName.toLowerCase();
 

@@ -134,7 +134,7 @@ class LeaderBoardEntry {
           <span class="pos">${pos + 1}</span>
           <span class="${this.getPositionChangeClass()}"></span>
         </td>
-        <td class="lb-car-class ${Util.getCarColorClass(this.id.carID)}" ${teamEvent? `data-team-id="${this.id.teamID}"` : ""} data-car-id="${this.id.carID}">
+        <td class="lb-car-class ${DataStore.getCarColorClass(this.id.carID)}" ${teamEvent? `data-team-id="${this.id.teamID}"` : ""} data-car-id="${this.id.carID}">
           ${LeaderBoard.carList[this.id.carID] !== undefined? LeaderBoard.carList[this.id.carID]["class"] : ""}
         </td>
         ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.id.teamID}">${LeaderBoard.teamList[this.id.teamID] !== undefined? LeaderBoard.teamList[this.id.teamID]["team_no"]:""}</td>` : ""}
@@ -169,7 +169,7 @@ class LeaderBoardEntry {
         <span class="pos">${pos + 1}</span>
         <span class="${this.getPositionChangeClass()}"></span>
       </td>
-      <td class="lb-car-class ${Util.getCarColorClass(this.id.carID)}" ${teamEvent? `data-team-id="${this.id.teamID}"` : ""} data-car-id="${this.id.carID}">
+      <td class="lb-car-class ${DataStore.getCarColorClass(this.id.carID)}" ${teamEvent? `data-team-id="${this.id.teamID}"` : ""} data-car-id="${this.id.carID}">
         ${LeaderBoard.carList[this.id.carID] !== undefined? LeaderBoard.carList[this.id.carID]["class"] : ""}
       </td>
       ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.id.teamID}">${LeaderBoard.teamList[this.id.teamID] !== undefined? LeaderBoard.teamList[this.id.teamID]["team_no"]:""}</td>` : ""}

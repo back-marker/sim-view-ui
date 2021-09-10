@@ -43,10 +43,9 @@ class LeaderboardPage extends Page {
       $("#event-detail .title").text(event["name"]);
       $("#event-detail .server").text(event["server_name"]);
 
-      // TODO:: Remove events page dependency
-      var practiceDuration = EventsPage.getPracticeDurationStr(event);
-      var qualiDuration = EventsPage.getQualiDurationStr(event);
-      var raceDuration = EventsPage.getRaceDurationStr(event);
+      var practiceDuration = Util.getPracticeDurationStr(event);
+      var qualiDuration = Util.getQualiDurationStr(event);
+      var raceDuration = Util.getRaceDurationStr(event);
       if (practiceDuration === "-") {
         $("#event-detail .practice").addClass("disabled");
       } else {
@@ -278,7 +277,7 @@ class LeaderboardPage extends Page {
     static c_updateTeamDetailInOverlay(teamId) {
       var team = LeaderBoard.teamList[teamId];
       $("#team-car-class").removeClass();
-      $("#team-car-class").addClass(Util.getCarColorClass(team["car_id"]));
+      $("#team-car-class").addClass(DataStore.getCarColorClass(team["car_id"]));
       var car = LeaderBoard.carList[team["car_id"]];
       $("#team-car-class").text(car["class"]);
       $("#team-car").text(car["name"]);
@@ -328,7 +327,7 @@ class LeaderboardPage extends Page {
       } else if (type === 7) {
         return "chat-hr-color";
       } else {
-        return Util.getCarColorClass(detail["car_id"]);
+        return DataStore.getCarColorClass(detail["car_id"]);
       }
     }
 

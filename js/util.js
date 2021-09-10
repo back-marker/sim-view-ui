@@ -14,6 +14,34 @@ class Util {
     return Util.getTimeDiffString(diff * 60);
   }
 
+  static getPracticeDurationStr(event) {
+    return event.practice_duration === -1 ? "-" : Util.getMinuteTimeDiffString(event.practice_duration);
+  }
+
+  static getQualiDurationStr(event) {
+    return event.quali_duration === -1 ? "-" : Util.getMinuteTimeDiffString(event.quali_duration);
+  }
+
+  static getRaceDurationStr(event) {
+    var raceDuration = "-";
+    if (event.race_duration !== -1) {
+      if (event.race_duration_type === 0) {
+        raceDuration = Util.getMinuteTimeDiffString(event["race_duration"]);
+      } else {
+        raceDuration = event["race_duration"] + "Laps"
+      }
+
+      if (event["race_extra_laps"] !== 0) {
+        raceDuration += " | +" + event["race_extra_laps"];
+      }
+      if (event["reverse_grid_positions"] !== 0) {
+        raceDuration += " | RG (" + (event["reverse_grid_positions"] === -1 ? "All" : event["reverse_grid_positions"]) + ")";
+      }
+    }
+
+    return raceDuration;
+  }
+
   static getTimeDiffString(diff) {
     // Diff in secs
     if (diff < 0) {
@@ -87,16 +115,6 @@ class Util {
 
   static getCurrentEvent() {
     return window.location.toString().match("event/([0-9]+)/")[1];
-  }
-
-  static isLiveEventPage() {
-    return window.location.pathname === "/";
-  }
-
-  static getCarColorClass(carId) {
-    // TODO: Remove leaderboard dependency
-    if (LeaderBoard.carList[carId] === undefined) return "";
-    return "car-class-" + LeaderBoard.carColorClass.indexOf(LeaderBoard.carList[carId]["class"]);
   }
 
   static getBestLapCarColorClass(carId) {

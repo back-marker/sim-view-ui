@@ -32,7 +32,7 @@ $(document).ready(function() {
       }
     });
   } else if (page == "events-page") {
-    if (Util.isLiveEventPage()) {
+    if (Page.isLiveEventPage()) {
       Page.setCommonHeaderHtml("live");
       $("#link-live").addClass("active");
       $("title").text("SimView | Live Events");
