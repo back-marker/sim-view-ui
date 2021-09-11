@@ -29,28 +29,30 @@ class DriverPage extends Page {
 
   static cb_updateDriverSummary(data) {
     if (Util.isSuccessResponse(data)) {
-      var driver = data["driver"];
-      $("#basic-info .ds-car-events .ds-value").text(driver["total_events"]);
-      $("#basic-info .ds-total-distance .ds-value").text(driver["total_distance_driven_km"] + " KM");
-      $("#basic-info .ds-laps .ds-value").text(driver["total_laps"]);
-      $("#basic-info .ds-valid-laps .ds-value").text(driver["total_valid_laps"]);
+      const driver = data["driver"];
+      $("#basic-info .ds-car-events .ds-value").text(driver.total_events);
+      $("#basic-info .ds-total-distance .ds-value").text(driver.total_distance_driven_km + " KM");
+      $("#basic-info .ds-laps .ds-value").text(driver.total_laps);
+      $("#basic-info .ds-valid-laps .ds-value").text(driver.total_valid_laps);
 
       var eventHtml = '';
       driver["events"].forEach(function(event) {
         eventHtml += `<tr>
-          <td class="ds-event">${event["event_name"]}</td>
-          <td class="ds-track">${event["track_name"]}</td>
-          <td class="ds-team">${event["team_name"] === undefined? "-" : event["team_name"]}</td>
-          <td class="ds-distance">${event["distance_driven_km"]} KM</td>
-          <td class="ds-laps">${event["total_laps"]}</td>
-          <td class="ds-valid-laps">${event["total_valid_laps"]}</td>
-          <td class="ds-last-seen">${Util.getTimeAgoString(event["time_ago_sec"])} ago</td>
+          <td class="ds-event">${event.event_name}</td>
+          <td class="ds-track">${event.track_name}</td>
+          <td class="ds-team">${event.team_name === undefined? "-" : event.team_name}</td>
+          <td class="ds-distance">${event.distance_driven_km} KM</td>
+          <td class="ds-laps">${event.total_laps}</td>
+          <td class="ds-valid-laps">${event.total_valid_laps}</td>
+          <td class="ds-last-seen">${Util.getTimeAgoString(event.time_ago_sec)} ago</td>
           </tr>`;
       });
 
       $("#driver-events tbody").html(eventHtml);
-      DriverPage.createDriverTopCombosChart("tracks", "ds-top-tracks-chart", "Top driven tracks", driver["top_tracks"], "track_name", "distance_driven");
-      DriverPage.createDriverTopCombosChart("cars", "ds-top-cars-chart", "Top driven cars", driver["top_cars"], "car_name", "distance_driven");
+      DriverPage.createDriverTopCombosChart("tracks", "ds-top-tracks-chart",
+        "Top driven tracks", driver.top_tracks, "track_name", "distance_driven");
+      DriverPage.createDriverTopCombosChart("cars", "ds-top-cars-chart",
+        "Top driven cars", driver.top_cars, "car_name", "distance_driven");
     }
   }
 
