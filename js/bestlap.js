@@ -16,11 +16,11 @@ class BestlapPage extends Page {
 
   static cb_updateAllEvents(data) {
     if (data["status"] === "success") {
-      var events = data["events"];
+      const events = data.events;
       BestlapPage.EVENTS_LIST = events;
       var eventHtml = `<option value="0">Select Event</option>`;
-      for (var idx = 0; idx < events.length; ++idx) {
-        eventHtml += `<option value="${events[idx]["event_id"]}">${events[idx]["name"]}</option>`
+      for (const event of events) {
+        eventHtml += `<option value="${event.event_id}">${event.name}</option>`
       }
       $("#event-param select").html(eventHtml).change(function() {
         var eventId = Number.parseInt($(this).val());
@@ -51,11 +51,11 @@ class BestlapPage extends Page {
 
   static cb_updateEventCars(data) {
     if (data["status"] === "success") {
-      var cars = data["cars"];
+      const cars = data.cars;
       var carsHtml = "";
-      for (var idx = 0; idx < cars.length; ++idx) {
-        BestlapPage.search_query.car_ids.push(cars[idx]["car_id"]);
-        carsHtml += `<span class="selected-car" data-car-id="${cars[idx]["car_id"]}">${cars[idx]["display_name"]}</span>`;
+      for (const car of cars) {
+        BestlapPage.search_query.car_ids.push(car.car_id);
+        carsHtml += `<span class="selected-car" data-car-id="${car.car_id}">${car.display_name}</span>`;
       }
       $("#selected-cars").html(carsHtml);
     }
@@ -64,11 +64,11 @@ class BestlapPage extends Page {
 
   static cb_updateAllTracks(data) {
     if (data["status"] === "success") {
-      var tracks = data["tracks"];
+      const tracks = data.tracks;
       BestlapPage.TRACKS_LIST = tracks;
       var trackHtml = `<option value="0">Select Track</option>`;
-      for (var idx = 0; idx < tracks.length; ++idx) {
-        trackHtml += `<option value="${tracks[idx]["track_config_id"]}">${tracks[idx]["display_name"]}</option>`
+      for (const track of tracks) {
+        trackHtml += `<option value="${track.track_config_id}">${track.display_name}</option>`
       }
       $("#track-param select").html(trackHtml).change(function() {
         var trackId = Number.parseInt($(this).val());
@@ -86,11 +86,11 @@ class BestlapPage extends Page {
 
   static cb_updateAllCars(data) {
     if (data["status"] === "success") {
-      var cars = data["cars"];
+      const cars = data.cars;
       var carsHtml = `<option value="0">Select Cars</option>`;
-      for (var idx = 0; idx < cars.length; ++idx) {
-        BestlapPage.CARS_LIST[cars[idx]["car_id"]] = cars[idx];
-        carsHtml += `<option value="${cars[idx]["car_id"]}">${cars[idx]["display_name"]}</option>`
+      for (const car of cars) {
+        BestlapPage.CARS_LIST[car.car_id] = car;
+        carsHtml += `<option value="${car.car_id}">${car.display_name}</option>`
       }
       $("#cars-param select").html(carsHtml).change(function() {
         var carId = Number.parseInt($(this).val());
@@ -218,11 +218,11 @@ class BestLapEntry {
   }
 
   static fromJSON(data) {
-    var lap = new Lap(data["time"], data["sector_1"], data["sector_2"], data["sector_3"]);
-    return new BestLapEntry(data["lap_id"], data["user_id"], data["car_id"], lap, data["gap"],
-      data["gap_per"], data["grip"], data["avg_speed"], data["max_speed"], data["car_best"], data["class_best"],
-      data["sector_1_car_best"], data["sector_1_class_best"], data["sector_2_car_best"], data["sector_2_class_best"],
-      data["sector_3_car_best"], data["sector_3_class_best"], data["finished_at"]);
+    var lap = new Lap(data.time, data.sector_1, data.sector_2, data.sector_3);
+    return new BestLapEntry(data.lap_id, data.user_id, data.car_id, lap, data.gap,
+      data.gap_per, data.grip, data.avg_speed, data.max_speed, data.car_best, data.class_best,
+      data.sector_1_car_best, data.sector_1_class_best, data.sector_2_car_best, data.sector_2_class_best,
+      data.sector_3_car_best, data.sector_3_class_best, data.finished_at);
   }
 
   getLapStatus(classBest, carBest) {
