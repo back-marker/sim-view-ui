@@ -11,6 +11,10 @@ class Lap {
     this.sec1 = sec1;
     this.sec2 = sec2;
     this.sec3 = sec3;
+    // TODO: Handle track with 2 sectors
+    if (lapTime === 0 && sec1 !== 0 && sec2 !== 0 && sec3 !== 0) {
+      this.lapTime = sec1 + sec2 + sec3;
+    }
   }
 
   /**

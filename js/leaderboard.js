@@ -43,7 +43,7 @@ class LeaderBoardEntry {
     PIT_EXIT: 4
   }
 
-  constructor(id, connectionStatus, trackStatus, isFinished, laps, validLaps, telemetry, bestLap, currentLap, lastLapTime, gap, interval, posChange) {
+  constructor(id, connectionStatus, trackStatus, isFinished, laps, validLaps, telemetry, bestLap, currentLap, gap, interval, posChange) {
     this.id = id;
     this.connectionStatus = connectionStatus;
     this.trackStatus = trackStatus;
@@ -57,7 +57,6 @@ class LeaderBoardEntry {
 
     this.bestLap = bestLap;
     this.currentLap = currentLap;
-    this.lastLapTime = lastLapTime;
 
     if (gap != -1) {
       this.gap = gap;
@@ -274,8 +273,9 @@ class RaceLeaderBoard extends LeaderBoard {
   addEntry(entry) {
     entry.gap = Util.getGapFromBitmap(entry.gap);
     entry.interval = Util.getGapFromBitmap(entry.interval);
-    if (entry.lastLapTime !== 0) {
-      RaceLeaderBoard.prevLapList[entry.id.userID] = entry.lastLapTime;
+    // Current lap will become previsou lap once complete
+    if (entry.currentLap.lapTime !== 0) {
+      RaceLeaderBoard.prevLapList[entry.id.userID] = entry.currentLap.lapTime;
     }
 
     var idx = this.entries.length;
@@ -288,6 +288,7 @@ class RaceLeaderBoard extends LeaderBoard {
 }
 
 class LeaderBoardDeserialiser {
+  static VERSION = 2;
   constructor( /* ArrayBuffer */ data) {
     this.buffer = data;
     this.data = new DataView(data);
@@ -344,8 +345,12 @@ class LeaderBoardDeserialiser {
 
   deserialise(leaderboard) {
     const VERSION = this.readUint8();
+    if (VERSION != LeaderBoardDeserialiser.VERSION) {
+      console.log("Leaderboard version does not match");
+      return
+    }
+
     const raceSession = this.readUint8();
-    const entrySize = this.readUint8();
 
     const entryCount = this.readUint8();
     for (var i = 0; i < entryCount; ++i) {
@@ -364,35 +369,40 @@ class LeaderBoardDeserialiser {
     const carID = this.readUint16();
     const id = new LeaderBoardID(teamID, userID, carID);
 
-    var mask = this.readUint8();
+    var mask1 = this.readUint8();
     //3 bits for connection status
     //4 bits for track status
     //1 bit for is finished
-    const isFinished = (mask & 1) === 1;
-    mask = mask >> 1;
-    const trackStatus = (mask & 15);
-    mask = mask >> 4;
-    const connectionStatus = mask;
+    const isFinished = (mask1 & 1) === 1;
+    mask1 = mask1 >> 1;
+    const trackStatus = (mask1 & 15);
+    mask1 = mask1 >> 4;
+    const connectionStatus = mask1;
     const laps = this.readUint16();
     const validLaps = this.readUint16();
 
     const nsp = this.readFloat();
     const posX = this.readFloat();
     const posZ = this.readFloat();
-    const speed = this.readUint16();
-    const gear = this.readUint8();
+
+    var mask2 = this.readUint16();
+    // 10 bits for speed
+    // 6 bits for gear
+    const gear = (mask2 & 63);
+    mask2 = mask2 >> 6;
+    const speed = mask2;
+
     const rpm = this.readUint16();
     const telemetry = new CarTelemetry(nsp, posX, posZ, speed, gear, rpm);
 
-    const bestLap = new Lap(this.readUint32(), this.readUint32(), this.readUint32(), this.readUint32());
-    const currentLap = new Lap(this.readUint32(), this.readUint32(), this.readUint32(), this.readUint32());
-    const lastLapTime = this.readUint32();
+    const bestLap = new Lap(0, this.readUint32(), this.readUint32(), this.readUint32());
+    const currentLap = new Lap(0, this.readUint32(), this.readUint32(), this.readUint32());
     const gap = this.readInt32();
     const interval = this.readInt32();
     const posChange = this.readInt8();
 
     return new LeaderBoardEntry(id, connectionStatus, trackStatus, isFinished, laps, validLaps,
-      telemetry, bestLap, currentLap, lastLapTime, gap, interval, posChange);
+      telemetry, bestLap, currentLap, gap, interval, posChange);
   }
 
   deserialiseFeed() {
