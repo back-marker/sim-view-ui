@@ -1,4 +1,43 @@
 class SessionFeed {
+  static updateFeedTimestamp() {
+    $("#feeds tbody .sf-time").each(function(idx, e) {
+      $(e).text(SessionFeed.getFeedTimestamp(Number.parseInt($(e).attr("data-timestamp-ms"))));
+    });
+  }
+
+  static getFeedTimestamp(millis) {
+    var timeAgoSec = Util.getTimeAgoString(Date.now() / 1000 - millis / 1000);
+    if (timeAgoSec === "Online") {
+      timeAgoSec = "Just now";
+    } else {
+      timeAgoSec += " ago";
+    }
+
+    return timeAgoSec;
+  }
+
+  static getFeedTypeString(type, detail) {
+    if (type === 0) {
+      return "CRASH";
+    } else if (type === 7) {
+      return "CHAT";
+    } else if (type === 10) {
+      return "-";
+    } else {
+      return DataStore.getCarClass(detail.car_id);
+    }
+  }
+
+  static getFeedTypeColorClass(type, detail) {
+    if (type === 0) {
+      return "speed-status-red";
+    } else if (type === 7) {
+      return "chat-hr-color";
+    } else {
+      return DataStore.getCarColorClass(detail.car_id);
+    }
+  }
+
   static prepareMessage(strings, ...parts) {
     var msg = strings[0];
     strings.slice(1).forEach(function(elem, idx) {
@@ -6,10 +45,12 @@ class SessionFeed {
         case "user":
           if (parts[idx].length === 3 && parts[idx][2] !== undefined) {
             // Team name also should be in feed
-            msg += `<span class="feed-team">${LeaderBoard.teamList[parts[idx][2]]["name"]}</span>`;
+            const team = DataStore.getTeam(parts[idx][2]);
+            msg += `<span class="feed-team">${team.name}</span>`;
             msg += " [ "
           }
-          msg += `<span class="feed-driver">${LeaderBoard.driverList[parts[idx][1]]}</span>`;
+          const user = DataStore.getUser(parts[idx][1]);
+          msg += `<span class="feed-driver">${user.name}</span>`;
           if (parts[idx].length === 3 && parts[idx][2] !== undefined) {
             msg += " ]";
           }
@@ -17,11 +58,13 @@ class SessionFeed {
           break;
 
         case "car":
-          msg += `<span class="feed-car ${DataStore.getCarColorClass(parts[idx][1])}">${LeaderBoard.carList[parts[idx][1]]["name"]}</span>` + elem;
+          const car = DataStore.getCar(parts[idx][1]);
+          msg += `<span class="feed-car ${DataStore.getCarColorClass(parts[idx][1])}">${car.display_name}</span>` + elem;
           break;
 
         case "team":
-          msg += `<span class="feed-team">${LeaderBoard.teamList[parts[idx][1]]["name"]}</span>` + elem;
+          const team = DataStore.getTeam(parts[idx][1]);
+          msg += `<span class="feed-team">${team.name}</span>` + elem;
           break;
 
         case "speed":

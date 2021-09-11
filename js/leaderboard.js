@@ -128,6 +128,10 @@ class LeaderBoardEntry {
   toQualiHTML(pos, teamEvent, useTeamNumber, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
       TrackMap.syncDriverMapStatus(pos, this.connectionStatus, this.id, teamEvent, useTeamNumber, this.telemetry, this.trackStatus);
 
+      const team = DataStore.getTeam(this.id.teamID);
+      const car = DataStore.getCar(this.id.carID);
+      const user = DataStore.getUser(this.id.userID);
+
       return `<tr class="${this.getTrackStatusClass()}" data-pos="${pos + 1}">
         <td class="lb-status"><span class="status ${this.getDriverStatusClass()}"></span></td>
         <td class="lb-pos">
@@ -135,17 +139,17 @@ class LeaderBoardEntry {
           <span class="${this.getPositionChangeClass()}"></span>
         </td>
         <td class="lb-car-class ${DataStore.getCarColorClass(this.id.carID)}" ${teamEvent? `data-team-id="${this.id.teamID}"` : ""} data-car-id="${this.id.carID}">
-          ${LeaderBoard.carList[this.id.carID] !== undefined? LeaderBoard.carList[this.id.carID]["class"] : ""}
+          ${DataStore.getCarClass(this.id.carID)}
         </td>
-        ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.id.teamID}">${LeaderBoard.teamList[this.id.teamID] !== undefined? LeaderBoard.teamList[this.id.teamID]["team_no"]:""}</td>` : ""}
-        ${teamEvent? `<td class="lb-team activate-overlay" data-team-id="${this.id.teamID}">${LeaderBoard.teamList[this.id.teamID] !== undefined? LeaderBoard.teamList[this.id.teamID]["name"]:""}</td>` : ""}
+        ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.id.teamID}">${team !== undefined? team.team_no : ""}</td>` : ""}
+        ${teamEvent? `<td class="lb-team activate-overlay" data-team-id="${this.id.teamID}">${team !== undefined? team.name : ""}</td>` : ""}
         <td class="lb-car" ${teamEvent? `data-team-id="${this.id.teamID}"` : ""} data-car-id="${this.id.carID}">
           <span class="car-name car-badge" style="background: url('/images/ac/car/${this.id.carID}/badge')">
-            ${LeaderBoard.carList[this.id.carID] !== undefined? LeaderBoard.carList[this.id.carID]["name"] : ""}
+            ${car !== undefined? car.display_name : ""}
           </span>
         </td>
         <td class="lb-driver" data-driver-id="${this.id.userID}">
-          ${(this.id.userID !== undefined && LeaderBoard.driverList[this.id.userID] !== undefined) ? LeaderBoard.driverList[this.id.userID] : ""}</td>
+          ${(user !== undefined) ? user.name : ""}</td>
         <td class="lb-best-lap${(this.isQualiPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
         <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
         <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
@@ -163,6 +167,10 @@ class LeaderBoardEntry {
   toRaceHTML(pos, teamEvent, useTeamNumber, bestLapIdx) {
     TrackMap.syncDriverMapStatus(pos, this.connectionStatus, this.id, teamEvent, useTeamNumber, this.telemetry, this.trackStatus);
 
+    const team = DataStore.getTeam(this.id.teamID);
+    const car = DataStore.getCar(this.id.carID);
+    const user = DataStore.getUser(this.id.userID);
+
     return `<tr class="${this.getTrackStatusClass()}" data-pos="${pos + 1}">
     <td class="lb-status"><span class="status ${this.getDriverStatusClass()}"></span></td>
       <td class="lb-pos">
@@ -170,22 +178,22 @@ class LeaderBoardEntry {
         <span class="${this.getPositionChangeClass()}"></span>
       </td>
       <td class="lb-car-class ${DataStore.getCarColorClass(this.id.carID)}" ${teamEvent? `data-team-id="${this.id.teamID}"` : ""} data-car-id="${this.id.carID}">
-        ${LeaderBoard.carList[this.id.carID] !== undefined? LeaderBoard.carList[this.id.carID]["class"] : ""}
+        ${car !== undefined? car.car_class : ""}
       </td>
-      ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.id.teamID}">${LeaderBoard.teamList[this.id.teamID] !== undefined? LeaderBoard.teamList[this.id.teamID]["team_no"]:""}</td>` : ""}
-      ${teamEvent? `<td class="lb-team activate-overlay" data-team-id="${this.id.teamID}">${LeaderBoard.teamList[this.id.teamID] !== undefined? LeaderBoard.teamList[this.id.teamID]["name"]:""}</td>` : ""}
+      ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.id.teamID}">${team !== undefined? team.team_no : ""}</td>` : ""}
+      ${teamEvent? `<td class="lb-team activate-overlay" data-team-id="${this.id.teamID}">${team !== undefined? team.name : ""}</td>` : ""}
       <td class="lb-car" ${teamEvent? `data-team-id="${this.id.teamID}"` : ""} data-car-id="${this.id.carID}">
         <span class="car-name car-badge" style="background: url('/images/ac/car/${this.id.carID}/badge')">
-          ${LeaderBoard.carList[this.id.carID] !== undefined? LeaderBoard.carList[this.id.carID]["name"] : ""}
+          ${car !== undefined? car.display_name : ""}
         </span>
       </td>
       <td class="lb-driver" data-driver-id="${this.id.userID}">
-        ${(this.id.userID !== undefined && LeaderBoard.driverList[this.id.userID] !== undefined) ? LeaderBoard.driverList[this.id.userID] : ""}</td>
+        ${user !== undefined ? user.name : ""}</td>
       <td class="lb-laps">${this.laps === 0? "-" : this.laps}</td>
       <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
       <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
       <td class="lb-best-lap${(this.isRacePurpleLap(pos, bestLapIdx) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
-      <td class="lb-last-lap">${Lap.convertMSToDisplayTimeString(RaceLeaderBoard.prevLapList[this.id.userID] !== undefined? RaceLeaderBoard.prevLapList[this.id.userID] : 0)}</td>
+      <td class="lb-last-lap">${Lap.convertMSToDisplayTimeString(RaceLeaderBoard.prevLapList[this.id.userID] || 0)}</td>
       <td class="lb-sec1">${Lap.convertMSToDisplayTimeString(this.currentLap.sec1)}</td>
       <td class="lb-sec2">${Lap.convertMSToDisplayTimeString(this.currentLap.sec2)}</td>
       <td class="lb-sec3">${Lap.convertMSToDisplayTimeString(this.currentLap.sec3)}</td>
@@ -214,10 +222,10 @@ class LeaderBoard {
   getFeedHTML() {
     var feedHtml = "";
     for (var feed of this.feedList) {
-      var timeAgoSec = LeaderboardPage.getFeedTimestamp(feed.time / 1000);
+      var timeAgoSec = SessionFeed.getFeedTimestamp(feed.time / 1000);
       feedHtml += `<tr>
         <td class="sf-time" data-timestamp-ms="${feed.time / 1000}">${timeAgoSec}</td>
-        <td class="sf-car-class ${LeaderboardPage.getFeedTypeColorClass(feed.type, feed.detail)}">${LeaderboardPage.getFeedTypeString(feed.type, feed.detail)}</td>
+        <td class="sf-car-class ${SessionFeed.getFeedTypeColorClass(feed.type, feed.detail)}">${SessionFeed.getFeedTypeString(feed.type, feed.detail)}</td>
         <td class="sf-detail">${SessionFeed.getFeedMsg(feed.time, feed.type, feed.detail)}</td>
       </tr>`;
     }

@@ -26,26 +26,32 @@ class TrackMap {
   }
 
   static getEntityDisplayName(teamId, driverId, teamEvent, useTeamNumber) {
+    const team = DataStore.getTeam(teamId);
+    const user = DataStore.getUser(driverId);
+
     var name = "N/A";
-    if (teamEvent && LeaderBoard.teamList[teamId] !== undefined) {
+    if (teamEvent && team !== undefined) {
       if (useTeamNumber) {
-        name = "#" + LeaderBoard.teamList[teamId]["team_no"];
+        name = "#" + team.team_no;
       } else {
-        name = LeaderBoard.teamList[teamId]["name"].substr(0, TrackMap.DRIVER_NAME_CHARACTER_LIMIT);
+        name = team.name.substr(0, TrackMap.DRIVER_NAME_CHARACTER_LIMIT);
       }
-    } else if (!teamEvent && LeaderBoard.driverList[driverId] !== undefined) {
-      name = LeaderBoard.driverList[driverId].substr(0, TrackMap.DRIVER_NAME_CHARACTER_LIMIT);
+    } else if (!teamEvent && user !== undefined) {
+      name = user.name.substr(0, TrackMap.DRIVER_NAME_CHARACTER_LIMIT);
     }
 
     return name.toUpperCase();
   }
 
   static getEntityFullDisplayName(teamId, driverId, teamEvent, useTeamNumber) {
+    const team = DataStore.getTeam(teamId);
+    const user = DataStore.getUser(driverId);
+
     var name = "N/A";
-    if (teamEvent && LeaderBoard.teamList[teamId] !== undefined) {
-      name = LeaderBoard.teamList[teamId]["name"];
-    } else if (!teamEvent && LeaderBoard.driverList[driverId] !== undefined) {
-      name = LeaderBoard.driverList[driverId];
+    if (teamEvent && team !== undefined) {
+      name = team.name;
+    } else if (!teamEvent && user !== undefined) {
+      name = user.name;
     }
 
     return name;
@@ -60,7 +66,7 @@ class TrackMap {
     if (Date.now() - collisionTime >= TrackMap.COLLISION_INDICATOR_TIMEOUT) {
       return;
     }
-    var id = this.getEntityUniqueId(teamId, driverId, carId, teamEvent);
+    var id = TrackMap.getEntityUniqueId(teamId, driverId, carId, teamEvent);
     var elem = $("#name_" + id + " .driver-pos");
 
     if (elem.hasClass("pit-indicator")) return;
@@ -124,7 +130,7 @@ class TrackMap {
     var displayName = TrackMap.getEntityDisplayName(id.teamID, id.userID, teamEvent, useTeamNumber);
     var fullDisplayName = TrackMap.getEntityFullDisplayName(id.teamID, id.userID, teamEvent, useTeamNumber);
     var displayColorClass = DataStore.getCarColorClass(id.carID);
-    var carClassName = LeaderBoard.carList[id.carID] === undefined ? "" : LeaderBoard.carList[id.carID]["class"];
+    var carClassName = DataStore.getCarClass(id.carID);
     carClassName = carClassName.toLowerCase();
 
     if (connectionStatus !== LeaderBoardEntry.CONNECTION_STATUS.DISCONNECTED) {

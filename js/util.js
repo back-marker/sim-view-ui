@@ -26,16 +26,16 @@ class Util {
     var raceDuration = "-";
     if (event.race_duration !== -1) {
       if (event.race_duration_type === 0) {
-        raceDuration = Util.getMinuteTimeDiffString(event["race_duration"]);
+        raceDuration = Util.getMinuteTimeDiffString(event.race_duration);
       } else {
-        raceDuration = event["race_duration"] + "Laps"
+        raceDuration = event.race_duration + "Laps"
       }
 
-      if (event["race_extra_laps"] !== 0) {
-        raceDuration += " | +" + event["race_extra_laps"];
+      if (event.race_extra_laps !== 0) {
+        raceDuration += " | +" + event.race_extra_laps;
       }
-      if (event["reverse_grid_positions"] !== 0) {
-        raceDuration += " | RG (" + (event["reverse_grid_positions"] === -1 ? "All" : event["reverse_grid_positions"]) + ")";
+      if (event.reverse_grid_positions !== 0) {
+        raceDuration += " | RG (" + (event.reverse_grid_positions === -1 ? "All" : event.reverse_grid_positions) + ")";
       }
     }
 
@@ -118,6 +118,7 @@ class Util {
   }
 
   static getBestLapCarColorClass(carId) {
+    // TODO:: Remove this dependency
     var idx = BestlapPage.searched_car_class_list.indexOf(BestlapPage.CARS_LIST[carId]["car_class"]);
     if (idx > -1) return "car-class-" + idx;
     return "";
