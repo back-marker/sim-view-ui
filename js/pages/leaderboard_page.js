@@ -42,10 +42,6 @@ class LeaderboardPage extends Page {
     if (data["status"] === "success") {
       const event = data.event;
       DataStore.setEvent(event);
-      //$("#event-detail").attr("data-event-id", event.event_id).attr("data-team-event", event.team_event).
-      //attr("data-use-number", event.use_number).attr("data-track", event.track_config_id).
-      //attr("data-livery-preview", event.livery_preview).attr("data-race-extra-laps", event["race_extra_laps"]).
-      //attr("data-race-wait-time", event["race_wait_time"]).attr("data-reverse-grid", event["reverse_grid_positions"]);
 
       $("#event-detail .title").text(event.name);
       $("#event-detail .server").text(event.server_name);

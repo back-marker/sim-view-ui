@@ -137,15 +137,15 @@ class Util {
   }
 
   static isCurrentTeamEvent() {
-    return $("#event-detail").attr("data-team-event") === "1";
+    return DataStore.getEvent().team_event === 1;
   }
 
   static isCurrentTeamEventUseNumber() {
-    return $("#event-detail").attr("data-use-number") === "1";
+    return DataStore.getEvent().use_number === 1;
   }
 
   static isCurrentTeamEventUseLiveryPreview() {
-    return $("#event-detail").attr("data-livery-preview") === "1";
+    return DataStore.getEvent().livery_preview === 1;
   }
 
   static isLiveTrackMapAvailable() {
