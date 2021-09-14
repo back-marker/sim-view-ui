@@ -2,6 +2,7 @@ class ResultPage extends Page {
   static cb_updateEventInfo(data) {
     if (data["status"] == "success") {
       const event = data.event;
+      DataStore.setEvent(event);
       $("#event-detail").attr("data-event-id", event.event_id).attr("data-team-event", event.team_event).
       attr("data-use-number", event.use_number).attr("data-track", event.track_config_id);
       $("#event-detail .title").text(event.name);
