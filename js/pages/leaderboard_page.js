@@ -1,8 +1,6 @@
 class LeaderboardPage extends Page {
 
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
-  static sessionGripIntervalHandler = -1;
-  static sessionLeaderboardIntervalHandler = -1;
   static sessionFeedLastId = -1;
 
   static showMessage(msg) {
@@ -99,32 +97,22 @@ class LeaderboardPage extends Page {
     return (grip * 100).toFixed(1) + "%";
   }
 
-  static cb_updateSessionGrip(data) {
-    if (data["status"] == "success") {
-      const session = data.session;
-      if (session.is_finished === 1) {
-        if (LeaderboardPage.sessionLeaderboardIntervalHandler != -1) {
-          clearInterval(LeaderboardPage.sessionLeaderboardIntervalHandler);
-        }
-        if (LeaderboardPage.sessionGripIntervalHandler != -1) {
-          clearInterval(LeaderboardPage.sessionGripIntervalHandler);
-        }
-        var sessionOverText = session.type + " session is over";
-        if (session.type !== "Race" || DataStore.isReverseGridEnabled()) {
-          sessionOverText += ". Reloading in 5 secs";
-          setTimeout(function() { window.location.reload(true); }, 5 * 1000);
-        }
-        LeaderboardPage.showMessage(sessionOverText);
-        return;
-      }
-
-      if (session.start_grip != -1) {
-        $("#track-condition .start-grip .value").text(LeaderboardPage.getGripDisplay(session.start_grip));
-      }
-      if (session.current_grip != -1) {
-        $("#track-condition .current-grip .value").text(LeaderboardPage.getGripDisplay(session.current_grip));
-      }
+  static updateSessionGrip(startGrip, currentGrip) {
+    if (startGrip != -1) {
+      $("#track-condition .start-grip .value").text(LeaderboardPage.getGripDisplay(startGrip));
     }
+    if (currentGrip != -1) {
+      $("#track-condition .current-grip .value").text(LeaderboardPage.getGripDisplay(currentGrip));
+    }
+  }
+
+  static handleSessionFinish(sessionName, raceSession) {
+    var sessionOverText = sessionName + " session is over";
+    if (!raceSession || DataStore.isReverseGridEnabled()) {
+      sessionOverText += ". Reloading in 5 secs";
+      setTimeout(function() { window.location.reload(true); }, 5 * 1000);
+    }
+    LeaderboardPage.showMessage(sessionOverText);
   }
 
   static setRemainingTimeTimer(elapsed_ms, duration_min) {
@@ -136,6 +124,9 @@ class LeaderboardPage extends Page {
 
   static cb_updateLeaderBoard(buffer) {
     var leaderboardHtml = "";
+    if (DataStore.isSessionFinished()) {
+      return;
+    }
 
     var pendingTeams = false;
     var pendingCarList = new Set();
@@ -144,6 +135,12 @@ class LeaderboardPage extends Page {
     var sessionType = $("#event-detail").attr("data-session");
     const raceSession = sessionType === "race";
     const leaderboard = LeaderBoardFactory.create(buffer, raceSession);
+    if (leaderboard.sessionID !== DataStore.getSessionID()) {
+      // Do not render leaderboard
+      DataStore.setSessionFinish();
+      LeaderboardPage.handleSessionFinish(sessionType, raceSession);
+      return;
+    }
 
     var teamEvent = Util.isCurrentTeamEvent();
     var useTeamNumber = Util.isCurrentTeamEventUseNumber();
@@ -202,6 +199,8 @@ class LeaderboardPage extends Page {
     SessionFeed.updateFeedTimestamp();
     $("#feeds tbody").append(leaderboard.getFeedHTML());
     $("#feeds").scrollTop($("#feeds").prop("scrollHeight"));
+
+    LeaderboardPage.updateSessionGrip(leaderboard.startGrip, leaderboard.currentGrip);
   }
 
   static cb_updateSessionInfo(data) {
@@ -253,10 +252,7 @@ class LeaderboardPage extends Page {
         LeaderboardPage.setupQualiLeaderBoardHeader(teamEvent, useTeamNumber);
       }
 
-      LeaderboardPage.sessionGripIntervalHandler = setInterval(function() {
-        getRequest("/api/ac/session/" + session.session_id, LeaderboardPage.cb_updateSessionGrip);
-      }, 5 * 1000);
-
+      DataStore.setSessionID(session.session_id);
       LeaderboardPage.setupLeaderboardAPI(session.http_port);
     }
   }

@@ -210,6 +210,18 @@ class LeaderBoard {
   constructor() {
     this.entries = [];
     this.feedList = [];
+    this.startGrip = -1;
+    this.currentGrip = -1;
+    this.sessionID = 0;
+  }
+
+  setGrip(start, current) {
+    this.startGrip = start;
+    this.currentGrip = current;
+  }
+
+  setSessionID(id) {
+    this.sessionID = id;
   }
 
   addEntry(entry) { /* empty */ }
@@ -288,7 +300,7 @@ class RaceLeaderBoard extends LeaderBoard {
 }
 
 class LeaderBoardDeserialiser {
-  static VERSION = 2;
+  static VERSION = 3;
   constructor( /* ArrayBuffer */ data) {
     this.buffer = data;
     this.data = new DataView(data);
@@ -350,7 +362,14 @@ class LeaderBoardDeserialiser {
       return
     }
 
+    const sessionID = this.readInt64();
+    leaderboard.setSessionID(sessionID);
+
     const raceSession = this.readUint8();
+
+    const startGrip = this.readFloat();
+    const currentGrip = this.readFloat();
+    leaderboard.setGrip(startGrip, currentGrip);
 
     const entryCount = this.readUint8();
     for (var i = 0; i < entryCount; ++i) {

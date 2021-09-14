@@ -3,6 +3,9 @@ class DataStore {
   static teams = {}
   static users = {}
   static carColorClasses = []
+  static event = {}
+  static sessionID = 0
+  static sessionOver = false
 
   static addCar(id, car) {
     DataStore.cars[id] = car;
@@ -58,6 +61,22 @@ class DataStore {
 
   static getEvent() {
     return DataStore.event;
+  }
+
+  static setSessionID(id) {
+    DataStore.sessionID = id;
+  }
+
+  static getSessionID() {
+    return DataStore.sessionID;
+  }
+
+  static setSessionFinish() {
+    DataStore.sessionOver = true;
+  }
+
+  static isSessionFinished() {
+    return DataStore.sessionOver;
   }
 
   static isReverseGridEnabled() {
