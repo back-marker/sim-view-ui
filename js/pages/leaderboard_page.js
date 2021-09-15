@@ -186,15 +186,7 @@ class LeaderboardPage extends Page {
       }
     }
 
-    if (pendingTeams) {
-      getRequest(`/api/ac/event/${Util.getCurrentEvent()}/teams`, Page.cb_updateTeamsName);
-    }
-    pendingCarList.forEach(function(car_id) {
-      getRequest("/api/ac/car/" + car_id, Page.cb_updateCarName);
-    });
-    pendingDriverList.forEach(function(user_id) {
-      getRequest("/api/ac/user/" + user_id, Page.cb_updateDriverName);
-    });
+    Page.updateTeamAndDriversAndCarsName(pendingTeams, pendingCarList, pendingDriverList);
 
     SessionFeed.updateFeedTimestamp();
     $("#feeds tbody").append(leaderboard.getFeedHTML());

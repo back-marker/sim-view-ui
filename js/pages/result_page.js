@@ -101,15 +101,7 @@ class ResultPage extends Page {
 
       $("#standings-body").html(standingsHtml);
 
-      if (pendingTeams) {
-        getRequest("/api/ac/event/" + Util.getCurrentEvent() + "/teams", Page.cb_updateTeamsName);
-      }
-      pendingCarList.forEach(function(car_id) {
-        getRequest("/api/ac/car/" + car_id, Page.cb_updateCarName);
-      });
-      pendingDriverList.forEach(function(user_id) {
-        getRequest("/api/ac/user/" + user_id, Page.cb_updateDriverName);
-      });
+      Page.updateTeamAndDriversAndCarsName(pendingTeams, pendingCarList, pendingDriverList);
     }
   }
 
@@ -145,15 +137,7 @@ class ResultPage extends Page {
         $("#sec-body-" + sectorIdx).html(sectorHtml);
       }
 
-      if (pendingTeams) {
-        getRequest("/api/ac/event/" + Util.getCurrentEvent() + "/teams", Page.cb_updateTeamsName);
-      }
-      pendingCarList.forEach(function(car_id) {
-        getRequest("/api/ac/car/" + car_id, Page.cb_updateCarName);
-      });
-      pendingDriverList.forEach(function(user_id) {
-        getRequest("/api/ac/user/" + user_id, Page.cb_updateDriverName);
-      });
+      Page.updateTeamAndDriversAndCarsName(pendingTeams, pendingCarList, pendingDriverList);
     }
   }
 
@@ -191,15 +175,7 @@ class ResultPage extends Page {
 
       $("#stints-tab").html(stintsHtml);
 
-      if (pendingTeams) {
-        getRequest("/api/ac/event/" + Util.getCurrentEvent() + "/teams", Page.cb_updateTeamsName);
-      }
-      pendingCarList.forEach(function(car_id) {
-        getRequest("/api/ac/car/" + car_id, Page.cb_updateCarName);
-      });
-      pendingDriverList.forEach(function(user_id) {
-        getRequest("/api/ac/user/" + user_id, Page.cb_updateDriverName);
-      });
+      Page.updateTeamAndDriversAndCarsName(pendingTeams, pendingCarList, pendingDriverList);
     }
   }
 

@@ -187,9 +187,7 @@ class BestlapPage extends Page {
         lapsHtml += lapEntry.toHTML(offset + idx);
       }
       $("#bestlaps tbody").html(lapsHtml);
-      for (var idx = 0; idx < driverList.length; ++idx) {
-        getRequest("/api/ac/user/" + driverList[idx], Page.cb_updateDriverName);
-      }
+      getRequest("/api/ac/users/" + driverList.join(','), Page.cb_updateDriversName);
     }
   }
 }

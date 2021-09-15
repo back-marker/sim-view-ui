@@ -16,20 +16,34 @@ class Page {
     }
   }
 
-  static cb_updateCarName(data) {
+  static cb_updateCarsName(data) {
     if (data["status"] === "success") {
-      const car = data.car;
-      DataStore.addCar(car.car_id, car);
-      $(`.lb-car[data-car-id="${car.car_id}"] .car-name`).text(car.display_name);
-      $(`.lb-car-class[data-car-id="${car.car_id}"]`).text(car.car_class).addClass(DataStore.getCarColorClass(car.car_id));
+      for (const car of data.cars) {
+        DataStore.addCar(car.car_id, car);
+        $(`.lb-car[data-car-id="${car.car_id}"] .car-name`).text(car.display_name);
+        $(`.lb-car-class[data-car-id="${car.car_id}"]`).text(car.car_class).addClass(DataStore.getCarColorClass(car.car_id));
+      }
     }
   }
 
-  static cb_updateDriverName(data) {
+  static cb_updateDriversName(data) {
     if (data["status"] === "success") {
-      const user = data.user;
-      $(`.lb-driver[data-driver-id="${user.user_id}"]`).text(user.name);
-      DataStore.addUser(user.user_id, user);
+      for (const user of data.users) {
+        $(`.lb-driver[data-driver-id="${user.user_id}"]`).text(user.name);
+        DataStore.addUser(user.user_id, user);
+      }
+    }
+  }
+
+  static updateTeamAndDriversAndCarsName(pendingTeams, pendingCarList, pendingDriverList) {
+    if (pendingTeams) {
+      getRequest(`/api/ac/event/${Util.getCurrentEvent()}/teams`, Page.cb_updateTeamsName);
+    }
+    if (pendingCarList.size !== 0) {
+      getRequest("/api/ac/cars/" + Array.from(pendingCarList).join(','), Page.cb_updateCarsName)
+    }
+    if (pendingDriverList.size !== 0) {
+      getRequest("/api/ac/users/" + Array.from(pendingDriverList).join(','), Page.cb_updateDriversName);
     }
   }
 
