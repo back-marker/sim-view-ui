@@ -65,8 +65,8 @@ class ResultPage extends Page {
       const standings = data.standings;
       var pendingCarList = new Set();
       var pendingDriverList = new Set();
+      var pendingTeamList = new Set();
 
-      var pendingTeams = false;
       var teamEvent = Util.isCurrentTeamEvent();
       var useTeamNumber = Util.isCurrentTeamEventUseNumber();
 
@@ -89,7 +89,7 @@ class ResultPage extends Page {
         }
 
         if (teamEvent && !DataStore.containsTeam(standing.team_id)) {
-          pendingTeams = true;
+          pendingTeamList.add(standing.team_id);
         }
         if (!DataStore.containsCar(standing.car_id)) {
           pendingCarList.add(standing.car_id);
@@ -101,7 +101,7 @@ class ResultPage extends Page {
 
       $("#standings-body").html(standingsHtml);
 
-      Page.updateTeamAndDriversAndCarsName(pendingTeams, pendingCarList, pendingDriverList);
+      Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
     }
   }
 
@@ -110,8 +110,8 @@ class ResultPage extends Page {
       const sectors = data.sectors;
       var pendingCarList = new Set();
       var pendingDriverList = new Set();
+      var pendingTeamList = new Set();
 
-      var pendingTeams = false;
       var teamEvent = Util.isCurrentTeamEvent();
       var useTeamNumber = Util.isCurrentTeamEventUseNumber();
 
@@ -124,7 +124,7 @@ class ResultPage extends Page {
           sectorHtml += entry.toHTML(idx + 1, teamEvent, useTeamNumber);
 
           if (teamEvent && !DataStore.containsTeam(entry.teamId)) {
-            pendingTeams = true;
+            pendingTeamList.add(entry.teamId);
           }
           if (!DataStore.containsCar(entry.carId)) {
             pendingCarList.add(entry.carId);
@@ -137,7 +137,7 @@ class ResultPage extends Page {
         $("#sec-body-" + sectorIdx).html(sectorHtml);
       }
 
-      Page.updateTeamAndDriversAndCarsName(pendingTeams, pendingCarList, pendingDriverList);
+      Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
     }
   }
 
@@ -146,8 +146,8 @@ class ResultPage extends Page {
       const stints = data.stints;
       var pendingCarList = new Set();
       var pendingDriverList = new Set();
+      var pendingTeamList = new Set();
 
-      var pendingTeams = false;
       var teamEvent = Util.isCurrentTeamEvent();
       var useTeamNumber = Util.isCurrentTeamEventUseNumber();
 
@@ -157,7 +157,7 @@ class ResultPage extends Page {
         stintsHtml += stint.toHTML(teamEvent, useTeamNumber);
 
         if (teamEvent && !DataStore.containsTeam(stint.teamId)) {
-          pendingTeams = true;
+          pendingTeamList.add(stint.teamId);
         }
         if (!DataStore.containsCar(stint.carId)) {
           pendingCarList.add(stint.carId);
@@ -175,7 +175,7 @@ class ResultPage extends Page {
 
       $("#stints-tab").html(stintsHtml);
 
-      Page.updateTeamAndDriversAndCarsName(pendingTeams, pendingCarList, pendingDriverList);
+      Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
     }
   }
 

@@ -128,7 +128,7 @@ class LeaderboardPage extends Page {
       return;
     }
 
-    var pendingTeams = false;
+    var pendingTeamList = new Set();
     var pendingCarList = new Set();
     var pendingDriverList = new Set();
 
@@ -153,7 +153,7 @@ class LeaderboardPage extends Page {
       }
 
       if (teamEvent && !DataStore.containsTeam(entry.id.teamID)) {
-        pendingTeams = true;
+        pendingTeamList.add(entry.id.teamID);
       }
       if (!DataStore.containsCar(entry.id.carID)) {
         pendingCarList.add(entry.id.carID);
@@ -186,7 +186,7 @@ class LeaderboardPage extends Page {
       }
     }
 
-    Page.updateTeamAndDriversAndCarsName(pendingTeams, pendingCarList, pendingDriverList);
+    Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
 
     SessionFeed.updateFeedTimestamp();
     $("#feeds tbody").append(leaderboard.getFeedHTML());

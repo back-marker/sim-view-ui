@@ -35,9 +35,9 @@ class Page {
     }
   }
 
-  static updateTeamAndDriversAndCarsName(pendingTeams, pendingCarList, pendingDriverList) {
-    if (pendingTeams) {
-      getRequest(`/api/ac/event/${Util.getCurrentEvent()}/teams`, Page.cb_updateTeamsName);
+  static updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList) {
+    if (pendingTeamList.size !== 0) {
+      getRequest("/api/ac/teams/" + Array.from(pendingTeamList).join(','), Page.cb_updateTeamsName);
     }
     if (pendingCarList.size !== 0) {
       getRequest("/api/ac/cars/" + Array.from(pendingCarList).join(','), Page.cb_updateCarsName)
