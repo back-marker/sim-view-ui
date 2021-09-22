@@ -33,8 +33,9 @@ class SessionFeedEntry {
   }
 }
 
-class SectorStatus {
-  constructor(s1Status, s2Status, s3Status) {
+class LapAndSectorStatus {
+  constructor(currentLapStatus, s1Status, s2Status, s3Status) {
+    this.currentLapStatus = currentLapStatus;
     this.s1Status = s1Status;
     this.s2Status = s2Status;
     this.s3Status = s3Status;
@@ -45,6 +46,11 @@ class SectorStatus {
     if (status == 1) return "green-sec";
     if (status == 2) return "purple-sec";
     return "";
+  }
+
+  getLapStatus() {
+    if (this.currentLapStatus == 3) return "red-sec";
+    return this.getStatusString(this.currentLapStatus);
   }
 
   getS1Status() {
@@ -70,7 +76,7 @@ class LeaderBoardEntry {
     PIT_EXIT: 4
   }
 
-  constructor(id, connectionStatus, trackStatus, isFinished, laps, validLaps, telemetry, bestLap, currentLap, sectorStatus, gap, interval, posChange) {
+  constructor(id, connectionStatus, trackStatus, isFinished, laps, validLaps, telemetry, bestLap, currentLap, status, gap, interval, posChange) {
     this.id = id;
     this.connectionStatus = connectionStatus;
     this.trackStatus = trackStatus;
@@ -84,7 +90,7 @@ class LeaderBoardEntry {
 
     this.bestLap = bestLap;
     this.currentLap = currentLap;
-    this.sectorStatus = sectorStatus;
+    this.status = status;
 
     if (gap != -1) {
       this.gap = gap;
@@ -180,9 +186,9 @@ class LeaderBoardEntry {
         <td class="lb-best-lap${(this.isQualiPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
         <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
         <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
-        <td class="lb-sec1 ${this.sectorStatus.getS1Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</td>
-        <td class="lb-sec2 ${this.sectorStatus.getS2Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</td>
-        <td class="lb-sec3 ${this.sectorStatus.getS3Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</td>
+        <td class="lb-sec1 ${this.status.getS1Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</td>
+        <td class="lb-sec2 ${this.status.getS2Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</td>
+        <td class="lb-sec3 ${this.status.getS3Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</td>
         <td class="lb-laps">${this.validLaps === 0? "-" : this.validLaps}</td>
       </tr>`;
   }
@@ -220,10 +226,10 @@ class LeaderBoardEntry {
       <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
       <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
       <td class="lb-best-lap${(this.isRacePurpleLap(pos, bestLapIdx) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
-      <td class="lb-last-lap">${Lap.convertMSToDisplayTimeString(RaceLeaderBoard.prevLapList[this.id.userID] || 0)}</td>
-      <td class="lb-sec1 ${this.sectorStatus.getS1Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec1)}</td>
-      <td class="lb-sec2 ${this.sectorStatus.getS2Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec2)}</td>
-      <td class="lb-sec3 ${this.sectorStatus.getS3Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec3)}</td>
+      <td class="lb-last-lap ${RaceLeaderBoard.prevLapStatusList[this.id.userID] || ""}">${Lap.convertMSToDisplayTimeString(RaceLeaderBoard.prevLapList[this.id.userID] || 0)}</td>
+      <td class="lb-sec1 ${this.status.getS1Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec1)}</td>
+      <td class="lb-sec2 ${this.status.getS2Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec2)}</td>
+      <td class="lb-sec3 ${this.status.getS3Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec3)}</td>
     </tr>`;
   }
 }
@@ -285,6 +291,7 @@ class QualiLeaderBoard extends LeaderBoard {
 
 class RaceLeaderBoard extends LeaderBoard {
   static prevLapList = {}
+  static prevLapStatusList = {}
 
   constructor() {
     super();
@@ -298,6 +305,7 @@ class RaceLeaderBoard extends LeaderBoard {
     // Current lap will become previsou lap once complete
     if (entry.currentLap.lapTime !== 0) {
       RaceLeaderBoard.prevLapList[entry.id.userID] = entry.currentLap.lapTime;
+      RaceLeaderBoard.prevLapStatusList[entry.id.userID] = entry.status.getLapStatus();
     }
 
     var idx = this.entries.length;
@@ -310,7 +318,7 @@ class RaceLeaderBoard extends LeaderBoard {
 }
 
 class LeaderBoardDeserialiser {
-  static VERSION = 4;
+  static VERSION = 5;
   constructor( /* ArrayBuffer */ data) {
     this.buffer = data;
     this.data = new DataView(data);
@@ -343,6 +351,12 @@ class LeaderBoardDeserialiser {
 
   readInt8() {
     var d = this.data.getInt8(this.offset);
+    this.offset += 1;
+    return d;
+  }
+
+  readUInt8() {
+    var d = this.data.getUint8(this.offset);
     this.offset += 1;
     return d;
   }
@@ -427,13 +441,15 @@ class LeaderBoardDeserialiser {
     const bestLap = new Lap(0, this.readUint32(), this.readUint32(), this.readUint32());
     const currentLap = new Lap(0, this.readUint32(), this.readUint32(), this.readUint32());
 
-    var sectorMask = this.readInt8();
+    var sectorMask = this.readUInt8();
+    const currentLapStatus = sectorMask & 3;
+    sectorMask = sectorMask >> 2;
     const s3Status = sectorMask & 3;
     sectorMask = sectorMask >> 2;
     const s2Status = sectorMask & 3;
     sectorMask = sectorMask >> 2;
     const s1Status = sectorMask & 3;
-    const status = new SectorStatus(s1Status, s2Status, s3Status);
+    const status = new LapAndSectorStatus(currentLapStatus, s1Status, s2Status, s3Status);
 
     const gap = this.readInt32();
     const interval = this.readInt32();
