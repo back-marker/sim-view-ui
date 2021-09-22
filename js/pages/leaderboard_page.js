@@ -149,7 +149,7 @@ class LeaderboardPage extends Page {
       if (raceSession) {
         leaderboardHtml += entry.toRaceHTML(pos, teamEvent, useTeamNumber, leaderboard.bestLapIdx);
       } else {
-        leaderboardHtml += entry.toQualiHTML(pos, teamEvent, useTeamNumber, leaderboard.bestSec1Idx, leaderboard.bestSec2Idx, leaderboard.bestSec3Idx);
+        leaderboardHtml += entry.toQualiHTML(pos, teamEvent, useTeamNumber);
       }
 
       if (teamEvent && !DataStore.containsTeam(entry.id.teamID)) {

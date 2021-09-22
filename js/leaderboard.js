@@ -33,6 +33,33 @@ class SessionFeedEntry {
   }
 }
 
+class SectorStatus {
+  constructor(s1Status, s2Status, s3Status) {
+    this.s1Status = s1Status;
+    this.s2Status = s2Status;
+    this.s3Status = s3Status;
+  }
+
+  getStatusString(status) {
+    if (status == 0) return "";
+    if (status == 1) return "green-sec";
+    if (status == 2) return "purple-sec";
+    return "";
+  }
+
+  getS1Status() {
+    return this.getStatusString(this.s1Status);
+  }
+
+  getS2Status() {
+    return this.getStatusString(this.s2Status);
+  }
+
+  getS3Status() {
+    return this.getStatusString(this.s3Status);
+  }
+}
+
 class LeaderBoardEntry {
   static CONNECTION_STATUS = { CONNECTED: 0, LOADING: 1, DISCONNECTED: 2 };
   static TRACK_STATUS = {
@@ -43,7 +70,7 @@ class LeaderBoardEntry {
     PIT_EXIT: 4
   }
 
-  constructor(id, connectionStatus, trackStatus, isFinished, laps, validLaps, telemetry, bestLap, currentLap, gap, interval, posChange) {
+  constructor(id, connectionStatus, trackStatus, isFinished, laps, validLaps, telemetry, bestLap, currentLap, sectorStatus, gap, interval, posChange) {
     this.id = id;
     this.connectionStatus = connectionStatus;
     this.trackStatus = trackStatus;
@@ -57,6 +84,7 @@ class LeaderBoardEntry {
 
     this.bestLap = bestLap;
     this.currentLap = currentLap;
+    this.sectorStatus = sectorStatus;
 
     if (gap != -1) {
       this.gap = gap;
@@ -124,7 +152,7 @@ class LeaderBoardEntry {
     return pos === 0 && this.connectionStatus === LeaderBoardEntry.CONNECTION_STATUS.CONNECTED && this.bestLap.lapTime !== 0;
   }
 
-  toQualiHTML(pos, teamEvent, useTeamNumber, bestSec1Idx, bestSec2Idx, bestSec3Idx) {
+  toQualiHTML(pos, teamEvent, useTeamNumber) {
       TrackMap.syncDriverMapStatus(pos, this.connectionStatus, this.id, teamEvent, useTeamNumber, this.telemetry, this.trackStatus);
 
       const team = DataStore.getTeam(this.id.teamID);
@@ -152,9 +180,9 @@ class LeaderBoardEntry {
         <td class="lb-best-lap${(this.isQualiPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
         <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
         <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
-        <td class="lb-sec1${(bestSec1Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</td>
-        <td class="lb-sec2${(bestSec2Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</td>
-        <td class="lb-sec3${(bestSec3Idx === pos ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</td>
+        <td class="lb-sec1 ${this.sectorStatus.getS1Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</td>
+        <td class="lb-sec2 ${this.sectorStatus.getS2Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</td>
+        <td class="lb-sec3 ${this.sectorStatus.getS3Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</td>
         <td class="lb-laps">${this.validLaps === 0? "-" : this.validLaps}</td>
       </tr>`;
   }
@@ -193,9 +221,9 @@ class LeaderBoardEntry {
       <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
       <td class="lb-best-lap${(this.isRacePurpleLap(pos, bestLapIdx) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
       <td class="lb-last-lap">${Lap.convertMSToDisplayTimeString(RaceLeaderBoard.prevLapList[this.id.userID] || 0)}</td>
-      <td class="lb-sec1">${Lap.convertMSToDisplayTimeString(this.currentLap.sec1)}</td>
-      <td class="lb-sec2">${Lap.convertMSToDisplayTimeString(this.currentLap.sec2)}</td>
-      <td class="lb-sec3">${Lap.convertMSToDisplayTimeString(this.currentLap.sec3)}</td>
+      <td class="lb-sec1 ${this.sectorStatus.getS1Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec1)}</td>
+      <td class="lb-sec2 ${this.sectorStatus.getS2Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec2)}</td>
+      <td class="lb-sec3 ${this.sectorStatus.getS3Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec3)}</td>
     </tr>`;
   }
 }
@@ -248,28 +276,10 @@ class LeaderBoard {
 class QualiLeaderBoard extends LeaderBoard {
   constructor() {
     super();
-    this.bestSec1Idx = -1;
-    this.bestSec2Idx = -1;
-    this.bestSec3Idx = -1;
   }
 
   addEntry(entry) {
-    var idx = this.entries.length;
     this.entries.push(entry);
-    if (entry.connectionStatus === LeaderBoardEntry.CONNECTION_STATUS.CONNECTED) {
-      if (entry.bestLap.sec1 !== 0 && (this.bestSec1Idx == -1 ||
-          entry.bestLap.sec1 < this.entries[this.bestSec1Idx].bestLap.sec1)) {
-        this.bestSec1Idx = idx;
-      }
-      if (entry.bestLap.sec2 !== 0 && (this.bestSec2Idx == -1 ||
-          entry.bestLap.sec2 < this.entries[this.bestSec2Idx].bestLap.sec2)) {
-        this.bestSec2Idx = idx;
-      }
-      if (entry.bestLap.sec3 !== 0 && (this.bestSec3Idx == -1 ||
-          entry.bestLap.sec3 < this.entries[this.bestSec3Idx].bestLap.sec3)) {
-        this.bestSec3Idx = idx;
-      }
-    }
   }
 }
 
@@ -300,7 +310,7 @@ class RaceLeaderBoard extends LeaderBoard {
 }
 
 class LeaderBoardDeserialiser {
-  static VERSION = 3;
+  static VERSION = 4;
   constructor( /* ArrayBuffer */ data) {
     this.buffer = data;
     this.data = new DataView(data);
@@ -416,12 +426,21 @@ class LeaderBoardDeserialiser {
 
     const bestLap = new Lap(0, this.readUint32(), this.readUint32(), this.readUint32());
     const currentLap = new Lap(0, this.readUint32(), this.readUint32(), this.readUint32());
+
+    var sectorMask = this.readInt8();
+    const s3Status = sectorMask & 3;
+    sectorMask = sectorMask >> 2;
+    const s2Status = sectorMask & 3;
+    sectorMask = sectorMask >> 2;
+    const s1Status = sectorMask & 3;
+    const status = new SectorStatus(s1Status, s2Status, s3Status);
+
     const gap = this.readInt32();
     const interval = this.readInt32();
     const posChange = this.readInt8();
 
     return new LeaderBoardEntry(id, connectionStatus, trackStatus, isFinished, laps, validLaps,
-      telemetry, bestLap, currentLap, gap, interval, posChange);
+      telemetry, bestLap, currentLap, status, gap, interval, posChange);
   }
 
   deserialiseFeed() {
