@@ -530,16 +530,32 @@ main {
   border-top: 2px solid #464646;
 }
 
+.green-sec,
+.red-sec,
+.purple-sec,
+.yellow-sec {
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
 .purple-sec {
-  color: #d956d9 !important;
+  background: #b71980;
+  color: #f4fdf5;
 }
 
 .red-sec {
-  color: #ff5757 !important;
+  background: #b54141;
+  color: #f4fdf5;
+}
+
+.yellow-sec {
+  /* background: #cec31b;
+  color: #282828; */
 }
 
 .green-sec {
-  color: #59f459 !important;
+  background: #068406;
+  color: #f4fdf5;
 }
 
 .status-green {
