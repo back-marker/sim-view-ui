@@ -184,6 +184,7 @@ class LeaderBoardEntry {
         <td class="lb-driver" data-driver-id="${this.id.userID}">
           ${(user !== undefined) ? user.name : ""}</td>
         <td class="lb-best-lap${(this.isQualiPurpleLap(pos) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
+        <td class="lb-last-lap ${LeaderBoard.prevLapStatusList[this.id.userID] || ""}">${Lap.convertMSToDisplayTimeString(LeaderBoard.prevLapList[this.id.userID] || 0)}</td>
         <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
         <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
         <td class="lb-sec1 ${this.status.getS1Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</td>
@@ -226,7 +227,7 @@ class LeaderBoardEntry {
       <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
       <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
       <td class="lb-best-lap${(this.isRacePurpleLap(pos, bestLapIdx) ? " purple-sec" : "")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</td>
-      <td class="lb-last-lap ${RaceLeaderBoard.prevLapStatusList[this.id.userID] || ""}">${Lap.convertMSToDisplayTimeString(RaceLeaderBoard.prevLapList[this.id.userID] || 0)}</td>
+      <td class="lb-last-lap ${LeaderBoard.prevLapStatusList[this.id.userID] || ""}">${Lap.convertMSToDisplayTimeString(LeaderBoard.prevLapList[this.id.userID] || 0)}</td>
       <td class="lb-sec1 ${this.status.getS1Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec1)}</td>
       <td class="lb-sec2 ${this.status.getS2Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec2)}</td>
       <td class="lb-sec3 ${this.status.getS3Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec3)}</td>
@@ -240,6 +241,9 @@ class LeaderBoard {
   static driverList = {};
   static carColorClass = [];
   static driverPosChangeCounterList = {};
+
+  static prevLapList = {}
+  static prevLapStatusList = {}
 
   constructor() {
     this.entries = [];
@@ -258,7 +262,13 @@ class LeaderBoard {
     this.sessionID = id;
   }
 
-  addEntry(entry) { /* empty */ }
+  addEntry(entry) {
+    // Current lap will become previous lap once complete
+    if (entry.currentLap.lapTime !== 0) {
+      LeaderBoard.prevLapList[entry.id.userID] = entry.currentLap.lapTime;
+      LeaderBoard.prevLapStatusList[entry.id.userID] = entry.status.getLapStatus();
+    }
+  }
 
   addFeed(feed) {
     this.feedList.push(feed);
@@ -285,6 +295,7 @@ class QualiLeaderBoard extends LeaderBoard {
   }
 
   addEntry(entry) {
+    super.addEntry(entry);
     this.entries.push(entry);
   }
 }
@@ -300,13 +311,9 @@ class RaceLeaderBoard extends LeaderBoard {
   }
 
   addEntry(entry) {
+    super.addEntry(entry);
     entry.gap = Util.getGapFromBitmap(entry.gap);
     entry.interval = Util.getGapFromBitmap(entry.interval);
-    // Current lap will become previsou lap once complete
-    if (entry.currentLap.lapTime !== 0) {
-      RaceLeaderBoard.prevLapList[entry.id.userID] = entry.currentLap.lapTime;
-      RaceLeaderBoard.prevLapStatusList[entry.id.userID] = entry.status.getLapStatus();
-    }
 
     var idx = this.entries.length;
     this.entries.push(entry);
