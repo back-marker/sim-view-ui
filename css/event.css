@@ -1955,3 +1955,18 @@ td .tooltip {
 #track-class-control div:last-child label {
   margin-right: 0;
 }
+
+.lb-last-lap {
+  position: relative;
+}
+
+.nsp-pos-indicator {
+  display: inline-block;
+  position: absolute;
+  height: 4px;
+  background: #4195c8;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 0;
+}
