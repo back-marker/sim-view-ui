@@ -172,12 +172,13 @@ class ResultSectorTabEntry {
   }
 
   class ResultSingleStintLapEntry {
-    constructor(lapTime, sec1, sec2, sec3, grip, avgSpeed, maxSpeed, cuts, crashes, carCrashes, finishAt, isBestLap) {
+    constructor(lapTime, sec1, sec2, sec3, grip, tyre, avgSpeed, maxSpeed, cuts, crashes, carCrashes, finishAt, isBestLap) {
       this.lapTime = lapTime;
       this.sec1 = sec1;
       this.sec2 = sec2;
       this.sec3 = sec3;
       this.grip = (grip <= 0 ? "-" : (grip * 100.0).toFixed(2));
+      this.tyre = Util.getTyreStr(tyre);
       this.avgSpeed = (avgSpeed === 0 ? "-" : avgSpeed + " Km/Hr");
       this.maxSpeed = maxSpeed + " Km/Hr";
       this.cuts = cuts;
@@ -193,7 +194,7 @@ class ResultSectorTabEntry {
 
     static fromJSON(data) {
       return new ResultSingleStintLapEntry(data.lap_time, data.sector_1, data.sector_2,
-        data.sector_3, data.grip, data.avg_speed, data.max_speed, data.cuts, data.crashes,
+        data.sector_3, data.grip, data.tyre, data.avg_speed, data.max_speed, data.cuts, data.crashes,
         data.car_crashes, data.finish_at, data.best_lap);
     }
 
@@ -212,6 +213,7 @@ class ResultSectorTabEntry {
           <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec2)}</td>
           <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec3)}</td>
           <td class="st-grip">${this.grip}</td>
+          <td class="st-tyre">${this.tyre}</td>
           <td class="st-avg">${this.avgSpeed}</td>
           <td class="st-max">${this.maxSpeed}</td>
           <td class="st-cuts">${this.cuts}</td>
@@ -233,6 +235,7 @@ class ResultSectorTabEntry {
           <td class="st-hr-sec">S2</td>
           <td class="st-hr-sec">S3</td>
           <td class="st-hr-grip">Grip %</td>
+          <td class="st-hr-tyre"><a class="tooltip" title="Tyre">T</a></td>
           <td class="st-hr-avg">Avg. Speed</td>
           <td class="st-hr-max">Max. Speed</td>
           <td class="st-hr-cuts">Cuts</td>

@@ -193,7 +193,7 @@ class BestlapPage extends Page {
 }
 
 class BestLapEntry {
-  constructor(lapId, driverId, carId, bestLap, gap, gapPer, grip, avgSpeed, maxSpeed,
+  constructor(lapId, driverId, carId, bestLap, gap, gapPer, grip, tyre, avgSpeed, maxSpeed,
     carBest, classBest, sec1CarBest, sec1ClassBest, sec2CarBest, sec2ClassBest, sec3CarBest, sec3ClassBest, finishedAt) {
     this.lapId = lapId;
     this.driverId = driverId;
@@ -202,6 +202,7 @@ class BestLapEntry {
     this.gap = gap;
     this.gapPer = gapPer;
     this.grip = grip;
+    this.tyre = Util.getTyreStr(tyre);
     this.avgSpeed = avgSpeed;
     this.maxSpeed = maxSpeed;
     this.carBest = carBest;
@@ -218,7 +219,7 @@ class BestLapEntry {
   static fromJSON(data) {
     var lap = new Lap(data.time, data.sector_1, data.sector_2, data.sector_3);
     return new BestLapEntry(data.lap_id, data.user_id, data.car_id, lap, data.gap,
-      data.gap_per, data.grip, data.avg_speed, data.max_speed, data.car_best, data.class_best,
+      data.gap_per, data.grip, data.tyre, data.avg_speed, data.max_speed, data.car_best, data.class_best,
       data.sector_1_car_best, data.sector_1_class_best, data.sector_2_car_best, data.sector_2_class_best,
       data.sector_3_car_best, data.sector_3_class_best, data.finished_at);
   }
@@ -247,6 +248,7 @@ class BestLapEntry {
         <td class="lb-sec1"><span class="${this.getLapStatus(this.sec1ClassBest, this.sec1CarBest)}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</span></td>
         <td class="lb-sec2"><span class="${this.getLapStatus(this.sec2ClassBest, this.sec2CarBest)}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</span></td>
         <td class="lb-sec3"><span class="${this.getLapStatus(this.sec3ClassBest, this.sec3CarBest)}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</span></td>
+        <td class="lb-tyre">${this.tyre}</td>
         <td class="lb-grip">${(this.grip * 100).toFixed(2)} %</td>
         <td class="lb-max">${this.maxSpeed} KM/HR</td>
         <td class="lb-finish-time">${this.finishedAt}</td>

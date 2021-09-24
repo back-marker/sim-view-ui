@@ -22,6 +22,10 @@ class Util {
     return event.quali_duration === -1 ? "-" : Util.getMinuteTimeDiffString(event.quali_duration);
   }
 
+  static getTyreStr(tyre) {
+    return (tyre === undefined) ? '-' : (tyre === "" ? '-' : tyre);
+  }
+
   static getRaceDurationStr(event) {
     var raceDuration = "-";
     if (event.race_duration !== -1) {

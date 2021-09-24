@@ -453,6 +453,16 @@ main {
   padding-right: 8px;
 }
 
+.lb-hr-tyre,
+.lb-tyre {
+  width: 35px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 30px;
+}
+
 .lb-best-lap,
 .lb-hr-best-lap,
 .lb-last-lap,
@@ -1037,6 +1047,16 @@ li a.red {
 .sec-body tr:nth-child(even),
 #standings-body tr:nth-child(even) {
   background-color: #2f2f2f;
+}
+
+.st-hr-tyre,
+.st-tyre {
+  width: 30px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 30px;
 }
 
 .st-hr-valid-laps,
