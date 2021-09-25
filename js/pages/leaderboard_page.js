@@ -2,6 +2,7 @@ class LeaderboardPage extends Page {
 
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
   static sessionFeedLastId = -1;
+  static animationIntervalSet = false;
 
   static showMessage(msg) {
     $("#message").text(msg).removeClass("hidden");
@@ -34,6 +35,12 @@ class LeaderboardPage extends Page {
         LeaderboardPage.cb_updateLeaderBoard(event.data);
       }
     });
+  }
+
+  static setAnimationInterval(intervalMS) {
+    var r = document.querySelector(':root');
+    const animationInterval = (intervalMS / 1000.0).toFixed(2) + "s";
+    r.style.setProperty('--animation-interval', animationInterval);
   }
 
   static cb_updateEventInfo(data) {
@@ -140,6 +147,11 @@ class LeaderboardPage extends Page {
       DataStore.setSessionFinish();
       LeaderboardPage.handleSessionFinish(sessionType, raceSession);
       return;
+    }
+
+    if (!LeaderboardPage.animationIntervalSet) {
+      LeaderboardPage.setAnimationInterval(leaderboard.broadcastInterval);
+      LeaderboardPage.animationIntervalSet = true;
     }
 
     var teamEvent = Util.isCurrentTeamEvent();

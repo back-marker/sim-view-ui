@@ -260,6 +260,7 @@ class LeaderBoard {
     this.startGrip = -1;
     this.currentGrip = -1;
     this.sessionID = 0;
+    this.broadcastInterval = 1000;
   }
 
   setGrip(start, current) {
@@ -338,7 +339,7 @@ class RaceLeaderBoard extends LeaderBoard {
 }
 
 class LeaderBoardDeserialiser {
-  static VERSION = 6;
+  static VERSION = 7;
   constructor( /* ArrayBuffer */ data) {
     this.buffer = data;
     this.data = new DataView(data);
@@ -405,6 +406,8 @@ class LeaderBoardDeserialiser {
       console.log("Leaderboard version does not match");
       return
     }
+
+    leaderboard.broadcastInterval = this.readInt32();
 
     const sessionID = this.readInt64();
     leaderboard.setSessionID(sessionID);
