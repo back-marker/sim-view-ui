@@ -527,7 +527,7 @@ main {
 }
 
 #header-dummy {
-  margin-top: 168px;
+  margin-top: 177px;
 }
 
 #lb-page main {
@@ -2025,4 +2025,14 @@ td .tooltip {
 
 .feed-map-section-name {
   color: rgb(255, 247, 127);
+}
+
+#viewer-count,
+#viewer-count .tag {
+  color: #ff5757;
+}
+
+#viewer-count .count {
+  font-weight: bold;
+  font-size: 14px;
 }

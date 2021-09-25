@@ -149,6 +149,8 @@ class LeaderboardPage extends Page {
       return;
     }
 
+    LeaderboardPage.updateViewerCounter(leaderboard.viewerCount);
+
     if (!LeaderboardPage.animationIntervalSet) {
       LeaderboardPage.setAnimationInterval(leaderboard.broadcastInterval);
       LeaderboardPage.animationIntervalSet = true;
@@ -205,6 +207,10 @@ class LeaderboardPage extends Page {
     $("#feeds").scrollTop($("#feeds").prop("scrollHeight"));
 
     LeaderboardPage.updateSessionGrip(leaderboard.startGrip, leaderboard.currentGrip);
+  }
+
+  static updateViewerCounter(count) {
+    $("#viewer-count .count").text(count);
   }
 
   static cb_updateSessionInfo(data) {

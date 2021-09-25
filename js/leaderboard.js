@@ -261,6 +261,7 @@ class LeaderBoard {
     this.currentGrip = -1;
     this.sessionID = 0;
     this.broadcastInterval = 1000;
+    this.viewerCount = 0;
   }
 
   setGrip(start, current) {
@@ -339,7 +340,7 @@ class RaceLeaderBoard extends LeaderBoard {
 }
 
 class LeaderBoardDeserialiser {
-  static VERSION = 7;
+  static VERSION = 8;
   constructor( /* ArrayBuffer */ data) {
     this.buffer = data;
     this.data = new DataView(data);
@@ -408,6 +409,7 @@ class LeaderBoardDeserialiser {
     }
 
     leaderboard.broadcastInterval = this.readInt32();
+    leaderboard.viewerCount = this.readInt32();
 
     const sessionID = this.readInt64();
     leaderboard.setSessionID(sessionID);
