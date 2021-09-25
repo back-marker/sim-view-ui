@@ -188,7 +188,7 @@ class LeaderBoardEntry {
         <td class="lb-tyre">${this.connectionStatus == LeaderBoardEntry.CONNECTION_STATUS.CONNECTED? Util.getTyreStr(this.telemetry.tyre) : '-'}</td>
         <td class="lb-last-lap">
           <span class="nsp-pos-indicator" style="width:${this.telemetry.nsp * 100}%;"></span>
-          <span class="${LeaderBoard.prevLapStatusList[this.id.userID] || ""}">${Lap.convertMSToDisplayTimeString(LeaderBoard.prevLapList[this.id.userID] || 0)}</span>
+          <span class="${this.connectionStatus == LeaderBoardEntry.CONNECTION_STATUS.CONNECTED? (LeaderBoard.prevLapStatusList[this.id.userID] || "") : ""}">${Lap.convertMSToDisplayTimeString(LeaderBoard.prevLapList[this.id.userID] || 0)}</span>
         </td>
         <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
         <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
