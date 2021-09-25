@@ -3,9 +3,18 @@ class LeaderboardPage extends Page {
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
   static sessionFeedLastId = -1;
   static animationIntervalSet = false;
+  static prevLatency = [];
+  static prevLeaderboardTime = Date.now();
+
+  static LAST_LATENCY_COUNT = 10;
+  static LATENCY_VARIATION_THRESHOLD = 1.25; // 25% of broadcast interval
 
   static showMessage(msg) {
     $("#message").text(msg).removeClass("hidden");
+  }
+
+  static hideMessage() {
+    $("#message").text("").addClass("hidden");
   }
 
   static showTrackMissingMessage(msg) {
@@ -129,6 +138,29 @@ class LeaderboardPage extends Page {
     }, 1000);
   }
 
+  static processLatencyVariation(broadcastInterval) {
+    const currTime = Date.now();
+    const diff = currTime - LeaderboardPage.prevLeaderboardTime;
+    LeaderboardPage.prevLeaderboardTime = currTime;
+    if (LeaderboardPage.prevLatency.length < LeaderboardPage.LAST_LATENCY_COUNT) {
+      LeaderboardPage.prevLatency.push(diff);
+    } else {
+      LeaderboardPage.prevLatency.shift();
+      LeaderboardPage.prevLatency.push(diff);
+
+      const avgLatency = LeaderboardPage.prevLatency.reduce(function(left, right) {
+        return left + right;
+      }, 0) / LeaderboardPage.LAST_LATENCY_COUNT;
+
+      if (avgLatency > LeaderboardPage.LATENCY_VARIATION_THRESHOLD * broadcastInterval) {
+        LeaderboardPage.showMessage("Your connection to leaderboard server is not stable");
+        console.log("High variation in last 10 leaderboard latency: ", LeaderboardPage.prevLatency);
+      } else {
+        LeaderboardPage.hideMessage();
+      }
+    }
+  }
+
   static cb_updateLeaderBoard(buffer) {
     var leaderboardHtml = "";
     if (DataStore.isSessionFinished()) {
@@ -150,6 +182,7 @@ class LeaderboardPage extends Page {
     }
 
     LeaderboardPage.updateViewerCounter(leaderboard.viewerCount);
+    LeaderboardPage.processLatencyVariation(leaderboard.broadcastInterval);
 
     if (!LeaderboardPage.animationIntervalSet) {
       LeaderboardPage.setAnimationInterval(leaderboard.broadcastInterval);
