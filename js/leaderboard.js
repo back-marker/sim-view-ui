@@ -287,11 +287,15 @@ class LeaderBoard {
     var feedHtml = "";
     for (var feed of this.feedList) {
       var timeAgoSec = SessionFeed.getFeedTimestamp(feed.time / 1000);
-      feedHtml += `<tr>
-        <td class="sf-time" data-timestamp-ms="${feed.time / 1000}">${timeAgoSec}</td>
-        <td class="sf-car-class ${SessionFeed.getFeedTypeColorClass(feed.type, feed.detail)}">${SessionFeed.getFeedTypeString(feed.type, feed.detail)}</td>
-        <td class="sf-detail">${SessionFeed.getFeedMsg(feed.time, feed.type, feed.detail)}</td>
-      </tr>`;
+      feedHtml += `<div class="single-feed">
+        <div class="feed-meta">
+          <div class="feed-class ${SessionFeed.getFeedTypeColorClass(feed.type, feed.detail)}">${SessionFeed.getFeedTypeString(feed.type, feed.detail)}</div>
+          <div class="feed-time" data-timestamp-ms="${feed.time / 1000}">${timeAgoSec}</div>
+          <div class="clear-both"></div>
+        </div>
+        <div class="feed-text">${SessionFeed.getFeedMsg(feed.time, feed.type, feed.detail)}</div>
+        <div class="clear-both"></div>
+      </div>`
     }
 
     return feedHtml;

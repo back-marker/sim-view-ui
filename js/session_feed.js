@@ -1,6 +1,6 @@
 class SessionFeed {
   static updateFeedTimestamp() {
-    $("#feeds tbody .sf-time").each(function(idx, e) {
+    $("#feeds .single-feed .feed-time").each(function(idx, e) {
       $(e).text(SessionFeed.getFeedTimestamp(Number.parseInt($(e).attr("data-timestamp-ms"))));
     });
   }
@@ -30,11 +30,11 @@ class SessionFeed {
 
   static getFeedTypeColorClass(type, detail) {
     if (type === 0) {
-      return "speed-status-red";
+      return "speed-status-red-bg";
     } else if (type === 7) {
-      return "chat-hr-color";
+      return "chat-hr-color-bg";
     } else {
-      return DataStore.getCarColorClass(detail.car_id);
+      return DataStore.getCarColorClass(detail.car_id) + "-bg";
     }
   }
 
@@ -75,14 +75,18 @@ class SessionFeed {
           } else if (speed > 100) {
             status = "red";
           }
-          msg += `<span class="speed-status-${status}">${parts[idx][1]} Km/Hr</span>` + elem;
+          msg += `<span class="speed-status-${status}-bg">${parts[idx][1]} Km/Hr</span>` + elem;
           break;
 
         case "nsp":
           var sectionName = Util.getSectionNameFromNSP(parts[idx][1]);
           if (sectionName !== "") {
-            msg += "near " + sectionName;
+            msg += "near <span class='feed-map-section-name'>" + sectionName + "</span>";
           }
+          break;
+
+        case "pit_time":
+          msg += `<span class="pit-stop-time-bg">${Lap.convertMSToTimeString(parts[idx][1])}</span>` + elem;
           break;
 
         case "personal_lap_time":
@@ -96,15 +100,6 @@ class SessionFeed {
         case "msg":
           msg += `<span class="feed_user_msg">${parts[idx][1]}</span>` + elem;
           break;
-
-        case "pos_gain":
-          msg += `<span class="speed-status-green">${parts[idx][1]}</span>` + elem;
-          break;
-
-        case "pos_lose":
-          msg += `<span class="speed-status-red">${parts[idx][1]}</span>` + elem;
-          break;
-
         default:
           msg += parts[idx][1] + elem;
       }
@@ -198,7 +193,7 @@ class SessionFeed {
   }
 
   static getPitExitMsg(detail) {
-    return this.prepareMessage `${["user", detail["user_id"], detail["team_id"]]} exits pit. Estimated pit stop time ${["pit_time", Lap.convertMSToTimeString(detail["pit_time"])]}`;
+    return this.prepareMessage `${["user", detail["user_id"], detail["team_id"]]} exits pit. Estimated pit stop time ${["pit_time", detail["pit_time"]]}`;
   }
 
   static getOfftrackMsg(detail) {

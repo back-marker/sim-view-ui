@@ -189,7 +189,7 @@ class LeaderboardPage extends Page {
     Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
 
     SessionFeed.updateFeedTimestamp();
-    $("#feeds tbody").append(leaderboard.getFeedHTML());
+    $("#feeds").append(leaderboard.getFeedHTML());
     $("#feeds").scrollTop($("#feeds").prop("scrollHeight"));
 
     LeaderboardPage.updateSessionGrip(leaderboard.startGrip, leaderboard.currentGrip);
