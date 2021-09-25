@@ -100,7 +100,6 @@ $(document).ready(function() {
         }
       }
     });
-    $("#message").hide();
   } else if (page == "driver-page") {
     Page.setCommonHeaderHtml("driver");
     getRequest("/api/ac/users", DriverPage.cb_updateDriversList);

@@ -3,7 +3,7 @@ class BestlapPage extends Page {
   static TRACKS_LIST = []
   static CARS_LIST = {}
   static search_query = BestlapPage.getSearchQueryFromCache() || { per_page: 10, page_no: 1, car_ids: [] };
-  static cache_search_query = JSON.parse(localStorage.getItem("best_lap_page_cache_query")) || {};
+  static cache_search_query = BestlapPage.getFromLocalCache();
   static searched_car_class_list = [];
 
   static getSearchQueryFromCache() {
@@ -12,6 +12,37 @@ class BestlapPage extends Page {
       parsed.car_ids = [];
     }
     return parsed;
+  }
+
+  static getFromLocalCache() {
+    $("#message").hide();
+    const cacheQuery = JSON.parse(localStorage.getItem("best_lap_page_cache_query"));
+    if (cacheQuery === undefined || cacheQuery == null) return {};
+    if (!BestlapPage.validateStoredCacheQuery(cacheQuery)) {
+      $("#message").text("Last selected combo is not valid anymore. Try new search").show();
+      localStorage.removeItem("best_lap_page_cache_query");
+      return {};
+    }
+
+    return cacheQuery;
+  }
+
+  static validateStoredCacheQuery(query) {
+    if (query === undefined) return false;
+
+    if (query.by_event === true) {
+      if ($(`#event-param option[value=${query.event_id}]`).length === 0) return false;
+    }
+    if (query.by_track === true) {
+      if ($(`#track-param option[value=${query.track_id}]`).length === 0) return false;
+    }
+    if (query.car_ids !== undefined) {
+      for (const carID of query.car_ids) {
+        if ($(`#cars-param option[value=${carID}]`).length === 0) return false;
+      }
+    }
+
+    return true;
   }
 
   static cb_updateAllEvents(data) {
@@ -113,18 +144,25 @@ class BestlapPage extends Page {
   }
 
   static searchBestLaps(pageId) {
-    if (BestlapPage.cache_search_query.car_ids.length === 0) {
+    if (BestlapPage.cache_search_query.car_ids === undefined ||
+      BestlapPage.cache_search_query.car_ids.length === 0) {
       $("#message").text("Select a Car to view laps").show();
       return;
     }
-    $("#message").hide();
+
     $("#bestlaps tbody").html("");
     var url = "/api/ac/bestlap/";
     if (BestlapPage.cache_search_query.by_event) {
       url += "event/" + BestlapPage.cache_search_query.event_id;
     } else if (BestlapPage.cache_search_query.by_track) {
       url += "track/" + BestlapPage.cache_search_query.track_id;
+    } else {
+      $("#message").text("Selection of combo is invalid. Either of Event or Track has to be selected").show();
+      return;
     }
+
+    $("#message").hide();
+
     url += "/cars/" + BestlapPage.cache_search_query.car_ids.join(",");
     url += "/page/" + pageId;
     url += "/entries/" + BestlapPage.cache_search_query.per_page;
