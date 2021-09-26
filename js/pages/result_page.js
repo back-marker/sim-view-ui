@@ -79,6 +79,7 @@ class ResultPage extends Page {
       }
 
       var standingsHtml = "";
+      var stintsHtml = "";
       for (var idx = 0; idx < standings.length; ++idx) {
         const standing = standings[idx];
         if (sessionType === Page.SESSION_TYPE.PRACTICE.toLowerCase() ||
@@ -87,6 +88,9 @@ class ResultPage extends Page {
         } else {
           standingsHtml += RaceResultStandingTabEntry.fromJSON(standing).toHTML(idx + 1, teamEvent, useTeamNumber);
         }
+
+        var stint = ResultStintTabEntry.fromJSON(standing);
+        stintsHtml += stint.toHTML(idx, teamEvent, useTeamNumber);
 
         if (teamEvent && !DataStore.containsTeam(standing.team_id)) {
           pendingTeamList.add(standing.team_id);
@@ -100,6 +104,7 @@ class ResultPage extends Page {
       }
 
       $("#standings-body").html(standingsHtml);
+      $("#stints-tab").html(stintsHtml);
 
       Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
     }
@@ -141,39 +146,26 @@ class ResultPage extends Page {
     }
   }
 
-  static cb_updateStintsTab(data) {
+  static cb_updateSingleStint(data, containerId) {
     if (data["status"] === "success") {
-      const stints = data.stints;
+      const stints = data.stints.stints;
       var pendingCarList = new Set();
       var pendingDriverList = new Set();
       var pendingTeamList = new Set();
 
       var teamEvent = Util.isCurrentTeamEvent();
-      var useTeamNumber = Util.isCurrentTeamEventUseNumber();
 
       var stintsHtml = "";
-      for (const singleStint of stints) {
-        var stint = ResultStintTabEntry.fromJSON(singleStint);
-        stintsHtml += stint.toHTML(teamEvent, useTeamNumber);
+      for (var idx = 0; idx < stints.length; ++idx) {
+        var stint = ResultSingleStintEntry.fromJSON(stints[idx]);
+        stintsHtml += stint.toHTML(idx + 1, teamEvent);
 
-        if (teamEvent && !DataStore.containsTeam(stint.teamId)) {
-          pendingTeamList.add(stint.teamId);
-        }
-        if (!DataStore.containsCar(stint.carId)) {
-          pendingCarList.add(stint.carId);
-        }
-        if (!teamEvent && !DataStore.containsUser(stint.driverId)) {
+        if (teamEvent && !DataStore.containsUser(stint.driverId)) {
           pendingDriverList.add(stint.driverId);
-        } else if (teamEvent) {
-          stint.stintList.forEach(function(singleStint) {
-            if (!DataStore.containsUser(singleStint.driverId)) {
-              pendingDriverList.add(singleStint.driverId);
-            }
-          });
         }
       }
 
-      $("#stints-tab").html(stintsHtml);
+      $(`#${containerId} .stints-container`).html(stintsHtml);
 
       Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
     }
@@ -202,10 +194,10 @@ class ResultPage extends Page {
       $("select[name='select-session']").html(ResultPage.getResultSidebarHtml(sessions, practiceCount,
         qualificationCount, raceCount)).change(function() {
         var sessionId = $(this).val();
+        $("#result-main").attr("data-session-id", sessionId);
         var sessionType = $("option[value='" + sessionId + "'").attr("data-session-type");
         getRequest("/api/ac/session/" + sessionId, ResultPage.cb_updateSessionDetail);
         getRequest("/api/ac/session/" + sessionId + "/result/sectors", ResultPage.cb_updateSectorsTab);
-        getRequest("/api/ac/session/" + sessionId + "/result/stints", ResultPage.cb_updateStintsTab);
         getRequest("/api/ac/session/" + sessionId + "/" + sessionType + "/result/standings",
           ResultPage.cb_updateStandingsTab);
       });

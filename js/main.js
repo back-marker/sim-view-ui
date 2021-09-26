@@ -65,9 +65,31 @@ $(document).ready(function() {
       } else if ($(e.target).parents('.stint-driver').length === 1) {
         stintBar = $(e.target).parents('.stint-driver');
       }
-      if (stintBar !== undefined) {
+
+      if (stintBar === undefined) return;
+
+      stintBar.find('.arrow-down').toggleClass('rotate-180-clock');
+      const sessionId = $("#result-main").attr("data-session-id");
+      const parentContainer = $(stintBar).parents(".driver-stints");
+      const stintGroupId = parentContainer.attr("id");
+      var url = "";
+      if (Util.isCurrentTeamEvent()) {
+        const teamID = stintBar.find('.stint-team-name').attr('data-team-id');
+        url = `/api/ac/session/${sessionId}/result/stints/team/${teamID}`;
+      } else {
+        const userID = stintBar.find('.stint-driver-name').attr('data-driver-id');
+        const carID = stintBar.find('.stint-driver-car').attr('data-car-id');
+        url = `/api/ac/session/${sessionId}/result/stints/user/${userID}/car/${carID}`;
+      }
+
+      if (parentContainer.attr("data-loaded") !== "true") {
+        getRequest(url, function(data) {
+          parentContainer.attr("data-loaded", "true");
+          ResultPage.cb_updateSingleStint(data, stintGroupId);
+          stintBar.next().show();
+        });
+      } else {
         stintBar.next().slideToggle();
-        stintBar.find('.arrow-up').toggleClass('rotate-180-clock');
       }
     });
   } else if (page == "bestlap-page") {

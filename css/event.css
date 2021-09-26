@@ -1104,11 +1104,11 @@ li a.red {
   cursor: pointer;
 }
 
-.arrow-up {
+.arrow-down {
   display: inline-block;
   width: 0;
   height: 0;
-  border-bottom: 9px solid #a8a8a8;
+  border-top: 9px solid #a8a8a8;
   border-right: 8px solid transparent;
   border-left: 8px solid transparent;
 }

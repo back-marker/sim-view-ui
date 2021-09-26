@@ -308,28 +308,22 @@ class ResultSectorTabEntry {
   }
 
   class ResultStintTabEntry {
-    constructor(teamId, driverId, carId, stintList) {
+    constructor(teamId, driverId, carId) {
       this.teamId = teamId;
       this.driverId = driverId;
       this.carId = carId;
-      this.stintList = stintList;
     }
 
     static fromJSON(data) {
-      var stints = [];
-      for (var idx = 0; idx < data["stints"].length; ++idx) {
-        stints.push(ResultSingleStintEntry.fromJSON(data["stints"][idx]));
-      }
-
-      return new ResultStintTabEntry(data.team_id, data.user_id, data.car_id, stints);
+      return new ResultStintTabEntry(data.team_id, data.user_id, data.car_id);
     }
 
-    toHTML(teamEvent, useTeamNumber) {
+    toHTML(pos, teamEvent, useTeamNumber) {
       const team = DataStore.getTeam(this.teamId);
       const car = DataStore.getCar(this.carId);
       const user = DataStore.getUser(this.driverId);
 
-      var allStints = `<div class="driver-stints" ${useTeamNumber? `data-team-id="${this.teamId}"` : `data-driver-id="${this.driverId}"`}>
+      var allStints = `<div id="stint-group-${pos}" class="driver-stints" ${useTeamNumber? `data-team-id="${this.teamId}"` : `data-driver-id="${this.driverId}"`}>
         <div class="stint-driver">
           ${useTeamNumber? `<div class="left lb-team-no" data-team-id="${this.teamId}">
             ${team !== undefined? team.team_no : ""}
@@ -349,14 +343,11 @@ class ResultSectorTabEntry {
               ${car !== undefined? car.display_name : ""}
             </span>
           </div>
-          <div class="right"><span class="arrow-up"></span></div>
+          <div class="right"><span class="arrow-down"></span></div>
           <div class="clear-both"></div>
         </div>`;
-      var stintsHtml = "";
-      for (var idx = 0; idx < this.stintList.length; ++idx) {
-        stintsHtml += this.stintList[idx].toHTML(idx + 1, teamEvent);
-      }
-      allStints += `<div class="stints-container">${stintsHtml}</div>` +
+
+      allStints += `<div class="stints-container"></div>` +
         `</div>`;
 
       return allStints;
