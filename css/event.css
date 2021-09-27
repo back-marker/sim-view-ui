@@ -1,3 +1,44 @@
+* {
+  padding: 0;
+  margin: 0;
+  font-family: Roboto, Arial, sans-serif;
+  background-repeat: no-repeat;
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+table,
+tr,
+td {
+  border: none;
+  border-collapse: collapse;
+}
+
+@font-face {
+  font-family: Roboto-Light;
+  src: url("/vendor/fonts/Roboto-Light.ttf");
+}
+
+
+/*************************************************************/
+
 body {
   background-color: #262626;
 }
