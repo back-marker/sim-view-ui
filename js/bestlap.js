@@ -1,4 +1,5 @@
 class BestlapPage extends Page {
+  static CACHE_KEY = "best_lap_page_cache_query"
   static EVENTS_LIST = []
   static TRACKS_LIST = []
   static CARS_LIST = {}
@@ -7,7 +8,7 @@ class BestlapPage extends Page {
   static searched_car_class_list = [];
 
   static getSearchQueryFromCache() {
-    var parsed = JSON.parse(localStorage.getItem("best_lap_page_cache_query"));
+    var parsed = JSON.parse(localStorage.getItem(BestlapPage.CACHE_KEY));
     if (parsed !== null) {
       parsed.car_ids = [];
     }
@@ -16,32 +17,26 @@ class BestlapPage extends Page {
 
   static getFromLocalCache() {
     $("#message").hide();
-    const cacheQuery = JSON.parse(localStorage.getItem("best_lap_page_cache_query"));
+    const cacheQuery = JSON.parse(localStorage.getItem(BestlapPage.CACHE_KEY));
     if (cacheQuery === undefined || cacheQuery == null) return {};
-    if (!BestlapPage.validateStoredCacheQuery(cacheQuery)) {
-      $("#message").text("Last selected combo is not valid anymore. Try new search").show();
-      localStorage.removeItem("best_lap_page_cache_query");
-      return {};
-    }
-
     return cacheQuery;
   }
 
-  static validateStoredCacheQuery(query) {
-    if (query === undefined) return false;
+  static validEventId(eventID) {
+    if (eventID === undefined) return false;
+    return ($(`#event-param option[value=${eventID}]`).length !== 0);
+  }
 
-    if (query.by_event === true) {
-      if ($(`#event-param option[value=${query.event_id}]`).length === 0) return false;
-    }
-    if (query.by_track === true) {
-      if ($(`#track-param option[value=${query.track_id}]`).length === 0) return false;
-    }
-    if (query.car_ids !== undefined) {
-      for (const carID of query.car_ids) {
-        if ($(`#cars-param option[value=${carID}]`).length === 0) return false;
-      }
-    }
+  static validTrackId(trackID) {
+    if (trackID === undefined) return false;
+    return ($(`#track-param option[value=${trackID}]`).length !== 0);
+  }
 
+  static validCarIds(carIDs) {
+    if (carIDs === undefined) return false;
+    for (const carID of carIDs) {
+      if ($(`#cars-param option[value=${carID}]`).length === 0) return false;
+    }
     return true;
   }
 
@@ -65,7 +60,8 @@ class BestlapPage extends Page {
         getRequest("/api/ac/event/" + eventId + "/cars", BestlapPage.cb_updateEventCars);
       });
 
-      if (BestlapPage.cache_search_query.by_event === true) {
+      if (BestlapPage.cache_search_query.by_event === true &&
+        BestlapPage.validEventId(BestlapPage.cache_search_query.event_id)) {
         $("#event-param select").val(BestlapPage.cache_search_query.event_id);
       }
     }
@@ -109,7 +105,8 @@ class BestlapPage extends Page {
         $("#event-param select").val("0");
       });
 
-      if (BestlapPage.cache_search_query.by_track === true) {
+      if (BestlapPage.cache_search_query.by_track === true &&
+        BestlapPage.validTrackId(BestlapPage.cache_search_query.track_id)) {
         $("#track-param select").val(BestlapPage.cache_search_query.track_id);
       }
     }
@@ -133,12 +130,17 @@ class BestlapPage extends Page {
         $("#cars-param select").val("0");
       });
 
-      if (BestlapPage.cache_search_query.car_ids !== undefined && BestlapPage.cache_search_query.car_ids.length !== 0) {
+      if (BestlapPage.validCarIds(BestlapPage.cache_search_query.car_ids) &&
+        BestlapPage.cache_search_query.car_ids.length !== 0) {
         BestlapPage.cache_search_query.car_ids.forEach(function(id) { $("#cars-param select").val(id).change(); });
-      }
 
-      if (Object.entries(BestlapPage.cache_search_query).length) {
-        BestlapPage.searchBestLaps(1);
+        if (Object.entries(BestlapPage.cache_search_query).length) {
+          BestlapPage.searchBestLaps(1);
+        }
+      } else if (BestlapPage.cache_search_query.car_ids !== undefined &&
+        BestlapPage.cache_search_query.car_ids.length !== 0) {
+        $("#message").text("Last selected combo is not valid anymore. Try new search").show();
+        localStorage.removeItem(BestlapPage.CACHE_KEY);
       }
     }
   }
@@ -173,7 +175,7 @@ class BestlapPage extends Page {
       }
     }
     if (pageId === 1) {
-      localStorage.setItem('best_lap_page_cache_query', JSON.stringify(BestlapPage.cache_search_query));
+      localStorage.setItem(BestlapPage.CACHE_KEY, JSON.stringify(BestlapPage.cache_search_query));
     }
     getRequest(url, BestlapPage.cb_updateBestLapResult);
   }
