@@ -120,7 +120,7 @@ class LeaderBoardEntry {
 
   getTrackStatusClass() {
     if (this.connectionStatus === LeaderBoardEntry.CONNECTION_STATUS.DISCONNECTED) return "";
-    if (this.connectionStatus === LeaderBoardEntry.CONNECTION_STATUS.CONNECTED) {
+    if (this.connectionStatus === LeaderBoardEntry.CONNECTION_STATUS.LOADING) {
       if (this.trackStatus === LeaderBoardEntry.TRACK_STATUS.PIT_LANE) {
         return "lb-row-pit";
       } else {
