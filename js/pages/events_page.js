@@ -20,32 +20,37 @@ class EventsPage extends Page {
       }
       $("#event-container").html(eventHtml);
 
+      var eventIDs = [];
       for (const event of data.events) {
-        getRequest(`/api/ac/event/${event.event_id}/session/latest`, EventsPage.cb_updateActiveEvent);
+        eventIDs.push(event.event_id);
+      }
+      if (eventIDs.length !== 0) {
+        getRequest(`/api/ac/events/${eventIDs.join(',')}/session/latest`, EventsPage.cb_updateActiveEvent);
       }
     }
   }
 
   static cb_updateActiveEvent(data) {
     if (data["status"] == "success") {
-      const session = data.session;
-      if (session.is_finished === 0) {
-        var sessionClass = "";
-        if (session.type === Page.SESSION_TYPE.RACE) {
-          sessionClass = "race";
-        } else if (session.type === Page.SESSION_TYPE.PRACTICE) {
-          sessionClass = "practice";
-        } else if (session.type === Page.SESSION_TYPE.QUALIFYING) {
-          sessionClass = "quali";
-        }
+      for (const session of data.sessions) {
+        if (session.is_finished === 0) {
+          var sessionClass = "";
+          if (session.type === Page.SESSION_TYPE.RACE) {
+            sessionClass = "race";
+          } else if (session.type === Page.SESSION_TYPE.PRACTICE) {
+            sessionClass = "practice";
+          } else if (session.type === Page.SESSION_TYPE.QUALIFYING) {
+            sessionClass = "quali";
+          }
 
-        $(`a[data-event-id="${session.event_id}"] .event`).addClass("live-event");
-        var event = $(`a[data-event-id="${session.event_id}"] .${sessionClass}`);
-        event.find(".live").addClass("active");
-      } else {
-        var event = $(`a[data-event-id="${session.event_id}"]`);
-        event.find(".live").remove();
-        event.attr("href", `/ac/event/${session.event_id}/result`);
+          $(`a[data-event-id="${session.event_id}"] .event`).addClass("live-event");
+          var event = $(`a[data-event-id="${session.event_id}"] .${sessionClass}`);
+          event.find(".live").addClass("active");
+        } else {
+          var event = $(`a[data-event-id="${session.event_id}"]`);
+          event.find(".live").remove();
+          event.attr("href", `/ac/event/${session.event_id}/result`);
+        }
       }
     }
   }
