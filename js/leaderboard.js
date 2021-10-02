@@ -140,7 +140,7 @@ class LeaderBoardEntry {
   getPositionChangeClass() {
     const uniqueID = this.id.getUniqueID();
     if (this.posChange != 0) {
-      LeaderBoard.driverPosChangeCounterList[uniqueID] = { "pos_change": posChange, "counter": 10 };
+      LeaderBoard.driverPosChangeCounterList[uniqueID] = { "pos_change": this.posChange, "counter": 10 };
     }
     if (LeaderBoard.driverPosChangeCounterList[uniqueID] !== undefined && LeaderBoard.driverPosChangeCounterList[uniqueID]["counter"] >= 0) {
       var oldPosChange = LeaderBoard.driverPosChangeCounterList[uniqueID]["pos_change"];
