@@ -88,7 +88,9 @@ class LeaderBoardEntry {
     this.validLaps = validLaps;
 
     this.telemetry = telemetry;
-
+    if (this.connectionStatus !== LeaderBoardEntry.CONNECTION_STATUS.CONNECTED) {
+      this.telemetry.nsp = 0;
+    }
     this.bestLap = bestLap;
     this.currentLap = currentLap;
     this.status = status;
