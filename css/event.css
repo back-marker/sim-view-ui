@@ -503,7 +503,7 @@ main {
 
 .lb-hr-tyre,
 .lb-tyre {
-  width: 45px;
+  width: 50px;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -529,6 +529,11 @@ main {
 .lb-hr-interval {
   width: 80px;
   text-align: right;
+  padding-right: 8px !important;
+}
+
+.lb-interval {
+  border-right: 2px solid #464646;
 }
 
 .lb-sec1,
