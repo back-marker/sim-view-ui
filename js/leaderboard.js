@@ -292,13 +292,14 @@ class LeaderBoard {
     for (var feed of this.feedList) {
       var timeAgoSec = SessionFeed.getFeedTimestamp(feed.time / 1000);
       feedHtml += `<div class="single-feed">
-        <div class="feed-meta">
-          <div class="feed-class ${SessionFeed.getFeedTypeColorClass(feed.type, feed.detail)}">${SessionFeed.getFeedTypeString(feed.type, feed.detail)}</div>
+          <div class="feed-meta">
           <div class="feed-time" data-timestamp-ms="${feed.time / 1000}">${timeAgoSec}</div>
           <div class="clear-both"></div>
         </div>
-        <div class="feed-text">${SessionFeed.getFeedMsg(feed.time, feed.type, feed.detail)}</div>
-        <div class="clear-both"></div>
+        <div class="feed-container">
+          <div class="feed-class ${SessionFeed.getFeedTypeColorClass(feed.type, feed.detail)}">${SessionFeed.getFeedTypeString(feed.type, feed.detail)}</div>
+          <div class="feed-text">${SessionFeed.getFeedMsg(feed.time, feed.type, feed.detail)}</div>
+        </div>
       </div>`
     }
 
