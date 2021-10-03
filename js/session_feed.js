@@ -50,7 +50,7 @@ class SessionFeed {
             msg += " [ "
           }
           const user = DataStore.getUser(parts[idx][1]);
-          msg += `<span class="feed-driver">${user.name}</span>`;
+          msg += `<span class="feed-driver">${(user? user.name : "N/A")}</span>`;
           if (parts[idx].length === 3 && parts[idx][2] !== undefined) {
             msg += " ]";
           }
@@ -59,7 +59,7 @@ class SessionFeed {
 
         case "car":
           const car = DataStore.getCar(parts[idx][1]);
-          msg += `<span class="feed-car ${DataStore.getCarColorClass(parts[idx][1])}">${car.display_name}</span>` + elem;
+          msg += `<span class="feed-car ${DataStore.getCarColorClass(parts[idx][1])}">${(car? car.display_name : "N/A")}</span>` + elem;
           break;
 
         case "team":
