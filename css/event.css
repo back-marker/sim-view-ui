@@ -477,15 +477,22 @@ main {
   white-space: nowrap;
 }
 
-.lb-best-lap,
-.lb-last-lap,
 .lb-gap,
 .lb-interval,
-.lb-sec1,
-.lb-sec2,
-.lb-sec3,
-.lb-laps {
-  font-family: Roboto-Light;
+.lb-laps,
+.lb-tyre {
+  font-size: 15px !important;
+}
+
+.lb-tyre {
+  padding-right: 15px !important;
+}
+
+.lb-best-lap span,
+.lb-last-lap span,
+.lb-sec1 span,
+.lb-sec2 span,
+.lb-sec3 span {
   font-size: 15px !important;
 }
 
