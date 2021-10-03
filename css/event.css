@@ -596,7 +596,8 @@ main {
 .green-sec,
 .red-sec,
 .purple-sec,
-.yellow-sec {
+.yellow-sec,
+.dummy-sec {
   padding: 2px 4px;
   border-radius: 4px;
 }
