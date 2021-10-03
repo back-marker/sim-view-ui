@@ -367,10 +367,10 @@ class LeaderboardPage extends Page {
         <td class="lb-hr-car">Car</td>
         <td class="lb-hr-driver">${teamEvent? `<a class="tooltip" title="Current driver">Driver</a>` : `Driver`}</td>
         <td class="lb-hr-best-lap"><a class="tooltip" title="Best lap">Best</a></td>
-        <td class="lb-hr-tyre"><a class="tooltip" title="Current tyre">T</a></td>
-        <td class="lb-hr-last-lap"><a class="tooltip" title="Last lap">Last</a></td>
         <td class="lb-hr-gap"><a class="tooltip" title="Gap to leader">Gap</a></td>
         <td class="lb-hr-interval"><a class="tooltip" title="Gap to car ahead">Int.</a></td>
+        <td class="lb-hr-tyre"><a class="tooltip" title="Current tyre">T</a></td>
+        <td class="lb-hr-last-lap"><a class="tooltip" title="Last lap">Last</a></td>
         <td class="lb-hr-sec1"><a class="tooltip" title="Sector 1 time of best lap">S1</a></td>
         <td class="lb-hr-sec2"><a class="tooltip" title="Sector 2 time of best lap">S2</a></td>
         <td class="lb-hr-sec3"><a class="tooltip" title="Sector 3 time of best lap">S3</a></td>
