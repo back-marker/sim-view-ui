@@ -23,7 +23,7 @@ class Util {
   }
 
   static getTyreStr(tyre) {
-    return (tyre === undefined) ? '-' : (tyre === "" ? '-' : tyre);
+    return (tyre === undefined) ? '-' : (tyre === "" ? '-' : '(' + tyre + ')');
   }
 
   static getRaceDurationStr(event) {
