@@ -1977,7 +1977,11 @@ li a.red {
 
 .lb-row-offtrack,
 .map-driver-names .offtrack-indicator {
-  background-color: #61381B !important;
+  background-color: #FFDF01 !important;
+}
+
+.lb-row-offtrack td {
+  color: #3e3e3e !important;
 }
 
 td .tooltip {
