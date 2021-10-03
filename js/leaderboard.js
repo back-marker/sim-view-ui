@@ -185,7 +185,7 @@ class LeaderBoardEntry {
           </span>
         </td>
         <td class="lb-driver" data-driver-id="${this.id.userID}">
-          ${(user !== undefined) ? user.name : ""}</td>
+          ${(user !== undefined  && this.connectionStatus !== LeaderBoardEntry.CONNECTION_STATUS.DISCONNECTED) ? user.name : ""}</td>
         <td class="lb-best-lap"><span class="${(this.isQualiPurpleLap(pos) ? "purple-sec" : "dummy-sec")}">${Lap.convertMSToDisplayTimeString(this.bestLap.lapTime)}</span></td>
         <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
         <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
@@ -229,7 +229,7 @@ class LeaderBoardEntry {
         </span>
       </td>
       <td class="lb-driver" data-driver-id="${this.id.userID}">
-        ${user !== undefined ? user.name : ""}</td>
+        ${user !== undefined && this.connectionStatus !== LeaderBoardEntry.CONNECTION_STATUS.DISCONNECTED ? user.name : ""}</td>
       <td class="lb-laps">${this.laps === 0? "-" : this.laps}</td>
       <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
       <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
