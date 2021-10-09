@@ -77,7 +77,7 @@ class LeaderBoardEntry {
     PIT_EXIT: 4
   }
 
-  constructor(id, connectionStatus, trackStatus, isFinished, laps, validLaps, telemetry, bestLap, currentLap, status, gap, interval, posChange) {
+  constructor(id, connectionStatus, trackStatus, isFinished, laps, validLaps, telemetry, bestLap, currentLap, lastLapTime, status, gap, interval, posChange) {
     this.id = id;
     this.connectionStatus = connectionStatus;
     this.trackStatus = trackStatus;
@@ -95,6 +95,7 @@ class LeaderBoardEntry {
     this.currentLap = currentLap;
     this.status = status;
 
+    this.lastLapTime = lastLapTime;
     if (gap != -1) {
       this.gap = gap;
     }
@@ -192,7 +193,7 @@ class LeaderBoardEntry {
         <td class="lb-tyre">${this.connectionStatus == LeaderBoardEntry.CONNECTION_STATUS.CONNECTED? Util.getTyreStr(this.telemetry.tyre) : '-'}</td>
         <td class="lb-last-lap">
         <span class="nsp-pos-indicator" style="width:${this.telemetry.nsp * 100}%;"></span>
-        <span class="${LeaderBoard.prevLapStatusList[this.id.userID] || ""}">${Lap.convertMSToDisplayTimeString(LeaderBoard.prevLapList[this.id.userID] || 0)}</span>
+        <span class="${this.status.getLapStatus()}">${Lap.convertMSToDisplayTimeString(this.lastLapTime)}</span>
         </td>
         <td class="lb-sec1"><span class="${this.status.getS1Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec1)}</span></td>
         <td class="lb-sec2"><span class="${this.status.getS2Status()}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec2)}</span></td>
@@ -237,7 +238,7 @@ class LeaderBoardEntry {
       <td class="lb-tyre">${this.connectionStatus == LeaderBoardEntry.CONNECTION_STATUS.CONNECTED? Util.getTyreStr(this.telemetry.tyre) : '-'}</td>
       <td class="lb-last-lap">
         <span class="nsp-pos-indicator" style="width:${this.telemetry.nsp * 100}%;"></span>
-        <span class="${LeaderBoard.prevLapStatusList[this.id.userID] || ""}">${Lap.convertMSToDisplayTimeString(LeaderBoard.prevLapList[this.id.userID] || 0)}</span>
+        <span class="${this.status.getLapStatus()}">${Lap.convertMSToDisplayTimeString(this.lastLapTime)}</span>
       </td>
       <td class="lb-sec1"><span class="${this.status.getS1Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec1)}</span></td>
       <td class="lb-sec2"><span class="${this.status.getS2Status()}">${Lap.convertMSToDisplayTimeString(this.currentLap.sec2)}</span></td>
@@ -252,9 +253,6 @@ class LeaderBoard {
   static driverList = {};
   static carColorClass = [];
   static driverPosChangeCounterList = {};
-
-  static prevLapList = {}
-  static prevLapStatusList = {}
 
   constructor() {
     this.entries = [];
@@ -276,11 +274,6 @@ class LeaderBoard {
   }
 
   addEntry(entry) {
-    // Current lap will become previous lap once complete
-    if (entry.currentLap.lapTime !== 0) {
-      LeaderBoard.prevLapList[entry.id.userID] = entry.currentLap.lapTime;
-      LeaderBoard.prevLapStatusList[entry.id.userID] = entry.status.getLapStatus();
-    }
   }
 
   addFeed(feed) {
@@ -319,8 +312,6 @@ class QualiLeaderBoard extends LeaderBoard {
 }
 
 class RaceLeaderBoard extends LeaderBoard {
-  static prevLapList = {}
-  static prevLapStatusList = {}
 
   constructor() {
     super();
@@ -343,7 +334,7 @@ class RaceLeaderBoard extends LeaderBoard {
 }
 
 class LeaderBoardDeserialiser {
-  static VERSION = 8;
+  static VERSION = 9;
   constructor( /* ArrayBuffer */ data) {
     this.buffer = data;
     this.data = new DataView(data);
@@ -480,13 +471,14 @@ class LeaderBoardDeserialiser {
     sectorMask = sectorMask >> 2;
     const s1Status = sectorMask & 3;
     const status = new LapAndSectorStatus(currentLapStatus, s1Status, s2Status, s3Status);
+    const lastLapTime = this.readInt32();
 
     const gap = this.readInt32();
     const interval = this.readInt32();
     const posChange = this.readInt8();
 
     return new LeaderBoardEntry(id, connectionStatus, trackStatus, isFinished, laps, validLaps,
-      telemetry, bestLap, currentLap, status, gap, interval, posChange);
+      telemetry, bestLap, currentLap, lastLapTime, status, gap, interval, posChange);
   }
 
   deserialiseFeed() {
