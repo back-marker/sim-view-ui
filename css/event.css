@@ -364,7 +364,7 @@ main {
   color: #2db52d;
   margin-top: 25px;
   display: inline-block;
-  width: 180px;
+  width: 250px;
   text-align: center;
   font-weight: bold;
 }
@@ -1522,6 +1522,9 @@ li a.red {
 #lb-tabs {
   text-align: center;
   margin-top: 25px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
 #tab-map {
