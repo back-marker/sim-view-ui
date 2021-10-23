@@ -42,24 +42,22 @@ class ResultSectorTabEntry {
   }
 
   class QualiResultStandingTabEntry {
-    constructor(teamId, driverId, carId, bestLapTime, validLaps, gap, interval, finishAt) {
+    constructor(teamId, driverId, carId, bestLapTime, sec1, sec2, sec3, validLaps, gap, interval) {
       this.teamId = teamId;
       this.driverId = driverId;
       this.carId = carId;
       this.bestLapTime = bestLapTime;
       this.validLaps = validLaps;
+      this.sec1 = sec1;
+      this.sec2 = sec2;
+      this.sec3 = sec3;
       this.gap = gap;
       this.interval = interval;
-      if (finishAt === 0) {
-        this.finishAt = "N/A";
-      } else {
-        this.finishAt = (new Date(finishAt / 1000)).toLocaleString();
-      }
     }
 
     static fromJSON(data) {
       return new QualiResultStandingTabEntry(data.team_id, data.user_id, data.car_id, data.best_lap_time,
-        data.valid_laps, data.gap, data.interval, data.lap_finish_time);
+        data.sector_1, data.sector_2, data.sector_3, data.valid_laps, data.gap, data.interval);
     }
 
     toHTML(pos, teamEvent, useTeamNumber) {
@@ -84,10 +82,11 @@ class ResultSectorTabEntry {
         ${!teamEvent? `<td class="lb-driver" data-driver-id="${this.driverId}">
           ${user !== undefined? user.name : ""}</td>` : ""}
         <td class="lb-best-lap">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</td>
-        <td class="st-valid-laps">${this.validLaps}</td>
         <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
         <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
-        <td class="st-finish-at">${this.finishAt}</td>
+        <td class="lb-sec1">${Lap.convertMSToDisplayTimeString(this.sec1)}</td>
+        <td class="lb-sec2">${Lap.convertMSToDisplayTimeString(this.sec2)}</td>
+        <td class="lb-sec3">${Lap.convertMSToDisplayTimeString(this.sec3)}</td>
       </tr>`;
     }
 
@@ -100,10 +99,11 @@ class ResultSectorTabEntry {
         <td class="lb-hr-car">Car</td>
         ${!teamEvent? `<td class="lb-hr-driver">Driver</td>` : ""}
         <td class="lb-hr-best-lap"><a class="tooltip" title="Best lap">Best</a></td>
-        <td class="st-hr-valid-laps"><a class="tooltip" title="Total valid laps">V. Laps</a></td>
         <td class="lb-hr-gap"><a class="tooltip" title="Gap to leader">Gap</a></td>
         <td class="lb-hr-interval"><a class="tooltip" title="Gap to car ahead">Int.</a></td>
-        <td class="st-hr-finish-at">Finish At</td>
+        <td class="lb-hr-sec1"><a class="tooltip" title="Sector 1 time of best lap">S1</a></td>
+        <td class="lb-hr-sec2"><a class="tooltip" title="Sector 2 time of best lap">S2</a></td>
+        <td class="lb-hr-sec3"><a class="tooltip" title="Sector 3 time of best lap">S3</a></td>
       </tr>`;
     }
   }
