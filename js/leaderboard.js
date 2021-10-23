@@ -262,6 +262,8 @@ class LeaderBoard {
     this.sessionID = 0;
     this.broadcastInterval = 1000;
     this.viewerCount = 0;
+    this.elapsedMS = 0;
+    this.durationMin = 0;
   }
 
   setGrip(start, current) {
@@ -271,6 +273,22 @@ class LeaderBoard {
 
   setSessionID(id) {
     this.sessionID = id;
+  }
+
+  setElapsedMS(elapsedMS) {
+    this.elapsedMS = elapsedMS;
+  }
+
+  getElapsedMS() {
+    return this.elapsedMS;
+  }
+
+  setDurationMin(durationMin) {
+    this.durationMin = durationMin;
+  }
+
+  getDurationMin() {
+    return this.durationMin;
   }
 
   addEntry(entry) {
@@ -334,7 +352,7 @@ class RaceLeaderBoard extends LeaderBoard {
 }
 
 class LeaderBoardDeserialiser {
-  static VERSION = 9;
+  static VERSION = 10;
   constructor( /* ArrayBuffer */ data) {
     this.buffer = data;
     this.data = new DataView(data);
@@ -407,6 +425,9 @@ class LeaderBoardDeserialiser {
 
     const sessionID = this.readInt64();
     leaderboard.setSessionID(sessionID);
+
+    leaderboard.setElapsedMS(this.readInt32());
+    leaderboard.setDurationMin(this.readUint16());
 
     const raceSession = this.readUint8();
 

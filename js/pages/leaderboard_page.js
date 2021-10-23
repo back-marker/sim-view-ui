@@ -9,6 +9,10 @@ class LeaderboardPage extends Page {
   static LAST_LATENCY_COUNT = 10;
   static LATENCY_VARIATION_THRESHOLD = 1.25; // 25% of broadcast interval
 
+  static setupCountdownTimer = true;
+  static elapsedMS = 0;
+  static initialTimestamp = null;
+
   static showMessage(msg) {
     $("#message").text(msg).removeClass("hidden");
   }
@@ -131,10 +135,14 @@ class LeaderboardPage extends Page {
     LeaderboardPage.showMessage(sessionOverText);
   }
 
-  static setRemainingTimeTimer(elapsed_ms, duration_min) {
+  static setupRemainingTimeTimer(elapsed_ms, duration_min) {
     LeaderboardPage.setRemainingTime(elapsed_ms, duration_min);
-    setTimeout(function() {
-      LeaderboardPage.setRemainingTime(elapsed_ms + 1000, duration_min);
+    LeaderboardPage.elapsedMS = elapsed_ms;
+    LeaderboardPage.initialTimestamp = new Date();
+
+    setInterval(function() {
+      const newElapsedMS = LeaderboardPage.elapsedMS + ((new Date()) - LeaderboardPage.initialTimestamp);
+      LeaderboardPage.setRemainingTime(newElapsedMS, duration_min);
     }, 1000);
   }
 
@@ -179,6 +187,11 @@ class LeaderboardPage extends Page {
       DataStore.setSessionFinish();
       LeaderboardPage.handleSessionFinish(sessionType, raceSession);
       return;
+    }
+
+    if (LeaderboardPage.setupCountdownTimer && leaderboard.getDurationMin() !== 0) {
+      LeaderboardPage.setupCountdownTimer = false;
+      LeaderboardPage.setupRemainingTimeTimer(leaderboard.getElapsedMS(), leaderboard.getDurationMin());
     }
 
     LeaderboardPage.updateViewerCounter(leaderboard.viewerCount);
@@ -277,7 +290,6 @@ class LeaderboardPage extends Page {
       if (session.duration_min != 0) {
         $("#remaining").attr("data-session-type", "time");
         $("#remaining span").addClass("remain-time");
-        LeaderboardPage.setRemainingTimeTimer(session.elapsed_ms, session.duration_min);
       } else {
         $("#remaining span").addClass("remain-laps");
         $("#remaining").attr("data-laps", session.laps);
@@ -420,13 +432,5 @@ class LeaderboardPage extends Page {
         }
       }
       $("#remaining span").text(remainTime);
-
-      var nextTimeout = 60000;
-      if (waitForGreen || leftTime < 60 * 60) {
-        nextTimeout = 1000;
-      }
-      setTimeout(function() {
-        LeaderboardPage.setRemainingTime(elapsed_ms + nextTimeout, duration_min);
-      }, nextTimeout);
     }
   }
