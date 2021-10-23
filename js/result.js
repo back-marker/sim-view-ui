@@ -147,9 +147,9 @@ class ResultSectorTabEntry {
         ${!teamEvent? `<td class="lb-driver" data-driver-id="${this.driverId}">
           ${user !== undefined? user.name : ""}</td>` : ""}
         <td class="lb-laps">${this.laps}</td>
-        <td class="st-valid-laps">${this.validLaps}</td>
         <td class="lb-gap">${Lap.convertToGapDisplayString(this.gap)}</td>
         <td class="lb-interval">${Lap.convertToGapDisplayString(this.interval)}</td>
+        <td class="st-valid-laps">${this.validLaps}</td>
         <td class="st-total">${Lap.convertMSToDisplayTimeString(this.totalTime)}</td>
       </tr>`;
     }
@@ -163,9 +163,9 @@ class ResultSectorTabEntry {
         <td class="lb-hr-car">Car</td>
         ${!teamEvent? `<td class="lb-hr-driver">Driver</td>` : ""}
         <td class="lb-hr-laps"><a class="tooltip" title="Total laps">Laps</a></td>
-        <td class="st-hr-valid-laps"><a class="tooltip" title="Total valid laps">V. Laps</a></td>
         <td class="lb-hr-gap"><a class="tooltip" title="Gap to leader">Gap</a></td>
         <td class="lb-hr-interval"><a class="tooltip" title="Gap to car ahead">Int.</a></td>
+        <td class="st-hr-valid-laps"><a class="tooltip" title="Total valid laps">V. Laps</a></td>
         <td class="st-total"><a class="tooltip" title="Total time of laps">Total</a></td>
       </tr>`;
     }
