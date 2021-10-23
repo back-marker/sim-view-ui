@@ -2025,7 +2025,7 @@ td .tooltip {
   color: #000;
   border-top-right-radius: 4px;
   float: right;
-  min-width: 50px;
+  min-width: 55px;
   text-align: center;
   border-bottom-right-radius: 4px;
   padding: 8px 16px;
@@ -2073,7 +2073,8 @@ td .tooltip {
   color: #f4fdf5;
 }
 
-.speed-status-red-bg {
+.speed-status-red-bg,
+.car-crash-status-bg {
   background-color: #e34e4e;
 }
 

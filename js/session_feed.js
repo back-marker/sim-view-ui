@@ -30,7 +30,7 @@ class SessionFeed {
 
   static getFeedTypeColorClass(type, detail) {
     if (type === 0) {
-      return "speed-status-red-bg";
+      return "car-crash-status-bg";
     } else if (type === 7) {
       return "chat-hr-color-bg";
     } else {
