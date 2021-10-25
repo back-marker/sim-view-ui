@@ -12,6 +12,7 @@ class LeaderboardPage extends Page {
   static setupCountdownTimer = true;
   static elapsedMS = 0;
   static initialTimestamp = null;
+  static countdownTimerFinish = false;
 
   static showMessage(msg) {
     $("#message").text(msg).removeClass("hidden");
@@ -239,7 +240,7 @@ class LeaderboardPage extends Page {
     } else if (raceSession && leaderboard.entries[0] !== undefined) {
       if (leaderboard.entries[0].isFinished) {
         $("#event-detail").attr("data-finished", "true");
-      } else if ($("#event-detail").attr("data-total-laps") !== undefined) {
+      } else if (LeaderboardPage.countdownTimerFinish) {
         if (leaderboard.entries[0].laps > Number.parseInt($("#event-detail").attr("data-total-laps"))) {
           $("#event-detail").removeAttr("data-total-laps");
         }
@@ -419,11 +420,18 @@ class LeaderboardPage extends Page {
       } else {
         var leftTime = Math.floor((duration_min * 60000 - elapsed_ms) / 1000);
         if (leftTime < 0 && raceSession) {
+          if (!LeaderboardPage.countdownTimerFinish) {
+            LeaderboardPage.countdownTimerFinish = true;
+            $("#event-detail").attr("data-total-laps", $("#board-body [data-pos='1'] .lb-laps").text());
+          }
           if ($("#event-detail").attr("data-finished") !== undefined) {
             remainTime = "Finished";
           } else if(DataStore.extraLapEnabled()) {
-            remainTime = "+1 Lap";
-            $("#event-detail").attr("data-total-laps", $("#board-body [data-pos='1'] .lb-laps").text())
+            if ($("#event-detail").attr("data-total-laps") !== undefined) {
+              remainTime = "+1 Lap";
+            } else {
+              remainTime = "Final Lap";
+            }
           } else {
             remainTime = "Final Lap";
           }
