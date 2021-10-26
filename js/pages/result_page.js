@@ -30,7 +30,7 @@ class ResultPage extends Page {
     if (data["status"] === "success") {
       const session = data.session;
       $("#message").addClass("hidden-opacity");
-      if (session["is_finished"] === 0) {
+      if (session.is_finished === 0) {
         $("#message").html("The results data may not be final as session is still running <a href='/ac/event/" + session.event_id + "/live'>[Go Live]</a>").removeClass("hidden-opacity");
       }
       $("#session-summary .weather .value").text(Util.getWeatherDisplayName(session.weather));
@@ -230,7 +230,7 @@ class ResultPage extends Page {
           raceIdx--;
         }
       }
-      if (session.is_finished) {
+      if (session.is_finished === 0) {
         sessionText += " [ LIVE ]";
       }
       sidebarHtml += `<option data-session-finish="${session["is_finished"]}" data-session-type="${session["type"].toLowerCase()}" value="${session["session_id"]}">${sessionText}</option>`;
