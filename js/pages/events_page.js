@@ -48,8 +48,12 @@ class EventsPage extends Page {
           event.find(".live").addClass("active");
         } else {
           var event = $(`a[data-event-id="${session.event_id}"]`);
-          event.find(".live").remove();
-          event.attr("href", `/ac/event/${session.event_id}/result`);
+          if (Page.isLiveEventPage()) {
+            event.parent().remove();
+          } else {
+            event.find(".live").remove();
+            event.attr("href", `/ac/event/${session.event_id}/result`);
+          }
         }
       }
     }
