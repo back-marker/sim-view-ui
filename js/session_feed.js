@@ -100,12 +100,49 @@ class SessionFeed {
         case "msg":
           msg += `<span class="feed_user_msg">${parts[idx][1]}</span>` + elem;
           break;
+
+        case "tyre":
+          msg += `(${parts[idx][1]})` + elem;
+          break;
+
         default:
           msg += parts[idx][1] + elem;
       }
     });
 
     return msg;
+  }
+
+  static tyreChangeFeedFromSameUser(feed1, feed2) {
+    return feed1.detail.user_id === feed2.detail.user_id &&
+      feed1.detail.team_id === feed2.detail.team_id &&
+      feed1.detail.car_id === feed2.detail.car_id;
+  }
+
+  static removeDuplicateTyreChanged(feedList) {
+    var outputFeed = [];
+    var used = new Array(feedList.length).fill(false);
+    for (var idx = feedList.length - 1; idx >= 0; --idx) {
+      if (used[idx]) continue;
+
+      var updatedFeed = feedList[idx];
+      if (updatedFeed.type === 16) {
+        for (var innerIdx = idx - 1; innerIdx >= 0; --innerIdx) {
+          if (used[innerIdx]) continue;
+          if (feedList[innerIdx].type !== 16) continue;
+          if (SessionFeed.tyreChangeFeedFromSameUser(feedList[innerIdx], updatedFeed)) {
+            updatedFeed.detail["old_t"] = feedList[innerIdx].detail["old_t"];
+            used[innerIdx] = true;
+          }
+        }
+      }
+      used[idx] = true;
+      if (updatedFeed.type !== 16 || updatedFeed.detail["old_t"] !== updatedFeed.detail["new_t"]) {
+        outputFeed.push(updatedFeed);
+      }
+    }
+
+    return outputFeed;
   }
 
   static getFeedMsg(feedTime, type, detail) {
@@ -143,6 +180,8 @@ class SessionFeed {
         return this.getRejoinsTrackMsg(detail);
       case 15:
         return this.getPitTeleportMsg(detail);
+      case 16:
+        return this.getTyreChangedMsg(detail);
       default:
         return "-"
     }
@@ -206,5 +245,9 @@ class SessionFeed {
 
   static getPitTeleportMsg(detail) {
     return this.prepareMessage `${["user", detail["user_id"], detail["team_id"]]} teleported to pit`;
+  }
+
+  static getTyreChangedMsg(detail) {
+    return this.prepareMessage `${["user", detail["user_id"], detail["team_id"]]} changed tyre from ${["tyre", detail["old_t"]]} to ${["tyre", detail["new_t"]]}`
   }
 }

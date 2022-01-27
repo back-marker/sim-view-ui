@@ -300,7 +300,8 @@ class LeaderBoard {
 
   getFeedHTML() {
     var feedHtml = "";
-    for (var feed of this.feedList) {
+    var updatedFeeds = SessionFeed.removeDuplicateTyreChanged(this.feedList);
+    for (var feed of updatedFeeds) {
       var timeAgoSec = SessionFeed.getFeedTimestamp(feed.time / 1000);
       feedHtml += `<div class="single-feed">
           <div class="feed-meta">
