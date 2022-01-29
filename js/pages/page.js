@@ -1,6 +1,6 @@
 class Page {
   static SESSION_TYPE = { PRACTICE: "Practice", QUALIFYING: "Qualifying", RACE: "Race" }
-  static VERSION = "v1.1.1";
+  static VERSION = "v1.1.2";
 
   static isLiveEventPage() {
     return window.location.pathname === "/";
