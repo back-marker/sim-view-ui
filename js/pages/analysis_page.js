@@ -71,7 +71,7 @@ class AnalysisPage extends Page {
         return a[0].element.x.toFixed(0);
       },
       label: function(d) {
-        return "Speed" + ": " + d.element.y.toFixed(2);
+        return "Speed" + ": " + d.element.y.toFixed(2) + " km/hr";
       }
     }
 

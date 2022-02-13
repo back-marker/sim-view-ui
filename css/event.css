@@ -2136,7 +2136,7 @@ td .tooltip {
 
 .reset-zoom {
   position: absolute;
-  top: 50px;
+  top: 30px;
   left: 75px;
   cursor: pointer;
   padding: 4px 8px;
@@ -2220,4 +2220,8 @@ td .tooltip {
 
 #lap-track-map .map-section {
   display: none;
+}
+
+#lap-graph1 {
+  margin-bottom: 20px;
 }
