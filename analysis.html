@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <title>SimView | Analysis</title>
+  <link rel="shortcut icon" type="image/png" href="/images/logo-icon.png" />
+  <link rel="stylesheet" type="text/css" href="/css/event.css">
+</head>
+
+<body id="analysis-page" data-page="analysis-page">
+  <header id="common-header">
+  </header>
+  <main>
+    <div id="main-metadata">
+      <div id="lap-time">-</div>
+      <div id="driver-name">-</div>
+      <div id="car-class">-</div>
+      <div id="car-name"><span class="car-badge">-</span>
+      </div>
+      <div id="track-name">-</div>
+    </div>
+    <div id="main-graphs">
+      <div id="lap-details">
+        <div id="lap-metadata">
+          <div id="event-name">-</div>
+          <div id="metadata-columnar-container">
+            <div class="metadata-columnar">
+              <div class="session-type">
+                <span class="tag">Session</span>
+                <span class="value">-</span>
+              </div>
+              <div class="weather">
+                <span class="tag">Weather</span>
+                <span class="value"></span>
+              </div>
+              <div class="air-temp">
+                <span class="tag">Air Temp</span><span class="value"><span class="temp-val"></span>&#176; C</span>
+              </div>
+              <div class="road-temp">
+                <span class="tag">Road Temp</span><span class="value"><span class="temp-val"></span>&#176; C</span>
+              </div>
+              <div class="grip">
+                <span class="tag">Grip</span>
+                <span class="value">-</span>
+              </div>
+            </div>
+            <div class="metadata-columnar">
+              <div class="tyre">
+                <span class="tag">Tyre</span>
+                <span class="value">-</span>
+              </div>
+              <div class="max-speed">
+                <span class="tag">Max Speed</span>
+                <span class="value">-</span>
+              </div>
+              <div class="sector1">
+                <span class="tag">Sector 1</span>
+                <span class="value">-</span>
+              </div>
+              <div class="sector2">
+                <span class="tag">Sector 2</span>
+                <span class="value">-</span>
+              </div>
+              <div class="sector3">
+                <span class="tag">Sector 3</span>
+                <span class="value">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="lap-track-map">
+        </div>
+      </div>
+      <div id="lap-graphs">
+        <div id="lap-graph1">
+          <canvas id="lap-graph1-canvas" width="1400" height="450"></canvas>
+        </div>
+        <div id="lap-graph2">
+          <canvas id="lap-graph2-canvas" width="1400" height="450"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer>
+  </footer>
+</body>
+
+<script src="/vendor/js/jquery-3.5.1.min.js"></script>
+<script src="/vendor/js/chart-3.5.0.min.js"></script>
+<script src="/vendor/js/chartjs-plugin-crosshair.min-1.2.0.min.js"></script>
+
+<script src="/js/pages/page.js"></script>
+<script src="/js/lap.js"></script>
+<script src="/js/util.js"></script>
+
+<script src="/js/pages/analysis_page.js"></script>
+
+<script src="/js/main.js"></script>
+
+</html>

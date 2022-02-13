@@ -54,6 +54,7 @@ class Page {
           <li class="${page === "result"? "active" : ""}" id="link-result"><a href="/result">Result</a></li>
           <li class="${page === "bestlap"? "active" : ""}" id="link-bestlap"><a href="/bestlap">Best Laps</a></li>
           <li class="${page === "driver"? "active" : ""}" id="link-driver"><a href="/driver">Driver</a></li>
+          <li class="${page === "analysis"? "active" : ""}" id="link-analysis"><a href="/analysis/lap/1">Analysis</a></li>
           <li id="logo"></li>
           <li id="version"><a href="https://www.racedepartment.com/downloads/simview.35249/" targer="_blank" rel="noreferrer noopener">${Page.VERSION}</a></li>
           <div class="clear-both"></div>

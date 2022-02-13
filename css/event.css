@@ -64,7 +64,8 @@ main {
 #events-page main,
 #result-page main,
 #bestlap-page main,
-#driver-page main {
+#driver-page main,
+#analysis-page main {
   margin-top: 100px;
   padding: 0 150px;
 }
@@ -937,7 +938,8 @@ li a.red {
   border-right: 2px solid #464646;
 }
 
-#session-summary .tag {
+#session-summary .tag,
+#analysis-page #lap-metadata .tag {
   color: #797979;
   text-transform: uppercase;
   font-weight: bold;
@@ -951,7 +953,8 @@ li a.red {
   margin-bottom: 10px;
 }
 
-#session-summary .value {
+#session-summary .value,
+#analysis-page #lap-metadata .value {
   color: #fff77f;
   font-size: 14px;
   float: left;
@@ -2103,4 +2106,108 @@ td .tooltip {
 #viewer-count .count {
   font-weight: bold;
   font-size: 14px;
+}
+
+#main-graphs {
+  display: flex;
+  justify-content: space-between;
+}
+
+#lap-details {
+  flex-direction: column;
+  width: 400px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#lap-graphs {
+  width: 1100px;
+}
+
+#lap-track-map {
+  height: 100%;
+  width: 100%
+}
+
+#lap-graph1,
+#lap-graph2 {
+  position: relative;
+}
+
+.reset-zoom {
+  position: absolute;
+  top: 50px;
+  left: 75px;
+}
+
+#analysis-page #main-metadata {
+  display: flex;
+  margin-bottom: 30px;
+  align-items: center;
+}
+
+#main-metadata #lap-time {
+  border: 2px dotted #606060;
+  font-size: 30px;
+  padding: 8px 15px;
+  color: #ff5757;
+  margin-right: 50px;
+}
+
+#main-metadata div {
+  padding: 0 30px;
+  color: #cccaca;
+  border-right: 2px dotted #606060;
+}
+
+#main-metadata div:last-child {
+  border-right: none;
+}
+
+#main-metadata #car-name span {
+  width: auto;
+}
+
+#main-metadata #track-name {
+  color: #fff77f;
+}
+
+#lap-track-map svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#lap-metadata .event-name,
+#lap-metadata .weather {
+  display: flex;
+}
+
+#lap-metadata .metadata-columnar>div {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+#metadata-columnar-container {
+  display: flex;
+}
+
+#lap-metadata #event-name a {
+  color: #ff5757;
+  font-size: 22px;
+  font-family: Roboto-Light;
+  width: 100%;
+  display: inline-block;
+}
+
+#lap-metadata #event-name {
+  margin-bottom: 25px;
+}
+
+#lap-metadata {
+  border-bottom: 2px dotted #606060;
+  padding-bottom: 20px;
+}
+
+#lap-track-map .map-section {
+  display: none;
 }

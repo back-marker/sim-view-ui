@@ -121,6 +121,10 @@ class Util {
     return window.location.toString().match("event/([0-9]+)/")[1];
   }
 
+  static getCurrentLapID() {
+    return window.location.toString().match("analysis/lap/([0-9]+)")[1];
+  }
+
   static getBestLapCarColorClass(carId) {
     // TODO:: Remove this dependency
     var idx = BestlapPage.searched_car_class_list.indexOf(BestlapPage.CARS_LIST[carId]["car_class"]);
