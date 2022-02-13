@@ -169,6 +169,9 @@ class AnalysisPage extends Page {
         },
         cubicInterpolationMode: (smooth) ? "monotone" : "default",
         plugins: {
+          legend: {
+            display: false
+          },
           tooltip: {
             animation: false,
             mode: 'interpolate',
