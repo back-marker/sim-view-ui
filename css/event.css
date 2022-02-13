@@ -2138,6 +2138,16 @@ td .tooltip {
   position: absolute;
   top: 50px;
   left: 75px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border: 0;
+  background: #7cceff;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 14px;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+  color: #2f2f2f;
+  border-radius: 3px;
 }
 
 #analysis-page #main-metadata {
