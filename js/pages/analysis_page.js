@@ -1,4 +1,7 @@
 class AnalysisPage extends Page {
+  static DRIVER_CIRCLE_RADIUS = 8;
+  static DRIVER_CIRCLE_COLOR = "#EF2D56";
+
   static cb_updateLapDetails(data) {
     if (data["status"] === "success") {
       const details = data.details;
@@ -29,9 +32,41 @@ class AnalysisPage extends Page {
 
       getRequest(`/images/ac/track/${details.track_config_id}/map`, function(data) {
         $("#lap-track-map").html(data.childNodes[0].outerHTML);
+
+        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        const uniqueID = "nsp-indicator";
+        circle.id = uniqueID;
+        $("#lap-track-map svg").append(circle);
+        var scale = Number.parseFloat($("#lap-track-map svg").attr("data-scale"));
+        $("#lap-track-map #" + uniqueID).attr("r", AnalysisPage.DRIVER_CIRCLE_RADIUS * scale).attr("fill", AnalysisPage.DRIVER_CIRCLE_COLOR);
+
+        AnalysisPage.updatePositionInTrackMap(0);
       });
 
       AnalysisPage.renderLapNSPGraphs(data.details.telemetry, Number.parseInt(details.track_length));
+
+      AnalysisPage.updatePositionInTrackMap = function(nsp) {
+        if (nsp < 0.0 || nsp > 1.0) { return; }
+
+        const tele = data.details.telemetry;
+
+        var idx = 0;
+        for (; idx < tele.length; ++idx) {
+          if (tele[idx].nsp >= nsp) { break; }
+        }
+        const dataPoint = tele[Math.min(idx, tele.length - 1)];
+
+        const posX = dataPoint.position_x;
+        const posZ = dataPoint.position_z;
+
+        var offsetX = Number.parseFloat($("#lap-track-map svg").attr("data-x-offset"));
+        var offsetY = Number.parseFloat($("#lap-track-map svg").attr("data-y-offset"));
+        if (posX === 0 && posZ === 0) {
+          offsetX = 20;
+          offsetY = 20;
+        }
+        $("#lap-track-map #" + "nsp-indicator").attr("cx", posX + offsetX).attr("cy", posZ + offsetY);
+      }
     }
   }
 
@@ -68,6 +103,7 @@ class AnalysisPage extends Page {
 
     const speedChartTooltipCallback = {
       title: function(a, d) {
+        AnalysisPage.updatePositionInTrackMap(a[0].element.x.toFixed(0) / trackLength);
         return a[0].element.x.toFixed(0);
       },
       label: function(d) {
