@@ -14,6 +14,23 @@ function getRequest(url, callback, failure) {
   });
 }
 
+function getRequestBinary(url, callback, failure) {
+  var req = new XMLHttpRequest();
+  req.open("GET", url, true);
+  req.responseType = "arraybuffer";
+
+  req.onload = function(oEvent) {
+    var arrayBuffer = req.response;
+    if (arrayBuffer) {
+      callback(arrayBuffer);
+    }
+  };
+  req.onerror = function() {
+    failure();
+  }
+  req.send(null);
+}
+
 $(document).ready(function() {
   var page = $("body").attr("data-page");
   if (page == "lb-page") {
@@ -128,7 +145,7 @@ $(document).ready(function() {
   } else if (page == "analysis-page") {
     Page.setCommonHeaderHtml("analysis");
     const lapID = Util.getCurrentLapID();
-    getRequest(`/api/ac/lapdetail/${lapID}`, AnalysisPage.cb_updateLapDetails);
+    AnalysisPage.update(lapID);
   }
 
   $("#tab-map").hide();

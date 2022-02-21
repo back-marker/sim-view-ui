@@ -1,10 +1,16 @@
 class AnalysisPage extends Page {
   static DRIVER_CIRCLE_RADIUS = 8;
   static DRIVER_CIRCLE_COLOR = "#EF2D56";
+  static LAP_TELEMETRY_VERSION = 1;
 
-  static cb_updateLapDetails(data) {
+  static update(lapID) {
+    getRequest(`/api/ac/lap/summary/${lapID}`, AnalysisPage.cb_updateLapSummary);
+    getRequestBinary(`/api/ac/lap/telemetry/${lapID}`, AnalysisPage.cb_updateLapTelemetry);
+  }
+
+  static cb_updateLapSummary(data) {
     if (data["status"] === "success") {
-      const details = data.details;
+      const details = data.summary;
 
       $("#lap-time").text(Lap.convertMSToDisplayTimeString(details.lap.time));
 
@@ -39,35 +45,74 @@ class AnalysisPage extends Page {
         $("#lap-track-map svg").append(circle);
         var scale = Number.parseFloat($("#lap-track-map svg").attr("data-scale"));
         $("#lap-track-map #" + uniqueID).attr("r", AnalysisPage.DRIVER_CIRCLE_RADIUS * scale).attr("fill", AnalysisPage.DRIVER_CIRCLE_COLOR);
-
-        AnalysisPage.updatePositionInTrackMap(0);
       });
-
-      AnalysisPage.renderLapNSPGraphs(data.details.telemetry, Number.parseInt(details.track_length));
-
-      AnalysisPage.updatePositionInTrackMap = function(nsp) {
-        if (nsp < 0.0 || nsp > 1.0) { return; }
-
-        const tele = data.details.telemetry;
-
-        var idx = 0;
-        for (; idx < tele.length; ++idx) {
-          if (tele[idx].nsp >= nsp) { break; }
-        }
-        const dataPoint = tele[Math.min(idx, tele.length - 1)];
-
-        const posX = dataPoint.position_x;
-        const posZ = dataPoint.position_z;
-
-        var offsetX = Number.parseFloat($("#lap-track-map svg").attr("data-x-offset"));
-        var offsetY = Number.parseFloat($("#lap-track-map svg").attr("data-y-offset"));
-        if (posX === 0 && posZ === 0) {
-          offsetX = 20;
-          offsetY = 20;
-        }
-        $("#lap-track-map #" + "nsp-indicator").attr("cx", posX + offsetX).attr("cy", posZ + offsetY);
-      }
     }
+  }
+
+  static cb_updateLapTelemetry(data) {
+    const telemetryBinary = AnalysisPage.getTelemetryFromBinary(data);
+    if (telemetryBinary === undefined) return;
+
+    const telemetry = telemetryBinary.telemetry;
+    const trackLength = telemetryBinary.track_length;
+
+    AnalysisPage.renderLapNSPGraphs(telemetry, trackLength);
+
+    AnalysisPage.updatePositionInTrackMap = function(nsp) {
+      if (nsp < 0.0 || nsp > 1.0) { return; }
+
+      var idx = 0;
+      for (; idx < telemetry.length; ++idx) {
+        if (telemetry[idx].nsp >= nsp) { break; }
+      }
+      const dataPoint = telemetry[Math.min(idx, telemetry.length - 1)];
+
+      const posX = dataPoint.position_x;
+      const posZ = dataPoint.position_z;
+
+      var offsetX = Number.parseFloat($("#lap-track-map svg").attr("data-x-offset"));
+      var offsetY = Number.parseFloat($("#lap-track-map svg").attr("data-y-offset"));
+      if (posX === 0 && posZ === 0) {
+        offsetX = 20;
+        offsetY = 20;
+      }
+
+      $("#lap-track-map #" + "nsp-indicator").attr("cx", posX + offsetX).attr("cy", posZ + offsetY);
+    }
+  }
+
+  static getTelemetryFromBinary(data) {
+    var buffer = new DataView(data);
+    var offset = 0;
+    var telemetry = [];
+    var lastGear = 1;
+
+    var version = buffer.getInt32(offset, true);
+    if (version !== AnalysisPage.LAP_TELEMETRY_VERSION) {
+      return undefined;
+    }
+
+    var trackLength = buffer.getInt32(offset + 4, true);
+    offset += 8;
+    while (offset < buffer.byteLength) {
+      const nsp = buffer.getFloat32(offset, true);
+      var gear = buffer.getUint8(offset + 4, true);
+      const speed = buffer.getFloat32(offset + 5, true);
+      const pX = buffer.getFloat32(offset + 9, true);
+      const pZ = buffer.getFloat32(offset + 13, true);
+
+      if (gear == 1) {
+        gear = lastGear;
+      } else {
+        lastGear = gear;
+      }
+      --gear;
+      telemetry.push({ "nsp": nsp, "gear": gear, "speed": speed, position_x: pX, position_z: pZ });
+
+      offset += 17;
+    }
+
+    return { "telemetry": telemetry, "track_length": trackLength };
   }
 
   static renderLapNSPGraphs(telemetry, trackLength) {
