@@ -5,7 +5,8 @@ class AnalysisPage extends Page {
 
   static update(lapID) {
     getRequest(`/api/ac/lap/summary/${lapID}`, AnalysisPage.cb_updateLapSummary);
-    getRequestBinary(`/api/ac/lap/telemetry/${lapID}`, AnalysisPage.cb_updateLapTelemetry);
+    getRequestBinary(`/api/ac/lap/telemetry/${lapID}`, AnalysisPage.cb_updateLapTelemetry,
+      AnalysisPage.cb_telemetryMissing);
   }
 
   static cb_updateLapSummary(data) {
@@ -79,6 +80,10 @@ class AnalysisPage extends Page {
 
       $("#lap-track-map #" + "nsp-indicator").attr("cx", posX + offsetX).attr("cy", posZ + offsetY);
     }
+  }
+
+  static cb_telemetryMissing(data) {
+    $("#lap-graphs").html("<div id='message'>No telemetry data available</div>");
   }
 
   static getTelemetryFromBinary(data) {

@@ -19,15 +19,28 @@ function getRequestBinary(url, callback, failure) {
   req.open("GET", url, true);
   req.responseType = "arraybuffer";
 
-  req.onload = function(oEvent) {
-    var arrayBuffer = req.response;
-    if (arrayBuffer) {
-      callback(arrayBuffer);
+  var onFailure = function() {
+    if (failure === undefined) {
+      console.log(arguments);
+    } else {
+      failure();
     }
   };
-  req.onerror = function() {
-    failure();
-  }
+
+  req.onload = function() {
+    if (req.status === 200) {
+      var arrayBuffer = req.response;
+      if (arrayBuffer) {
+        callback(arrayBuffer);
+      } else {
+        onFailure();
+      }
+    } else {
+      onFailure();
+    }
+  };
+
+  req.onerror = onFailure;
   req.send(null);
 }
 
