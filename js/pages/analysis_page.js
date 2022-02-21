@@ -83,6 +83,7 @@ class AnalysisPage extends Page {
   }
 
   static cb_telemetryMissing(data) {
+    $("#lap-track-map").remove();
     $("#lap-graphs").html("<div id='message'>No telemetry data available</div>");
   }
 
