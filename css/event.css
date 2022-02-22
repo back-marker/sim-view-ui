@@ -2225,3 +2225,11 @@ td .tooltip {
 #lap-graph1 {
   margin-bottom: 20px;
 }
+
+#bestlaps-body tr:hover,
+.bd-stint-laps tr:hover,
+#standings-body[data-session-type="qualifying"] tr:hover,
+#standings-body[data-session-type="practice"] tr:hover {
+  background-color: #151515 !important;
+  cursor: pointer;
+}

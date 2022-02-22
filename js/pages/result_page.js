@@ -103,7 +103,10 @@ class ResultPage extends Page {
         }
       }
 
-      $("#standings-body").html(standingsHtml);
+      $("#standings-body").attr("data-session-type", sessionType).html(standingsHtml);
+      if (sessionType !== "race") {
+        $("#standings-body").click(Page.openAnalysisPageOnClick);
+      }
       $("#stints-tab").html(stintsHtml);
 
       Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
@@ -166,6 +169,7 @@ class ResultPage extends Page {
       }
 
       $(`#${containerId} .stints-container`).html(stintsHtml);
+      $(`#${containerId} .bd-stint-laps`).click(Page.openAnalysisPageOnClick);
 
       Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
     }

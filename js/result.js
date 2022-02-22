@@ -42,10 +42,11 @@ class ResultSectorTabEntry {
   }
 
   class QualiResultStandingTabEntry {
-    constructor(teamId, driverId, carId, bestLapTime, sec1, sec2, sec3, validLaps, gap, interval) {
+    constructor(teamId, driverId, carId, lapId, bestLapTime, sec1, sec2, sec3, validLaps, gap, interval) {
       this.teamId = teamId;
       this.driverId = driverId;
       this.carId = carId;
+      this.lapId = lapId;
       this.bestLapTime = bestLapTime;
       this.validLaps = validLaps;
       this.sec1 = sec1;
@@ -56,7 +57,7 @@ class ResultSectorTabEntry {
     }
 
     static fromJSON(data) {
-      return new QualiResultStandingTabEntry(data.team_id, data.user_id, data.car_id, data.best_lap_time,
+      return new QualiResultStandingTabEntry(data.team_id, data.user_id, data.car_id, data.lap_id, data.best_lap_time,
         data.sector_1, data.sector_2, data.sector_3, data.valid_laps, data.gap, data.interval);
     }
 
@@ -65,7 +66,7 @@ class ResultSectorTabEntry {
       const car = DataStore.getCar(this.carId);
       const user = DataStore.getUser(this.driverId);
 
-      return `<tr>
+      return `<tr data-lap-id="${this.lapId}">
         <td class="st-pos">${pos}</td>
         <td class="lb-car-class ${DataStore.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
           ${DataStore.getCarClass(this.carId)}
@@ -172,7 +173,8 @@ class ResultSectorTabEntry {
   }
 
   class ResultSingleStintLapEntry {
-    constructor(lapTime, sec1, sec2, sec3, grip, tyre, avgSpeed, maxSpeed, cuts, crashes, carCrashes, finishAt, isBestLap) {
+    constructor(lapId, lapTime, sec1, sec2, sec3, grip, tyre, avgSpeed, maxSpeed, cuts, crashes, carCrashes, finishAt, isBestLap) {
+      this.lapId = lapId;
       this.lapTime = lapTime;
       this.sec1 = sec1;
       this.sec2 = sec2;
@@ -193,7 +195,7 @@ class ResultSectorTabEntry {
     }
 
     static fromJSON(data) {
-      return new ResultSingleStintLapEntry(data.lap_time, data.sector_1, data.sector_2,
+      return new ResultSingleStintLapEntry(data.lap_id, data.lap_time, data.sector_1, data.sector_2,
         data.sector_3, data.grip, data.tyre, data.avg_speed, data.max_speed, data.cuts, data.crashes,
         data.car_crashes, data.finish_at, data.best_lap);
     }
@@ -206,7 +208,7 @@ class ResultSectorTabEntry {
         lapType = "best-lap";
       }
 
-      return `<tr class="${lapType}">
+      return `<tr class="${lapType}" data-lap-id="${this.lapId}">
           <td class="st-no">${pos}</td>
           <td class="st-time">${Lap.convertMSToDisplayTimeString(this.lapTime)}</td>
           <td class="st-sec">${Lap.convertMSToDisplayTimeString(this.sec1)}</td>

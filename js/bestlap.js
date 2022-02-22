@@ -274,7 +274,7 @@ class BestLapEntry {
   }
 
   toHTML(pos) {
-    return `<tr>
+    return `<tr data-lap-id="${this.lapId}">
         <td class="lb-pos">${pos + 1}</td>
         <td class="lb-car-class ${Util.getBestLapCarColorClass(this.carId)}">${BestlapPage.CARS_LIST[this.carId]["car_class"]}</td>
         <td class="lb-car">

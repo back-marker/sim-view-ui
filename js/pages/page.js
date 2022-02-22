@@ -61,4 +61,11 @@ class Page {
         </ul>`;
     $("#common-header").html(header);
   }
+
+  static openAnalysisPageOnClick(e) {
+    const lapID = $(e.target).parents("tr").attr("data-lap-id");
+    if (lapID) {
+      window.open(`/analysis/lap/${lapID}`, "_blank");
+    }
+  }
 }

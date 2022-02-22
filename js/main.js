@@ -152,6 +152,8 @@ $(document).ready(function() {
         }
       }
     });
+
+    $("#bestlaps-body").click(Page.openAnalysisPageOnClick);
   } else if (page == "driver-page") {
     Page.setCommonHeaderHtml("driver");
     getRequest("/api/ac/users", DriverPage.cb_updateDriversList);
