@@ -4,7 +4,7 @@ class AnalysisPage extends Page {
   static LAP_TELEMETRY_VERSION = 1;
 
   static update(lapID) {
-    getRequest(`/api/ac/lap/summary/${lapID}`, AnalysisPage.cb_updateLapSummary);
+    getRequest(`/api/ac/lap/summary/${lapID}`, AnalysisPage.cb_updateLapSummary, AnalysisPage.cb_lapMissing);
     getRequestBinary(`/api/ac/lap/telemetry/${lapID}`, AnalysisPage.cb_updateLapTelemetry,
       AnalysisPage.cb_telemetryMissing);
   }
@@ -82,9 +82,13 @@ class AnalysisPage extends Page {
     }
   }
 
-  static cb_telemetryMissing(data) {
+  static cb_telemetryMissing() {
     $("#lap-track-map").remove();
     $("#lap-graphs").html("<div id='message'>No telemetry data available</div>");
+  }
+
+  static cb_lapMissing() {
+    $("main").html("<div id='message'>Lap does not exists</div>");
   }
 
   static getTelemetryFromBinary(data) {
