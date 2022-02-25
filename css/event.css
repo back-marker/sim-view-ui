@@ -736,6 +736,7 @@ main {
   border-bottom: 1px solid #424242;
   height: 50px;
   background-color: #1e1e1e;
+  z-index: 1000;
 }
 
 #common-header ul {
