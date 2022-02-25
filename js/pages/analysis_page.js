@@ -2,11 +2,54 @@ class AnalysisPage extends Page {
   static DRIVER_CIRCLE_RADIUS = 8;
   static DRIVER_CIRCLE_COLOR = "#EF2D56";
   static LAP_TELEMETRY_VERSION = 1;
+  static RACING_LINE_DEFAULT_STROKE_WIDTH = 1.5;
+  static SIDE_LINE_DEFAULT_STROKE_WIDTH = 1;
+  static RACING_LINE_DEFAULT_COLOR = "#ff5757";
 
   static update(lapID) {
     getRequest(`/api/ac/lap/summary/${lapID}`, AnalysisPage.cb_updateLapSummary, AnalysisPage.cb_lapMissing);
-    getRequestBinary(`/api/ac/lap/telemetry/${lapID}`, AnalysisPage.cb_updateLapTelemetry,
-      AnalysisPage.cb_telemetryMissing);
+
+    var preX;
+    var preY;
+    var sumDX = 0;
+    var sumDY = 0;
+    var mousedown = false;
+    var scale = 1;
+
+    $("#zoom-slider-input").on("input", function(e) {
+      const zoomValue = Number.parseInt(e.target.value);
+      const newScale = ((7 * zoomValue + 92) / 99).toFixed(2);
+      if (newScale < 1) newScale = 1;
+      if (newScale > 8) newScale = 8;
+      scale = newScale;
+      if (scale == 1) {
+        sumDX = 0;
+        sumDY = 0;
+      }
+      AnalysisPage.zoomAndPanInMapGraph(scale, sumDX, sumDY);
+    });
+
+
+    $("#racing-line-svg").mousedown(function(e) {
+      mousedown = true;
+      preX = e.clientX;
+      preY = e.clientY;
+    }).mouseup(function() {
+      mousedown = false;
+    }).mousemove(function(e) {
+      if (mousedown) {
+        var curX = e.clientX;
+        var curY = e.clientY;
+        var dX = curX - preX;
+        var dY = curY - preY;
+        sumDX += dX;
+        sumDY += dY;
+        preX = curX;
+        preY = curY;
+
+        AnalysisPage.zoomAndPanInMapGraph(scale, sumDX, sumDY);
+      }
+    });
   }
 
   static cb_updateLapSummary(data) {
@@ -39,6 +82,15 @@ class AnalysisPage extends Page {
 
       getRequest(`/images/ac/track/${details.track_config_id}/map`, function(data) {
         $("#lap-track-map").html(data.childNodes[0].outerHTML);
+        $("#lap-track-map .map-section").remove();
+        $("#lap-track-map #sidelane1").remove();
+        $("#lap-track-map #sidelane2").remove();
+
+        $("#racing-line-svg").html(data.childNodes[0].outerHTML);
+        $("#racing-line-svg .map-section").remove();
+        $("#racing-line-svg #fastlane").remove();
+        $("#racing-line-svg #pitlane").remove();
+        $("#racing-line-svg #finishline").remove();
 
         var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         const uniqueID = "nsp-indicator";
@@ -46,6 +98,9 @@ class AnalysisPage extends Page {
         $("#lap-track-map svg").append(circle);
         var scale = Number.parseFloat($("#lap-track-map svg").attr("data-scale"));
         $("#lap-track-map #" + uniqueID).attr("r", AnalysisPage.DRIVER_CIRCLE_RADIUS * scale).attr("fill", AnalysisPage.DRIVER_CIRCLE_COLOR);
+
+        getRequestBinary(`/api/ac/lap/telemetry/${details.lap.stint_lap_id}`, AnalysisPage.cb_updateLapTelemetry,
+          AnalysisPage.cb_telemetryMissing);
       });
     }
   }
@@ -58,6 +113,7 @@ class AnalysisPage extends Page {
     const trackLength = telemetryBinary.track_length;
 
     AnalysisPage.renderLapNSPGraphs(telemetry, trackLength);
+    AnalysisPage.renderRacingLine(telemetry);
 
     AnalysisPage.updatePositionInTrackMap = function(nsp) {
       if (nsp < 0.0 || nsp > 1.0) { return; }
@@ -80,6 +136,36 @@ class AnalysisPage extends Page {
 
       $("#lap-track-map #" + "nsp-indicator").attr("cx", posX + offsetX).attr("cy", posZ + offsetY);
     }
+    AnalysisPage.updatePositionInTrackMap(0);
+  }
+
+  static zoomAndPanInMapGraph(scale, dX, dY) {
+    if (scale < 1) return;
+
+    $("#racing-line-svg svg").attr("transform", `scale(${scale})translate(${dX},${dY})`);
+
+    const strokeWidth = (AnalysisPage.SIDE_LINE_DEFAULT_STROKE_WIDTH / scale).toFixed(2);
+    $("#racing-line-svg svg #racingline").css("stroke-width", strokeWidth *
+      AnalysisPage.RACING_LINE_DEFAULT_STROKE_WIDTH);
+    $("#racing-line-svg svg #sidelane1").css("stroke-width", strokeWidth);
+    $("#racing-line-svg svg #sidelane2").css("stroke-width", strokeWidth);
+  }
+
+  static renderRacingLine(telemetry) {
+    var offsetX = Number.parseFloat($("#lap-track-map svg").attr("data-x-offset"));
+    var offsetY = Number.parseFloat($("#lap-track-map svg").attr("data-y-offset"));
+
+    const polygonPoints = telemetry.map(function(e) {
+      return (offsetX + e.position_x).toFixed(2) + "," + (offsetY + e.position_z).toFixed(2);
+    }).join(" ");
+
+    var polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    polygon.setAttributeNS(null, "id", "racingline");
+    polygon.setAttributeNS(null, "points", polygonPoints);
+    polygon.setAttributeNS(null, "style", "fill:none; stroke:" + AnalysisPage.RACING_LINE_DEFAULT_COLOR +
+      "; stroke-width:" + AnalysisPage.RACING_LINE_DEFAULT_STROKE_WIDTH);
+
+    $("#racing-line-svg svg").append(polygon);
   }
 
   static cb_telemetryMissing() {

@@ -93,6 +93,8 @@ class LeaderboardPage extends Page {
       getRequest(`/images/${trackApi}/map`, function(data) {
         $("#track-map-svg").html(data.childNodes[0].outerHTML);
         $("#track-map-svg svg").css(Util.getOptimalWidthAndHeightForMap("#track-map-svg svg"));
+        $("#track-map-svg #sidelane1").remove();
+        $("#track-map-svg #sidelane2").remove();
       }, LeaderboardPage.cb_missingTrackMap);
     }
   }

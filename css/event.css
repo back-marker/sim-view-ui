@@ -2218,10 +2218,6 @@ td .tooltip {
   padding-bottom: 20px;
 }
 
-#lap-track-map .map-section {
-  display: none;
-}
-
 #lap-graph1 {
   margin-bottom: 20px;
 }
@@ -2232,4 +2228,38 @@ td .tooltip {
 #standings-body[data-session-type="practice"] tr:hover {
   background-color: #151515 !important;
   cursor: pointer;
+}
+
+#map-graph {
+  border: 2px dotted #606060;
+  margin-top: 60px;
+  margin-bottom: 60px;
+  position: relative;
+}
+
+#racing-line-svg {
+  text-align: center;
+  overflow: hidden;
+  cursor: move;
+}
+
+#racing-line-svg svg {
+  max-width: 1200px !important;
+  max-height: 700px !important;
+}
+
+#map-graph-control {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  z-index: 1000;
+}
+
+#zoom-slider {
+  margin-right: 30px;
+}
+
+#map-data-selection {
+  color: #ff5757;
 }
