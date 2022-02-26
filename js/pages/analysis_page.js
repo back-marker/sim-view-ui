@@ -146,7 +146,7 @@ class AnalysisPage extends Page {
 
         getRequestBinary(`/api/ac/lap/telemetry/${details.lap.stint_lap_id}`, AnalysisPage.cb_updateLapTelemetry,
           AnalysisPage.cb_telemetryMissing);
-      });
+      }, AnalysisPage.cb_telemetryMissing);
     }
   }
 
@@ -184,7 +184,7 @@ class AnalysisPage extends Page {
               AnalysisPage.updateCompareLapTelemetry(btelemetry1, btelemetry2, trackLength);
             }, AnalysisPage.cb_telemetryMissing)
           }, AnalysisPage.cb_telemetryMissing);
-        });
+        }, AnalysisPage.cb_telemetryMissing);
       }, AnalysisPage.cb_lapMissing);
     }, AnalysisPage.cb_lapMissing);
   }
@@ -267,7 +267,9 @@ class AnalysisPage extends Page {
 
   static cb_telemetryMissing() {
     $("#lap-track-map").remove();
-    $("#lap-graphs").html("<div id='message'>No telemetry data available</div>");
+    $("#map-graph").remove();
+    $("#lap-graphs").remove();
+    $("main").append("<div id='message'>No telemetry data available for this lap</div>");
   }
 
   static cb_lapMissing() {
@@ -279,7 +281,7 @@ class AnalysisPage extends Page {
   }
 
   static cannotProcessTelemetry() {
-    $("main").html("<div id='message'>Cannot process telemetry for selected lap</div>");
+    $("main").append("<div id='message'>Cannot process telemetry for selected lap</div>");
   }
 
   static getTelemetryFromBinary(data) {
