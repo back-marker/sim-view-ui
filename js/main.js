@@ -159,8 +159,7 @@ $(document).ready(function() {
     getRequest("/api/ac/users", DriverPage.cb_updateDriversList);
   } else if (page == "analysis-page") {
     Page.setCommonHeaderHtml("analysis");
-    const lapID = Util.getCurrentLapID();
-    AnalysisPage.update(lapID);
+    AnalysisPage.update();
   }
 
   $("#tab-map").hide();

@@ -5,7 +5,6 @@ class AnalysisPage extends Page {
   static RACING_LINE_DEFAULT_STROKE_WIDTH = 2;
   static SIDE_LINE_DEFAULT_STROKE_WIDTH = 1;
   static RACING_LINE_DEFAULT_COLOR = "#ff5757";
-  static compareLap = true;
   static lapTimes = [0, 0];
   static graphConfig = {
     "axisTitleColor": "#bbb",
@@ -19,11 +18,18 @@ class AnalysisPage extends Page {
     "lineColors": ["#71BA51", "#36a2eb"]
   };
 
-  static update(lapID) {
-    if (AnalysisPage.compareLap) {
-      AnalysisPage.updateCompareLapSummary(7, 1258);
-      $("#main-graphs").addClass("compare-lap");
+  static update() {
+    var match = window.location.toString().match("analysis/lap/([0-9]+)");
+    if (match == null) {
+      var match = window.location.toString().match("analysis/compare/lap1/([0-9]+)/lap2/([0-9]+)");
+      if (match != null) {
+        const lap1ID = match[1];
+        const lap2ID = match[2];
+        AnalysisPage.updateCompareLapSummary(lap1ID, lap2ID);
+        $("#main-graphs").addClass("compare-lap");
+      }
     } else {
+      const lapID = match[1];
       $("#main-graphs").addClass("single-lap");
       $("#lap-metadata-2").remove();
       $("#lap-data-2").remove();
