@@ -163,7 +163,9 @@ class BestlapPage extends Page {
       return;
     }
 
-    $("#message").hide();
+    if (BestlapPage.lapSelected == undefined) {
+      $("#message").hide();
+    }
 
     url += "/cars/" + BestlapPage.cache_search_query.car_ids.join(",");
     url += "/page/" + pageId;
@@ -230,6 +232,46 @@ class BestlapPage extends Page {
       getRequest("/api/ac/users/" + driverList.join(','), Page.cb_updateDriversName);
     }
   }
+
+  static disableLapFirstLapSelection(target, lapID) {
+    if (target !== undefined) {
+      $(target).parent().addClass("selected-lap-checkbox");
+    }
+    if (lapID !== undefined) {
+      BestlapPage.lapSelected = lapID;
+      $("#message").text("Select other lap to compare with").show();
+    }
+    $("#bestlaps-body").removeClass("active-compare-lap-selection");
+  }
+
+  static enableFirstLapSelection() {
+    BestlapPage.lapSelected = undefined;
+    $("#message").text("").hide();
+    $(".selected-lap-checkbox .compare-lap-checkbox").prop("checked", false);
+    $(".selected-lap-checkbox").removeClass("selected-lap-checkbox");
+    $("#bestlaps-body").addClass("active-compare-lap-selection");
+  }
+
+  static openAnalysisPageOnClick(e) {
+    const lapID = $(e.target).parents("tr").attr("data-lap-id");
+    if ($(e.target).hasClass("compare-lap-checkbox")) {
+      if ($(e.target).is(":checked")) {
+        BestlapPage.disableLapFirstLapSelection(e.target, lapID);
+      } else {
+        BestlapPage.enableFirstLapSelection();
+      }
+    } else if (lapID) {
+      if (BestlapPage.lapSelected !== undefined) {
+        if (BestlapPage.lapSelected !== lapID) {
+          // Open compare page
+          window.open(`/analysis/compare/lap1/${BestlapPage.lapSelected}/lap2/${lapID}`, "_blank");
+          BestlapPage.enableFirstLapSelection();
+        }
+      } else {
+        window.open(`/analysis/lap/${lapID}`, "_blank");
+      }
+    }
+  }
 }
 
 class BestLapEntry {
@@ -274,8 +316,12 @@ class BestLapEntry {
   }
 
   toHTML(pos) {
+    const selectedLap = BestlapPage.lapSelected !== undefined && this.lapId === Number.parseInt(BestlapPage.lapSelected);
     return `<tr data-lap-id="${this.lapId}">
-        <td class="lb-pos">${pos + 1}</td>
+        <td class="lb-pos"><span>
+        <span class="compare-lap-checkbox-container ${selectedLap? "selected-lap-checkbox" : ""}">
+        <input class="compare-lap-checkbox" type="checkbox" ${selectedLap? "checked" : ""}>
+        </span></span>${pos + 1}</td>
         <td class="lb-car-class ${Util.getBestLapCarColorClass(this.carId)}">${BestlapPage.CARS_LIST[this.carId]["car_class"]}</td>
         <td class="lb-car">
           <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')">

@@ -133,6 +133,7 @@ $(document).ready(function() {
     }
 
     $("#search-lap").click(function() {
+      BestlapPage.enableFirstLapSelection();
       BestlapPage.cache_search_query = JSON.parse(JSON.stringify(BestlapPage.search_query));
       BestlapPage.searchBestLaps(1);
     });
@@ -153,7 +154,7 @@ $(document).ready(function() {
       }
     });
 
-    $("#bestlaps-body").click(Page.openAnalysisPageOnClick);
+    $("#bestlaps-body").click(BestlapPage.openAnalysisPageOnClick);
   } else if (page == "driver-page") {
     Page.setCommonHeaderHtml("driver");
     getRequest("/api/ac/users", DriverPage.cb_updateDriversList);
