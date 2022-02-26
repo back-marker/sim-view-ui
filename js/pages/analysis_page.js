@@ -13,7 +13,7 @@ class AnalysisPage extends Page {
     "crossHairColor": AnalysisPage.DRIVER_CIRCLE_COLOR,
     "zoomboxBackgroundColor": "rgba(66,133,244,0.2)",
     "zoomboxBorderColor": "#48F",
-    "showLegend": AnalysisPage.compareLap,
+    "showLegend": true,
     "yAxisBeginAtZero": false,
     "lineColors": ["#71BA51", "#36a2eb"]
   };
