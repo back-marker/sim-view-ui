@@ -14,18 +14,25 @@
   </header>
   <main>
     <div id="main-metadata">
-      <div id="lap-time">-</div>
-      <div id="driver-name">-</div>
-      <div id="car-class">-</div>
-      <div id="car-name"><span class="car-badge">-</span>
+      <div id="lap-data-1">
+        <div class="lap-time">-</div>
+        <div class="lap-driver-name">-</div>
+        <div class="car-class">-</div>
+        <div class="car-name"><span class="car-badge">-</span>
+        </div>
       </div>
-      <div id="track-name">-</div>
+      <div id="lap-data-2">
+        <div class="car-name"><span class="car-badge">-</span></div>
+        <div class="car-class">-</div>
+        <div class="lap-driver-name">-</div>
+        <div class="lap-time">-</div>
+      </div>
     </div>
     <div id="main-graphs">
       <div id="lap-details">
-        <div id="lap-metadata">
-          <div id="event-name">-</div>
-          <div id="metadata-columnar-container">
+        <div id="lap-metadata-1" class="lap-metadata">
+          <div class="event-name">-</div>
+          <div class="metadata-columnar-container">
             <div class="metadata-columnar">
               <div class="session-type">
                 <span class="tag">Session</span>
@@ -43,6 +50,10 @@
               </div>
               <div class="grip">
                 <span class="tag">Grip</span>
+                <span class="value">-</span>
+              </div>
+              <div class="track">
+                <span class="tag">Track</span>
                 <span class="value">-</span>
               </div>
             </div>
@@ -67,18 +78,77 @@
                 <span class="tag">Sector 3</span>
                 <span class="value">-</span>
               </div>
+              <div class="track-length">
+                <span class="tag">Length</span>
+                <span class="value">-</span>
+              </div>
             </div>
           </div>
         </div>
         <div id="lap-track-map">
         </div>
+        <div id="lap-metadata-2" class="lap-metadata">
+          <div class="event-name">-</div>
+          <div class="metadata-columnar-container">
+            <div class="metadata-columnar">
+              <div class="session-type">
+                <span class="tag">Session</span>
+                <span class="value">-</span>
+              </div>
+              <div class="weather">
+                <span class="tag">Weather</span>
+                <span class="value"></span>
+              </div>
+              <div class="air-temp">
+                <span class="tag">Air Temp</span><span class="value"><span class="temp-val"></span>&#176; C</span>
+              </div>
+              <div class="road-temp">
+                <span class="tag">Road Temp</span><span class="value"><span class="temp-val"></span>&#176; C</span>
+              </div>
+              <div class="grip">
+                <span class="tag">Grip</span>
+                <span class="value">-</span>
+              </div>
+              <div class="track">
+                <span class="tag">Track</span>
+                <span class="value">-</span>
+              </div>
+            </div>
+            <div class="metadata-columnar">
+              <div class="tyre">
+                <span class="tag">Tyre</span>
+                <span class="value">-</span>
+              </div>
+              <div class="max-speed">
+                <span class="tag">Max Speed</span>
+                <span class="value">-</span>
+              </div>
+              <div class="sector1">
+                <span class="tag">Sector 1</span>
+                <span class="value">-</span>
+              </div>
+              <div class="sector2">
+                <span class="tag">Sector 2</span>
+                <span class="value">-</span>
+              </div>
+              <div class="sector3">
+                <span class="tag">Sector 3</span>
+                <span class="value">-</span>
+              </div>
+              <div class="track-length">
+                <span class="tag">Length</span>
+                <span class="value">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="lap-graphs">
         <div id="lap-graph1">
-          <canvas id="lap-graph1-canvas" width="1400" height="450"></canvas>
+          <canvas id="lap-graph1-canvas" width="1100" height="350"></canvas>
         </div>
         <div id="lap-graph2">
-          <canvas id="lap-graph2-canvas" width="1400" height="450"></canvas>
+          <canvas id="lap-graph2-canvas" width="1100" height="300"></canvas>
         </div>
       </div>
     </div>
@@ -88,6 +158,8 @@
           <input type="range" min="1" max="100" value="1" class="slider" id="zoom-slider-input">
         </div>
         <div id="map-data-selection">Racing Line</div>
+      </div>
+      <div id="racing-line-legend">
       </div>
       <div id="racing-line-svg"></div>
     </div>

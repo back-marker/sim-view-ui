@@ -1,13 +1,34 @@
 class AnalysisPage extends Page {
-  static DRIVER_CIRCLE_RADIUS = 8;
+  static DRIVER_CIRCLE_RADIUS = 16;
   static DRIVER_CIRCLE_COLOR = "#EF2D56";
   static LAP_TELEMETRY_VERSION = 1;
   static RACING_LINE_DEFAULT_STROKE_WIDTH = 1.5;
   static SIDE_LINE_DEFAULT_STROKE_WIDTH = 1;
   static RACING_LINE_DEFAULT_COLOR = "#ff5757";
+  static compareLap = false;
+  static lapTimes = [0, 0];
+  static graphConfig = {
+    "axisTitleColor": "#bbb",
+    "axisTitleFontSize": 14,
+    "gridLineColor": "#424242",
+    "crossHairColor": "#EF2D56",
+    "zoomboxBackgroundColor": "rgba(66,133,244,0.2)",
+    "zoomboxBorderColor": "#48F",
+    "showLegend": AnalysisPage.compareLap,
+    "yAxisBeginAtZero": false,
+    "lineColors": ["#ff5757", "#89a2d2"]
+  };
 
   static update(lapID) {
-    getRequest(`/api/ac/lap/summary/${lapID}`, AnalysisPage.cb_updateLapSummary, AnalysisPage.cb_lapMissing);
+    if (AnalysisPage.compareLap) {
+      AnalysisPage.updateCompareLapSummary(7, 1258);
+      $("#main-graphs").addClass("compare-lap");
+    } else {
+      $("#main-graphs").addClass("single-lap");
+      $("#lap-metadata-2").remove();
+      $("#lap-data-2").remove();
+      getRequest(`/api/ac/lap/summary/${lapID}`, AnalysisPage.cb_updateLapSummary, AnalysisPage.cb_lapMissing);
+    }
 
     var preX;
     var preY;
@@ -52,57 +73,136 @@ class AnalysisPage extends Page {
     });
   }
 
+  static updateLapSummary(lapIndex, details) {
+    const lapData = `#lap-data-${lapIndex}`;
+    $(`${lapData} .lap-time`).text(Lap.convertMSToDisplayTimeString(details.lap.time));
+    AnalysisPage.lapTimes[lapIndex - 1] = Lap.convertMSToDisplayTimeString(details.lap.time);
+
+    getRequest(`/api/ac/user/${details.user_id}`, function(data) {
+      $(`${lapData} .lap-driver-name`).text(data.user.name);
+    });
+    getRequest(`/api/ac/car/${details.car_id}`, function(data) {
+      $(`${lapData} .car-class`).text(data.car.car_class);
+      $(`${lapData} .car-name span`).text(data.car.display_name).css({ "background": `url('/images/ac/car/${data.car.car_id}/badge')` });
+    });
+
+    const lapMetadata = `#lap-metadata-${lapIndex}`;
+    $(`${lapMetadata} .event-name`).html(`<a target="_blank" href="/ac/event/${details.event_id}/result">${details.event_name}</a>`);
+    $(`${lapMetadata} .metadata-columnar-container .session-type .value`).text(details.session_type);
+    $(`${lapMetadata} .metadata-columnar-container .weather .value`).text(Util.getWeatherDisplayName(details.weather));
+    $(`${lapMetadata} .metadata-columnar-container .air-temp .temp-val`).text(details.air_temp);
+    $(`${lapMetadata} .metadata-columnar-container .road-temp .temp-val`).text(details.road_temp);
+    $(`${lapMetadata} .metadata-columnar-container .grip .value`).text((details.lap.grip * 100.0).toFixed(2) + "%");
+    $(`${lapMetadata} .metadata-columnar-container .tyre .value`).text(`(${details.lap.tyre})`);
+    $(`${lapMetadata} .metadata-columnar-container .max-speed .value`).text(`${details.lap.max_speed} KM/HR`);
+    $(`${lapMetadata} .metadata-columnar-container .sector1 .value`).text(Lap.convertMSToDisplayTimeString(details.lap.sector_1));
+    $(`${lapMetadata} .metadata-columnar-container .sector2 .value`).text(Lap.convertMSToDisplayTimeString(details.lap.sector_2));
+    $(`${lapMetadata} .metadata-columnar-container .sector3 .value`).text(Lap.convertMSToDisplayTimeString(details.lap.sector_3));
+    $(`${lapMetadata} .metadata-columnar-container .track .value`).text(details.track_name);
+    $(`${lapMetadata} .metadata-columnar-container .track-length .value`).text(`${details.track_length} m`);
+  }
+
+  static setupNspIndicatorTrackMap(data) {
+    $("#lap-track-map").append(data.childNodes[0].outerHTML);
+    $("#lap-track-map .map-section").remove();
+    $("#lap-track-map #sidelane1").remove();
+    $("#lap-track-map #sidelane2").remove();
+  }
+
+  static setupRacingLineTrackMap(data) {
+    $("#racing-line-svg").html(data.childNodes[0].outerHTML);
+    $("#racing-line-svg .map-section").remove();
+    $("#racing-line-svg #fastlane").remove();
+    $("#racing-line-svg #pitlane").remove();
+    $("#racing-line-svg #finishline").remove();
+    $("#zoom-slider-input").val(0);
+  }
+
+  static addNspIndicatorInTrackMap() {
+    var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    const uniqueID = "nsp-indicator";
+    circle.id = uniqueID;
+    $("#lap-track-map svg").append(circle);
+    var scale = Number.parseFloat($("#lap-track-map svg").attr("data-scale"));
+    $("#lap-track-map #" + uniqueID).attr("r",
+      AnalysisPage.DRIVER_CIRCLE_RADIUS * scale).attr("fill", AnalysisPage.DRIVER_CIRCLE_COLOR);
+  }
+
   static cb_updateLapSummary(data) {
     if (data["status"] === "success") {
       const details = data.summary;
-
-      $("#lap-time").text(Lap.convertMSToDisplayTimeString(details.lap.time));
-
-      getRequest(`/api/ac/user/${details.user_id}`, function(data) {
-        $("#driver-name").text(data.user.name);
-      });
-      getRequest(`/api/ac/car/${details.car_id}`, function(data) {
-        $("#car-class").text(data.car.car_class);
-        $("#car-name span").text(data.car.display_name).css({ "background": `url('/images/ac/car/${data.car.car_id}/badge')` });
-      });
-
-      $("#track-name").text(`${details.track_name} [ ${details.track_length}m ]`);
-      $("#event-name").html(`<a target="_blank" href="/ac/event/${details.event_id}/result">${details.event_name}</a>`);
-
-      $("#metadata-columnar-container .session-type .value").text(details.session_type);
-      $("#metadata-columnar-container .weather .value").text(Util.getWeatherDisplayName(details.weather));
-      $("#metadata-columnar-container .air-temp .temp-val").text(details.air_temp);
-      $("#metadata-columnar-container .road-temp .temp-val").text(details.road_temp);
-      $("#metadata-columnar-container .grip .value").text((details.lap.grip * 100.0).toFixed(2) + "%");
-      $("#metadata-columnar-container .tyre .value").text(`(${details.lap.tyre})`);
-      $("#metadata-columnar-container .max-speed .value").text(`${details.lap.max_speed} KM/HR`);
-      $("#metadata-columnar-container .sector1 .value").text(Lap.convertMSToDisplayTimeString(details.lap.sector_1));
-      $("#metadata-columnar-container .sector2 .value").text(Lap.convertMSToDisplayTimeString(details.lap.sector_2));
-      $("#metadata-columnar-container .sector3 .value").text(Lap.convertMSToDisplayTimeString(details.lap.sector_3));
+      AnalysisPage.updateLapSummary(1, details);
 
       getRequest(`/images/ac/track/${details.track_config_id}/map`, function(data) {
-        $("#lap-track-map").html(data.childNodes[0].outerHTML);
-        $("#lap-track-map .map-section").remove();
-        $("#lap-track-map #sidelane1").remove();
-        $("#lap-track-map #sidelane2").remove();
-
-        $("#racing-line-svg").html(data.childNodes[0].outerHTML);
-        $("#racing-line-svg .map-section").remove();
-        $("#racing-line-svg #fastlane").remove();
-        $("#racing-line-svg #pitlane").remove();
-        $("#racing-line-svg #finishline").remove();
-
-        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        const uniqueID = "nsp-indicator";
-        circle.id = uniqueID;
-        $("#lap-track-map svg").append(circle);
-        var scale = Number.parseFloat($("#lap-track-map svg").attr("data-scale"));
-        $("#lap-track-map #" + uniqueID).attr("r", AnalysisPage.DRIVER_CIRCLE_RADIUS * scale).attr("fill", AnalysisPage.DRIVER_CIRCLE_COLOR);
+        AnalysisPage.setupNspIndicatorTrackMap(data);
+        AnalysisPage.setupRacingLineTrackMap(data);
+        AnalysisPage.addNspIndicatorInTrackMap();
 
         getRequestBinary(`/api/ac/lap/telemetry/${details.lap.stint_lap_id}`, AnalysisPage.cb_updateLapTelemetry,
           AnalysisPage.cb_telemetryMissing);
       });
     }
+  }
+
+  static updateCompareLapSummary(lap1ID, lap2ID) {
+    getRequest(`/api/ac/lap/summary/${lap1ID}`, function(lap1Data) {
+      getRequest(`/api/ac/lap/summary/${lap2ID}`, function(lap2Data) {
+
+        const summary1 = lap1Data.summary;
+        const summary2 = lap2Data.summary;
+        if (summary1.track_config_id !== summary2.track_config_id) {
+          AnalysisPage.tackDoesNotMatch();
+          return;
+        }
+        AnalysisPage.updateLapSummary(1, summary1);
+        AnalysisPage.updateLapSummary(2, summary2);
+
+        getRequest(`/images/ac/track/${summary1.track_config_id}/map`, function(data) {
+          AnalysisPage.setupNspIndicatorTrackMap(data);
+          AnalysisPage.setupRacingLineTrackMap(data);
+          AnalysisPage.addNspIndicatorInTrackMap();
+
+          getRequestBinary(`/api/ac/lap/telemetry/${lap1ID}`, function(telemetry1) {
+            getRequestBinary(`/api/ac/lap/telemetry/${lap2ID}`, function(telemetry2) {
+              const telemetryBinary1 = AnalysisPage.getTelemetryFromBinary(telemetry1);
+              const telemetryBinary2 = AnalysisPage.getTelemetryFromBinary(telemetry2);
+              if (telemetryBinary1 === undefined || telemetryBinary2 === undefined) {
+                AnalysisPage.cannotProcessTelemetry()
+                return;
+              }
+
+              const btelemetry1 = telemetryBinary1.telemetry;
+              const trackLength = telemetryBinary1.track_length;
+              const btelemetry2 = telemetryBinary2.telemetry;
+
+              AnalysisPage.updateCompareLapTelemetry(btelemetry1, btelemetry2, trackLength);
+            }, AnalysisPage.cb_telemetryMissing)
+          }, AnalysisPage.cb_telemetryMissing);
+        });
+      }, AnalysisPage.cb_lapMissing);
+    }, AnalysisPage.cb_lapMissing);
+  }
+
+  static updatePositionInTrackMap(nsp, telemetry) {
+    if (nsp < 0.0 || nsp > 1.0) { return; }
+
+    var idx = 0;
+    for (; idx < telemetry.length; ++idx) {
+      if (telemetry[idx].nsp >= nsp) { break; }
+    }
+    const dataPoint = telemetry[Math.min(idx, telemetry.length - 1)];
+
+    const posX = dataPoint.position_x;
+    const posZ = dataPoint.position_z;
+
+    var offsetX = Number.parseFloat($("#lap-track-map svg").attr("data-x-offset"));
+    var offsetY = Number.parseFloat($("#lap-track-map svg").attr("data-y-offset"));
+    if (posX === 0 && posZ === 0) {
+      offsetX = 20;
+      offsetY = 20;
+    }
+
+    $("#lap-track-map #" + "nsp-indicator").attr("cx", posX + offsetX).attr("cy", posZ + offsetY);
   }
 
   static cb_updateLapTelemetry(data) {
@@ -112,31 +212,17 @@ class AnalysisPage extends Page {
     const telemetry = telemetryBinary.telemetry;
     const trackLength = telemetryBinary.track_length;
 
-    AnalysisPage.renderLapNSPGraphs(telemetry, trackLength);
-    AnalysisPage.renderRacingLine(telemetry);
+    AnalysisPage.renderLapNSPGraphs([telemetry], trackLength, AnalysisPage.graphConfig);
+    AnalysisPage.renderRacingLine(telemetry, 1, AnalysisPage.graphConfig);
 
-    AnalysisPage.updatePositionInTrackMap = function(nsp) {
-      if (nsp < 0.0 || nsp > 1.0) { return; }
+    AnalysisPage.updatePositionInTrackMap(0, telemetry);
+  }
 
-      var idx = 0;
-      for (; idx < telemetry.length; ++idx) {
-        if (telemetry[idx].nsp >= nsp) { break; }
-      }
-      const dataPoint = telemetry[Math.min(idx, telemetry.length - 1)];
-
-      const posX = dataPoint.position_x;
-      const posZ = dataPoint.position_z;
-
-      var offsetX = Number.parseFloat($("#lap-track-map svg").attr("data-x-offset"));
-      var offsetY = Number.parseFloat($("#lap-track-map svg").attr("data-y-offset"));
-      if (posX === 0 && posZ === 0) {
-        offsetX = 20;
-        offsetY = 20;
-      }
-
-      $("#lap-track-map #" + "nsp-indicator").attr("cx", posX + offsetX).attr("cy", posZ + offsetY);
-    }
-    AnalysisPage.updatePositionInTrackMap(0);
+  static updateCompareLapTelemetry(btelemetry1, btelemetry2, trackLength) {
+    AnalysisPage.renderLapNSPGraphs([btelemetry1, btelemetry2], trackLength, AnalysisPage.graphConfig);
+    AnalysisPage.renderRacingLine(btelemetry1, 1, AnalysisPage.graphConfig);
+    AnalysisPage.renderRacingLine(btelemetry2, 2, AnalysisPage.graphConfig);
+    AnalysisPage.updatePositionInTrackMap(0, btelemetry1);
   }
 
   static zoomAndPanInMapGraph(scale, dX, dY) {
@@ -151,7 +237,7 @@ class AnalysisPage extends Page {
     $("#racing-line-svg svg #sidelane2").css("stroke-width", strokeWidth);
   }
 
-  static renderRacingLine(telemetry) {
+  static renderRacingLine(telemetry, lapIndex, config) {
     var offsetX = Number.parseFloat($("#lap-track-map svg").attr("data-x-offset"));
     var offsetY = Number.parseFloat($("#lap-track-map svg").attr("data-y-offset"));
 
@@ -159,12 +245,17 @@ class AnalysisPage extends Page {
       return (offsetX + e.position_x).toFixed(2) + "," + (offsetY + e.position_z).toFixed(2);
     }).join(" ");
 
+    const lineColor = config.lineColors[lapIndex - 1];
     var polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
     polygon.setAttributeNS(null, "id", "racingline");
     polygon.setAttributeNS(null, "points", polygonPoints);
-    polygon.setAttributeNS(null, "style", "fill:none; stroke:" + AnalysisPage.RACING_LINE_DEFAULT_COLOR +
+    polygon.setAttributeNS(null, "style", "fill:none; stroke:" + lineColor +
       "; stroke-width:" + AnalysisPage.RACING_LINE_DEFAULT_STROKE_WIDTH);
 
+    if (config.showLegend) {
+      var legendHtml = `<div><span class="rl-legend-box" style="background-color:${lineColor}"></span><span class="rl-legend-label">${AnalysisPage.lapTimes[lapIndex - 1]}</span></div>`
+      $("#racing-line-legend").append(legendHtml);
+    }
     $("#racing-line-svg svg").append(polygon);
   }
 
@@ -175,6 +266,14 @@ class AnalysisPage extends Page {
 
   static cb_lapMissing() {
     $("main").html("<div id='message'>Lap does not exists</div>");
+  }
+
+  static tackDoesNotMatch() {
+    $("main").html("<div id='message'>The lap selected are not on same track</div>");
+  }
+
+  static cannotProcessTelemetry() {
+    $("main").html("<div id='message'>Cannot process telemetry for selected lap</div>");
   }
 
   static getTelemetryFromBinary(data) {
@@ -211,65 +310,58 @@ class AnalysisPage extends Page {
     return { "telemetry": telemetry, "track_length": trackLength };
   }
 
-  static renderLapNSPGraphs(telemetry, trackLength) {
-    const config = {
-      "axisTitleColor": "#bbb",
-      "axisTitleFontSize": 14,
-      "gridLineColor": "#424242",
-      "crossHairColor": "#EF2D56",
-      "zoomboxBackgroundColor": "rgba(66,133,244,0.2)",
-      "zoomboxBorderColor": "#48F"
-    };
-
+  static renderLapNSPGraphs(telemetry, trackLength, config) {
     AnalysisPage.renderSpeedGraph(telemetry, trackLength, config);
     AnalysisPage.renderGearGraph(telemetry, trackLength, config);
   }
 
-  static renderSpeedGraph(telemetry, trackLength, config) {
-    const speedLineColor = "#32D296";
+  static createTelemetryDataset(legendLabel, lineColor, telemetry, trackLength, propName) {
+    return {
+      label: legendLabel,
+      data: telemetry.map(function(e) { return { x: e.nsp * trackLength, y: e[propName] }; }),
+      fill: false,
+      backgroundColor: lineColor,
+      borderColor: lineColor,
+      lineTension: 0,
+      pointRadius: 0,
+      showLine: true,
+      interpolate: true
+    };
+  }
 
+  static renderSpeedGraph(originalTelemetry, trackLength, config) {
     const speedData = {
-      datasets: [{
-        label: 'Speed (km/hr)',
-        data: telemetry.map(function(e) { return { x: e.nsp * trackLength, y: e.speed }; }),
-        fill: false,
-        backgroundColor: speedLineColor,
-        borderColor: speedLineColor,
-        lineTension: 0,
-        pointRadius: 0,
-        showLine: true,
-        interpolate: true
-      }]
+      datasets: originalTelemetry.map(function(telemetry, idx) {
+        return AnalysisPage.createTelemetryDataset(AnalysisPage.lapTimes[idx], config.lineColors[idx], telemetry, trackLength, "speed");
+      })
     };
 
+    var prevSpeed;
     const speedChartTooltipCallback = {
       title: function(a, d) {
-        AnalysisPage.updatePositionInTrackMap(a[0].element.x.toFixed(0) / trackLength);
+        AnalysisPage.updatePositionInTrackMap(a[0].element.x.toFixed(0) / trackLength, originalTelemetry[0]);
         return a[0].element.x.toFixed(0);
       },
       label: function(d) {
-        return "Speed" + ": " + d.element.y.toFixed(2) + " km/hr";
+        if (d.datasetIndex == 0) prevSpeed = d.element.y.toFixed(2);
+        var gap = 0;
+        if (d.datasetIndex == 1) gap = (d.element.y.toFixed(2) - prevSpeed).toFixed(2);
+        if (gap > 0) gap = "+" + gap;
+        else gap = "" + gap;
+        var label = AnalysisPage.lapTimes[d.datasetIndex] + " | " + d.element.y.toFixed(2) + " km / hr";
+        if (d.datasetIndex == 1) label += " (" + gap + ")";
+        return label;
       }
     }
 
-    return AnalysisPage.createChart("lap-graph1-canvas", speedData, false, true, "Speed in km / hr", config, speedChartTooltipCallback);
+    return AnalysisPage.createChart("lap-graph1-canvas", speedData, false, true, "Speed [ km / hr ]", config, speedChartTooltipCallback);
   }
 
-  static renderGearGraph(telemetry, trackLength, config) {
-    const gearLineColor = "#E38D59";
-
+  static renderGearGraph(originalTelemetry, trackLength, config) {
     const gearData = {
-      datasets: [{
-        label: 'Gear',
-        data: telemetry.map(function(e) { return { x: e.nsp * trackLength, y: e.gear }; }),
-        fill: false,
-        backgroundColor: gearLineColor,
-        borderColor: gearLineColor,
-        lineTension: 0,
-        pointRadius: 0,
-        showLine: true,
-        interpolate: true
-      }]
+      datasets: originalTelemetry.map(function(telemetry, idx) {
+        return AnalysisPage.createTelemetryDataset(AnalysisPage.lapTimes[idx], config.lineColors[idx], telemetry, trackLength, "gear")
+      })
     };
 
     const gearChartTooltipCallback = {
@@ -288,7 +380,7 @@ class AnalysisPage extends Page {
     const nspAxisOption = {
       title: {
         display: true,
-        text: 'Distance in meters [m]',
+        text: 'Track Distance [m]',
         color: config.axisTitleColor,
         font: {
           size: config.axisTitleFontSize
@@ -303,7 +395,7 @@ class AnalysisPage extends Page {
     };
 
     const yAxisOption = {
-      beginAtZero: true,
+      beginAtZero: config.yAxisBeginAtZero,
       title: {
         display: true,
         text: yAxisTitle,
@@ -339,6 +431,7 @@ class AnalysisPage extends Page {
       type: 'scatter',
       data: dataset,
       options: {
+        maintainAspectRatio: false,
         stepped: stepped,
         scales: {
           y: yAxisOption,
@@ -347,7 +440,10 @@ class AnalysisPage extends Page {
         cubicInterpolationMode: (smooth) ? "monotone" : "default",
         plugins: {
           legend: {
-            display: false
+            display: config.showLegend,
+            labels: {
+              color: config.axisTitleColor,
+            }
           },
           tooltip: {
             animation: false,

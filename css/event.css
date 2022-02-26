@@ -940,7 +940,7 @@ li a.red {
 }
 
 #session-summary .tag,
-#analysis-page #lap-metadata .tag {
+#analysis-page .lap-metadata .tag {
   color: #797979;
   text-transform: uppercase;
   font-weight: bold;
@@ -955,7 +955,7 @@ li a.red {
 }
 
 #session-summary .value,
-#analysis-page #lap-metadata .value {
+#analysis-page .lap-metadata .value {
   color: #fff77f;
   font-size: 14px;
   float: left;
@@ -2114,20 +2114,36 @@ td .tooltip {
   justify-content: space-between;
 }
 
-#lap-details {
+#main-graphs.compare-lap {
   flex-direction: column;
-  width: 400px;
+}
+
+#main-graphs.single-lap {
+  flex-direction: row;
+}
+
+#main-graphs.compare-lap #lap-details {
+  flex-direction: row;
   display: flex;
   justify-content: space-between;
 }
 
-#lap-graphs {
-  width: 1100px;
+.compare-lap #lap-track-map svg {
+  max-height: 200px !important;
+  max-width: 300px !important;
 }
 
-#lap-track-map {
-  height: 100%;
-  width: 100%
+.single-lap #lap-track-map svg {
+  max-height: 400px !important;
+  max-width: 400px !important;
+}
+
+.single-lap #lap-track-map {
+  text-align: center;
+}
+
+.single-lap #lap-graphs {
+  margin-top: 30px;
 }
 
 #lap-graph1,
@@ -2153,26 +2169,48 @@ td .tooltip {
 
 #analysis-page #main-metadata {
   display: flex;
-  margin-bottom: 30px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#analysis-page #lap-data-1,
+#analysis-page #lap-data-2 {
+  display: flex;
   align-items: center;
 }
 
-#main-metadata #lap-time {
+#main-metadata .lap-time {
   border: 2px dotted #606060;
-  font-size: 30px;
+  font-size: 25px;
   padding: 8px 15px;
   color: #ff5757;
-  margin-right: 50px;
 }
 
-#main-metadata div {
+#main-metadata>div>div {
   padding: 0 30px;
   color: #cccaca;
+}
+
+#main-metadata #lap-data-1>div {
   border-right: 2px dotted #606060;
 }
 
-#main-metadata div:last-child {
+#main-metadata #lap-data-2>div {
+  border-left: 2px dotted #606060;
+}
+
+#main-metadata #lap-data-1 div:last-child {
   border-right: none;
+}
+
+#main-metadata #lap-data-2 div:first-child {
+  border-left: none;
+}
+
+#main-metadata .car-badge {
+  width: auto;
+  max-width: 250px;
+  overflow: hidden;
 }
 
 #main-metadata #car-name span {
@@ -2188,21 +2226,29 @@ td .tooltip {
   height: 100% !important;
 }
 
-#lap-metadata .event-name,
-#lap-metadata .weather {
+.lap-metadata .event-name,
+.lap-metadata .weather {
   display: flex;
 }
 
-#lap-metadata .metadata-columnar>div {
-  display: flex;
-  margin-bottom: 10px;
+#lap-metadata-2 .event-name {
+  text-align: right;
 }
 
-#metadata-columnar-container {
+#lap-metadata-2 .metadata-columnar>div {
+  text-align: right;
+}
+
+.lap-metadata .metadata-columnar>div {
+  display: flex;
+  margin-bottom: 6px;
+}
+
+.metadata-columnar-container {
   display: flex;
 }
 
-#lap-metadata #event-name a {
+.lap-metadata .event-name a {
   color: #ff5757;
   font-size: 22px;
   font-family: Roboto-Light;
@@ -2210,13 +2256,13 @@ td .tooltip {
   display: inline-block;
 }
 
-#lap-metadata #event-name {
-  margin-bottom: 25px;
+.lap-metadata .event-name {
+  margin-bottom: 10px;
 }
 
-#lap-metadata {
-  border-bottom: 2px dotted #606060;
-  padding-bottom: 20px;
+.lap-metadata {
+  padding-bottom: 30px;
+  padding-top: 30px;
 }
 
 #lap-graph1 {
@@ -2242,6 +2288,7 @@ td .tooltip {
   text-align: center;
   overflow: hidden;
   cursor: move;
+  margin-top: 60px;
 }
 
 #racing-line-svg svg {
@@ -2255,6 +2302,7 @@ td .tooltip {
   left: 20px;
   display: flex;
   z-index: 1000;
+  align-items: center;
 }
 
 #zoom-slider {
@@ -2263,4 +2311,40 @@ td .tooltip {
 
 #map-data-selection {
   color: #ff5757;
+  padding: 10px 25px;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+  background: #353535;
+}
+
+.rl-legend-box {
+  display: inline-block;
+  width: 45px;
+  height: 14px;
+  background-color: red;
+}
+
+#racing-line-legend {
+  display: flex;
+  position: absolute;
+  justify-content: center;
+  width: 100%;
+  top: 22px;
+}
+
+#racing-line-legend>div {
+  display: flex;
+  align-items: center;
+}
+
+.rl-legend-label {
+  color: #bbb;
+  font-size: 14px;
+}
+
+#racing-line-legend div:first-child .rl-legend-label,
+.rl-legend-box {
+  margin-right: 10px;
 }
