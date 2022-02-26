@@ -1,22 +1,22 @@
 class AnalysisPage extends Page {
   static DRIVER_CIRCLE_RADIUS = 16;
-  static DRIVER_CIRCLE_COLOR = "#EF2D56";
+  static DRIVER_CIRCLE_COLOR = "#FEC606";
   static LAP_TELEMETRY_VERSION = 1;
-  static RACING_LINE_DEFAULT_STROKE_WIDTH = 1.5;
+  static RACING_LINE_DEFAULT_STROKE_WIDTH = 2;
   static SIDE_LINE_DEFAULT_STROKE_WIDTH = 1;
   static RACING_LINE_DEFAULT_COLOR = "#ff5757";
-  static compareLap = false;
+  static compareLap = true;
   static lapTimes = [0, 0];
   static graphConfig = {
     "axisTitleColor": "#bbb",
     "axisTitleFontSize": 14,
     "gridLineColor": "#424242",
-    "crossHairColor": "#EF2D56",
+    "crossHairColor": AnalysisPage.DRIVER_CIRCLE_COLOR,
     "zoomboxBackgroundColor": "rgba(66,133,244,0.2)",
     "zoomboxBorderColor": "#48F",
     "showLegend": AnalysisPage.compareLap,
     "yAxisBeginAtZero": false,
-    "lineColors": ["#ff5757", "#89a2d2"]
+    "lineColors": ["#71BA51", "#36a2eb"]
   };
 
   static update(lapID) {
