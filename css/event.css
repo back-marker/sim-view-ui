@@ -2356,12 +2356,12 @@ td .tooltip {
 
 .compare-lap-checkbox-container {
   position: absolute;
-  width: 40px;
+  width: 30px;
   height: 39px;
   left: 0;
   top: 0;
   display: flex;
-  justify-content: center;
+  justify-content: left;
   align-items: center;
   opacity: 0;
   transition: left .1s ease-out, opacity .1s ease-out;
@@ -2378,5 +2378,5 @@ td .tooltip {
 .active-compare-lap-selection tr:hover .compare-lap-checkbox-container,
 .selected-lap-checkbox {
   opacity: 1;
-  left: -40px;
+  left: -30px;
 }
