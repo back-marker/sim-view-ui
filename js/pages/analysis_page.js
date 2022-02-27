@@ -106,6 +106,8 @@ class AnalysisPage extends Page {
     $(`${lapMetadata} .metadata-columnar-container .sector3 .value`).text(Lap.convertMSToDisplayTimeString(details.lap.sector_3));
     $(`${lapMetadata} .metadata-columnar-container .track .value`).text(details.track_name);
     $(`${lapMetadata} .metadata-columnar-container .track-length .value`).text(`${details.track_length} m`);
+    const finishedAt = (new Date(details.lap.finished_at / 1000)).toLocaleString();
+    $(`${lapMetadata} .metadata-columnar-container .finished-at .value`).text(finishedAt);
   }
 
   static setupNspIndicatorTrackMap(data) {
