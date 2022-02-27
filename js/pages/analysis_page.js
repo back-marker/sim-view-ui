@@ -4,6 +4,8 @@ class AnalysisPage extends Page {
   static LAP_TELEMETRY_VERSION = 1;
   static RACING_LINE_DEFAULT_STROKE_WIDTH = 2;
   static SIDE_LINE_DEFAULT_STROKE_WIDTH = 1;
+  static RACING_LINE_MIN_SCALE = 1;
+  static RACING_LINE_MAX_SCALE = 16;
   static RACING_LINE_DEFAULT_COLOR = "#ff5757";
   static lapTimes = [0, 0];
   static graphConfig = {
@@ -45,11 +47,12 @@ class AnalysisPage extends Page {
 
     $("#zoom-slider-input").on("input", function(e) {
       const zoomValue = Number.parseInt(e.target.value);
-      const newScale = ((7 * zoomValue + 92) / 99).toFixed(2);
-      if (newScale < 1) newScale = 1;
-      if (newScale > 8) newScale = 8;
+      var newScale = AnalysisPage.RACING_LINE_MIN_SCALE +
+        (zoomValue - 1) * (AnalysisPage.RACING_LINE_MAX_SCALE - AnalysisPage.RACING_LINE_MIN_SCALE) / 99;
+      if (newScale < AnalysisPage.RACING_LINE_MIN_SCALE) newScale = AnalysisPage.RACING_LINE_MIN_SCALE;
+      if (newScale > AnalysisPage.RACING_LINE_MAX_SCALE) newScale = AnalysisPage.RACING_LINE_MAX_SCALE;
       scale = newScale;
-      if (scale == 1) {
+      if (scale == AnalysisPage.RACING_LINE_MIN_SCALE) {
         sumDX = 0;
         sumDY = 0;
       }
