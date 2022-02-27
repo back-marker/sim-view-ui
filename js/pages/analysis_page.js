@@ -17,7 +17,7 @@ class AnalysisPage extends Page {
     "zoomboxBorderColor": "#48F",
     "showLegend": true,
     "yAxisBeginAtZero": false,
-    "lineColors": ["#71BA51", "#36a2eb"]
+    "lineColors": ["#5381d9", "#cccaca"]
   };
 
   static update() {
