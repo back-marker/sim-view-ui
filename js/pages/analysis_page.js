@@ -240,9 +240,9 @@ class AnalysisPage extends Page {
     if (scale < 1) return;
 
     $("#racing-line-svg svg").attr("transform", `scale(${scale})translate(${dX},${dY})`);
-
+    var mapScale = Number.parseFloat($("#lap-track-map svg").attr("data-scale"));
     const strokeWidth = (AnalysisPage.SIDE_LINE_DEFAULT_STROKE_WIDTH / scale).toFixed(2);
-    $("#racing-line-svg svg #racingline").css("stroke-width", strokeWidth *
+    $("#racing-line-svg svg #racingline").css("stroke-width", mapScale * strokeWidth *
       AnalysisPage.RACING_LINE_DEFAULT_STROKE_WIDTH);
     $("#racing-line-svg svg #sidelane1").css("stroke-width", strokeWidth);
     $("#racing-line-svg svg #sidelane2").css("stroke-width", strokeWidth);
@@ -251,7 +251,7 @@ class AnalysisPage extends Page {
   static renderRacingLine(telemetry, lapIndex, config) {
     var offsetX = Number.parseFloat($("#lap-track-map svg").attr("data-x-offset"));
     var offsetY = Number.parseFloat($("#lap-track-map svg").attr("data-y-offset"));
-
+    var mapScale = Number.parseFloat($("#lap-track-map svg").attr("data-scale"));
     const polygonPoints = telemetry.map(function(e) {
       return (offsetX + e.position_x).toFixed(2) + "," + (offsetY + e.position_z).toFixed(2);
     }).join(" ");
@@ -261,7 +261,7 @@ class AnalysisPage extends Page {
     polygon.setAttributeNS(null, "id", "racingline");
     polygon.setAttributeNS(null, "points", polygonPoints);
     polygon.setAttributeNS(null, "style", "fill:none; stroke:" + lineColor +
-      "; stroke-width:" + AnalysisPage.RACING_LINE_DEFAULT_STROKE_WIDTH);
+      "; stroke-width:" + (mapScale * AnalysisPage.RACING_LINE_DEFAULT_STROKE_WIDTH));
 
     if (config.showLegend) {
       var legendHtml = `<div><span class="rl-legend-box" style="background-color:${lineColor}"></span><span class="rl-legend-label">${AnalysisPage.lapTimes[lapIndex - 1]}</span></div>`
