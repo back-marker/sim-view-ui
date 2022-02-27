@@ -11,6 +11,9 @@
 ### Live Track Map
 ![Live Track Map](/screenshots/live-map.png)
 
+### Lap Telemetry Comparison
+![Lap Telemetry Comparison](/screenshots/analysis.png)
+
 ### Standing Result Page
 ![Standing Result Page](/screenshots/result-practice-standing.png)
 
