@@ -17,7 +17,7 @@ class DriverPage extends Page {
 
         var country = selected.attr("data-country");
         if (country !== undefined && country !== "") {
-          $(".ds-driver-country").html(`<img alt="Flag" src="${Util.getCountryFlagUrl(country)}">`);
+          $(".ds-driver-country").html(`<span class="fi fi-${country.toLowerCase()}"></span>`);
         } else {
           $(".ds-driver-country img").remove();
         }

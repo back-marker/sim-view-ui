@@ -113,10 +113,6 @@ class Util {
     return data["status"] === "success";
   }
 
-  static getCountryFlagUrl(code, size = 32) {
-    return `https://www.countryflags.io/${code}/flat/${size}.png`;
-  }
-
   static getCurrentEvent() {
     return window.location.toString().match("event/([0-9]+)/")[1];
   }
