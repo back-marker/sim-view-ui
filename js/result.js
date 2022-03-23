@@ -355,3 +355,63 @@ class ResultSectorTabEntry {
       return allStints;
     }
   }
+
+  class ResultConsistencyTabEntry {
+    constructor(teamId, driverId, carId, bestLapTime, avgLapTime, error, consistency) {
+      this.teamId = teamId;
+      this.driverId = driverId;
+      this.carId = carId;
+      this.bestLapTime = bestLapTime;
+      this.avgLapTime = avgLapTime;
+      this.error = error;
+      this.consistency = consistency;
+    }
+
+    static fromJSON(data) {
+      return new ResultConsistencyTabEntry(data.team_id, data.user_id, data.car_id, data.best,
+        data.avg, data.error, data.per);
+    }
+
+    toHTML(pos, teamEvent, useTeamNumber) {
+      const team = DataStore.getTeam(this.teamId);
+      const car = DataStore.getCar(this.carId);
+      const user = DataStore.getUser(this.driverId);
+
+      return `<tr>
+        <td class="st-pos">${pos}</td>
+        <td class="lb-car-class ${DataStore.getCarColorClass(this.carId)}" data-car-id="${this.carId}">
+          ${DataStore.getCarClass(this.carId)}
+        </td>
+        ${useTeamNumber? `<td class="lb-team-no" data-team-id="${this.teamId}">
+          ${team !== undefined? team.team_no : ""}</td>` : ""}
+        ${teamEvent? `<td class="lb-team" data-team-id="${this.teamId}">
+          ${team !== undefined? team.name : ""}</td>` : ""}
+        <td class="lb-car" data-car-id="${this.carId}">
+          <span class="car-name car-badge" style="background: url('/images/ac/car/${this.carId}/badge')">
+            ${car !== undefined? car.display_name : ""}
+          </span>
+        </td>
+        ${!teamEvent? `<td class="lb-driver" data-driver-id="${this.driverId}">
+          ${user !== undefined? user.name : ""}</td>` : ""}
+        <td class="lb-best-lap">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</td>
+        <td class="lb-avg-lap">${Lap.convertMSToDisplayTimeString(this.avgLapTime)}</td>
+        <td class="sc-error">${Lap.convertMSToDisplayTimeString(this.error)}</td>
+        <td class="sc-consistency">${(100 * this.consistency).toFixed(2)}</td>
+      </tr>`;
+    }
+
+    static getHeaderHtml(teamEvent, useTeamNumber) {
+      return `<tr>
+        <td class="st-hr-pos"><a class="tooltip" title="Overall position">Pos</a></td>
+        <td class="lb-hr-car-class">Class</td>
+        ${useTeamNumber? `<td class="lb-hr-team-no"><a class="tooltip" title="Team No">No.</a></td>` : ""}
+        ${teamEvent? `<td class="lb-hr-team">Team</td>` : ""}
+        <td class="lb-hr-car">Car</td>
+        ${!teamEvent? `<td class="lb-hr-driver">Driver</td>` : ""}
+        <td class="lb-hr-best-lap"><a class="tooltip" title="Best lap time">Best</a></td>
+        <td class="lb-hr-avg-lap"><a class="tooltip" title="Average lap time">Avg.</a></td>
+        <td class="sc-hr-error"><a class="tooltip" title="Average lap deviation from best lap">Error</a></td>
+        <td class="sc-hr-consistency"><a class="tooltip" title="Error % of Best lap time">Consistency</a></td>
+      </tr>`;
+    }
+  }

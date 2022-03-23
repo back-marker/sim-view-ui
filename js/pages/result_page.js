@@ -60,6 +60,52 @@ class ResultPage extends Page {
     }
   }
 
+  static cb_updateConsistencyTab(data) {
+    if (data["status"] === "success") {
+      const consistency = data.consistency;
+      var pendingCarList = new Set();
+      var pendingDriverList = new Set();
+      var pendingTeamList = new Set();
+
+      var teamEvent = Util.isCurrentTeamEvent();
+      var useTeamNumber = Util.isCurrentTeamEventUseNumber();
+
+      var sessionType = $("select[name='select-session'] option:selected").text().toLowerCase().split(' ')[0];
+      var consistencyHeader = "";
+      if (sessionType === "race") {
+        consistencyHeader = ResultConsistencyTabEntry.getHeaderHtml(teamEvent, useTeamNumber);
+      } else {
+        return;
+      }
+
+      var consistencyHtml = '';
+      for (var idx = 0; idx < consistency.length; ++idx) {
+        const singleConsistency = consistency[idx];
+        consistencyHtml += ResultConsistencyTabEntry.fromJSON(singleConsistency).toHTML(idx + 1, teamEvent, useTeamNumber);
+
+        if (teamEvent && !DataStore.containsTeam(singleConsistency.team_id)) {
+          pendingTeamList.add(singleConsistency.team_id);
+        }
+        if (!DataStore.containsCar(singleConsistency.car_id)) {
+          pendingCarList.add(singleConsistency.car_id);
+        }
+        if (!teamEvent && !DataStore.containsUser(singleConsistency.user_id)) {
+          pendingDriverList.add(singleConsistency.user_id);
+        }
+      }
+
+      $("#consistency-tab").html(`<table>
+      <thead id="consistency-header">
+      ${consistencyHeader}
+      </thead>
+      <tbody id="consistency-body">
+      ${consistencyHtml}
+      </tbody>
+    </table>`);
+      Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
+    }
+  }
+
   static cb_updateStandingsTab(data) {
     if (data["status"] === "success") {
       const standings = data.standings;
@@ -204,6 +250,12 @@ class ResultPage extends Page {
         getRequest("/api/ac/session/" + sessionId + "/result/sectors", ResultPage.cb_updateSectorsTab);
         getRequest("/api/ac/session/" + sessionId + "/" + sessionType + "/result/standings",
           ResultPage.cb_updateStandingsTab);
+        if (sessionType === "race") {
+          getRequest("/api/ac/session/" + sessionId + "/race/result/consistency",
+            ResultPage.cb_updateConsistencyTab);
+        } else {
+          $("#consistency-tab").html(`<div id="consistency-missing">Consistency data is only available for Race session</div>`);
+        }
       });
     }
   }

@@ -514,9 +514,17 @@ main {
 
 .lb-best-lap,
 .lb-hr-best-lap,
+.lb-hr-avg-lap,
+.lb-avg-lap,
+.sc-hr-error,
+.sc-error,
 .lb-last-lap,
 .lb-hr-last-lap {
   width: 80px;
+  text-align: right;
+}
+
+.sc-consistency {
   text-align: right;
 }
 
@@ -715,7 +723,8 @@ main {
 
 #message,
 #track-missing,
-#event-missing {
+#event-missing,
+#consistency-missing {
   color: #cccaca;
   text-align: center;
   font-size: 20px;
@@ -1085,7 +1094,8 @@ li a.red {
 }
 
 .sec-header td,
-#standings-header td {
+#standings-header td,
+#consistency-header td {
   color: #797979;
   text-transform: uppercase;
   font-weight: bold;
@@ -1096,14 +1106,16 @@ li a.red {
 }
 
 .sec-body td,
-#standings-body td {
+#standings-body td,
+#consistency-body td {
   padding: 10px 5px;
   color: #cccaca;
   font-size: 16px;
 }
 
 .sec-body tr:nth-child(even),
-#standings-body tr:nth-child(even) {
+#standings-body tr:nth-child(even),
+#consistency-body tr:nth-child(even) {
   background-color: #2f2f2f;
 }
 
@@ -1651,6 +1663,7 @@ li a.red {
   width: 45px;
 }
 
+#consistency-body .lb-car,
 #standings-body .lb-car,
 #sec-body-1 .lb-car,
 #sec-body-2 .lb-car,
@@ -1659,6 +1672,7 @@ li a.red {
 }
 
 #standings-body,
+#consistency-body,
 #sec-body-1,
 #sec-body-2,
 #sec-body-3,
