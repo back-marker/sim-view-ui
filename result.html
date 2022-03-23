@@ -46,92 +46,93 @@
       </div>
     </div>
     <div id="message" class="hidden-opacity">.</div>
-    <div id="result-sidebar" class="left">
-      <div id="select-session">
-        <select name="select-session"></select>
+    <div id="result-container">
+      <div id="result-sidebar">
+        <div id="select-session">
+          <select name="select-session"></select>
+        </div>
+        <div id="session-summary">
+          <div class="start">
+            <span class="tag">Start</span><span class="value">-</span>
+            <div class="clear-both"></div>
+          </div>
+          <div class="finish">
+            <span class="tag">Finish</span><span class="value">-</span>
+            <div class="clear-both"></div>
+          </div>
+          <div class="duration">
+            <span class="tag">Duration</span><span class="value">-</span>
+            <div class="clear-both"></div>
+          </div>
+          <div class="weather">
+            <span class="tag">Weather</span><span class="value">-</span>
+            <div class="clear-both"></div>
+          </div>
+          <div class="air-temp">
+            <span class="tag">Air Temp</span><span class="value"><span class="temp-val"></span>&#176; C</span>
+            <div class="clear-both"></div>
+          </div>
+          <div class="road-temp">
+            <span class="tag">Road Temp</span><span class="value"><span class="temp-val"></span>&#176; C</span>
+            <div class="clear-both"></div>
+          </div>
+          <div class="start-grip">
+            <span class="tag">Start Grip</span><span class="value">-</span>
+            <div class="clear-both"></div>
+          </div>
+          <div class="final-grip">
+            <span class="tag">Final Grip</span><span class="value">-</span>
+            <div class="clear-both"></div>
+          </div>
+        </div>
       </div>
-      <div id="session-summary">
-        <div class="start">
-          <span class="tag">Start</span><span class="value">-</span>
-          <div class="clear-both"></div>
+      <div id="result-main" class="result-quali">
+        <ul id="result-main-tabs">
+          <li data-tab="standings" class="active left">Standings</li>
+          <li data-tab="sectors" class="left">Sectors</li>
+          <li data-tab="consistency" class="left">Consistency</li>
+          <li data-tab="stints" class="left">Stints</li>
+          <li class="clear-both"></li>
+        </ul>
+        <div class="result-tabs" id="standings-tab">
+          <div id="fastest-lap"></div>
+          <div id="standings">
+            <table>
+              <thead id="standings-header">
+              </thead>
+              <tbody id="standings-body">
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="finish">
-          <span class="tag">Finish</span><span class="value">-</span>
-          <div class="clear-both"></div>
-        </div>
-        <div class="duration">
-          <span class="tag">Duration</span><span class="value">-</span>
-          <div class="clear-both"></div>
-        </div>
-        <div class="weather">
-          <span class="tag">Weather</span><span class="value">-</span>
-          <div class="clear-both"></div>
-        </div>
-        <div class="air-temp">
-          <span class="tag">Air Temp</span><span class="value"><span class="temp-val"></span>&#176; C</span>
-          <div class="clear-both"></div>
-        </div>
-        <div class="road-temp">
-          <span class="tag">Road Temp</span><span class="value"><span class="temp-val"></span>&#176; C</span>
-          <div class="clear-both"></div>
-        </div>
-        <div class="start-grip">
-          <span class="tag">Start Grip</span><span class="value">-</span>
-          <div class="clear-both"></div>
-        </div>
-        <div class="final-grip">
-          <span class="tag">Final Grip</span><span class="value">-</span>
-          <div class="clear-both"></div>
-        </div>
-      </div>
-    </div>
-    <div id="result-main" class="left result-quali">
-      <ul id="result-main-tabs">
-        <li data-tab="standings" class="active left">Standings</li>
-        <li data-tab="sectors" class="left">Sectors</li>
-        <li data-tab="consistency" class="left">Consistency</li>
-        <li data-tab="stints" class="left">Stints</li>
-        <li class="clear-both"></li>
-      </ul>
-      <div class="result-tabs" id="standings-tab">
-        <div id="fastest-lap"></div>
-        <div id="standings">
+        <div class="result-tabs" id="sectors-tab">
+          <div class="sectors-best-title">Best Sector 1 Times</div>
           <table>
-            <thead id="standings-header">
+            <thead id="sec-header-1" class="sec-header">
             </thead>
-            <tbody id="standings-body">
+            <tbody id="sec-body-1" class="sec-body">
+            </tbody>
+          </table>
+          <div class="sectors-best-title">Best Sector 2 Times</div>
+          <table>
+            <thead id="sec-header-2" class="sec-header">
+            </thead>
+            <tbody id="sec-body-2" class="sec-body">
+            </tbody>
+          </table>
+          <div class="sectors-best-title">Best Sector 3 Times</div>
+          <table>
+            <thead id="sec-header-3" class="sec-header">
+            </thead>
+            <tbody id="sec-body-3" class="sec-body">
             </tbody>
           </table>
         </div>
+        <div class="result-tabs" id="consistency-tab">
+        </div>
+        <div class="result-tabs" id="stints-tab"></div>
       </div>
-      <div class="result-tabs" id="sectors-tab">
-        <div class="sectors-best-title">Best Sector 1 Times</div>
-        <table>
-          <thead id="sec-header-1" class="sec-header">
-          </thead>
-          <tbody id="sec-body-1" class="sec-body">
-          </tbody>
-        </table>
-        <div class="sectors-best-title">Best Sector 2 Times</div>
-        <table>
-          <thead id="sec-header-2" class="sec-header">
-          </thead>
-          <tbody id="sec-body-2" class="sec-body">
-          </tbody>
-        </table>
-        <div class="sectors-best-title">Best Sector 3 Times</div>
-        <table>
-          <thead id="sec-header-3" class="sec-header">
-          </thead>
-          <tbody id="sec-body-3" class="sec-body">
-          </tbody>
-        </table>
-      </div>
-      <div class="result-tabs" id="consistency-tab">
-      </div>
-      <div class="result-tabs" id="stints-tab"></div>
     </div>
-    <div class="clear-both"></div>
   </main>
   <footer>
   </footer>

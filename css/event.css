@@ -885,6 +885,11 @@ li a.red {
 
 #result-main {
   margin-left: 50px;
+  flex-grow: 1;
+}
+
+#result-container {
+  display: flex;
 }
 
 #result-event {
