@@ -357,19 +357,38 @@ class ResultSectorTabEntry {
   }
 
   class ResultConsistencyTabEntry {
-    constructor(teamId, driverId, carId, bestLapTime, avgLapTime, error, consistency) {
+    constructor(teamId, driverId, carId, lapTimes) {
       this.teamId = teamId;
       this.driverId = driverId;
       this.carId = carId;
-      this.bestLapTime = bestLapTime;
-      this.avgLapTime = avgLapTime;
-      this.error = error;
-      this.consistency = consistency;
+
+      const consistencyData = ResultConsistencyTabEntry.computeConsistency(lapTimes);
+      this.bestLapTime = consistencyData.bestLapTime || 0;
+      this.avgLapTime = consistencyData.avgLapTime || 0;
+      this.error = consistencyData.error || 0;
+      this.consistency = consistencyData.consistency || 0;
     }
 
     static fromJSON(data) {
-      return new ResultConsistencyTabEntry(data.team_id, data.user_id, data.car_id, data.best,
-        data.avg, data.error, data.per);
+      return new ResultConsistencyTabEntry(data.team_id, data.user_id, data.car_id, data.lap_times);
+    }
+
+    static computeConsistency(lapTimes) {
+      if (lapTimes === undefined) return {};
+
+      const bestLapTime = Math.min(...lapTimes);
+      var totalLapTime = lapTimes.reduce(function(a, b) { return a + b; });
+      totalLapTime -= (bestLapTime + lapTimes[0]);
+      const avgLapTime = Math.floor(totalLapTime / (lapTimes.length - 2));
+      const error = avgLapTime - bestLapTime;
+      const consistency = 1 - error / bestLapTime;
+
+      return {
+        "bestLapTime": bestLapTime,
+        "avgLapTime": avgLapTime,
+        "error": error,
+        "consistency": consistency
+      };
     }
 
     toHTML(pos, teamEvent, useTeamNumber) {
@@ -396,7 +415,7 @@ class ResultSectorTabEntry {
         <td class="lb-best-lap">${Lap.convertMSToDisplayTimeString(this.bestLapTime)}</td>
         <td class="lb-avg-lap">${Lap.convertMSToDisplayTimeString(this.avgLapTime)}</td>
         <td class="sc-error">${Lap.convertMSToDisplayTimeString(this.error)}</td>
-        <td class="sc-consistency">${(100 * this.consistency).toFixed(2)}</td>
+        <td class="sc-consistency">${(100 * this.consistency).toFixed(2)}%</td>
       </tr>`;
     }
 

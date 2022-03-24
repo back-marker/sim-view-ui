@@ -62,7 +62,7 @@ class ResultPage extends Page {
 
   static cb_updateConsistencyTab(data) {
     if (data["status"] === "success") {
-      const consistency = data.consistency;
+      const consistency = data.laps;
       var pendingCarList = new Set();
       var pendingDriverList = new Set();
       var pendingTeamList = new Set();
@@ -251,7 +251,7 @@ class ResultPage extends Page {
         getRequest("/api/ac/session/" + sessionId + "/" + sessionType + "/result/standings",
           ResultPage.cb_updateStandingsTab);
         if (sessionType === "race") {
-          getRequest("/api/ac/session/" + sessionId + "/race/result/consistency",
+          getRequest("/api/ac/session/" + sessionId + "/race/result/laps",
             ResultPage.cb_updateConsistencyTab);
         } else {
           $("#consistency-tab").html(`<div id="consistency-missing">Consistency data is only available for Race session</div>`);
