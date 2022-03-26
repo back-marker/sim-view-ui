@@ -94,7 +94,6 @@ class ResultPage extends Page {
 
     const lapTimeVariationTooltipCallback = {
       label: function(d) {
-        console.log(d);
         const data = d.parsed;
         const avgTime = `${Lap.convertMSToDisplayTimeString(Math.floor(data.mean))} : average`;
         const medianTime = `${Lap.convertMSToDisplayTimeString(Math.floor(data.median))} : median`;
@@ -146,9 +145,21 @@ class ResultPage extends Page {
       })
     };
 
+    const positionTooltipCallback = {
+      label: function(d) {
+        return `${d.dataset.label}: P${d.raw.y + 1}`;
+      }
+    };
+
+    const tooltipSort = function(l, r) {
+      if (l.raw.y === r.raw.y) return 0;
+      if (l.raw.y < r.raw.y) return -1;
+      return 1;
+    }
+
     const title = "Position at the end of each lap";
     ResultPage.createChart("canvas-position-graph", "line", positionData, false, "Position",
-      ResultPage.graphConfig, true, title);
+      ResultPage.graphConfig, true, title, positionTooltipCallback, tooltipSort);
   }
 
   static computePositionPerLap(driverLapTimeData) {
@@ -245,12 +256,18 @@ class ResultPage extends Page {
       }
     };
 
+    const tooltipSort = function(l, r) {
+      if (l.raw === r.raw) return 0;
+      if (l.raw < r.raw) return 1;
+      return -1;
+    }
+
     const title = "Laptime per lap";
     ResultPage.createChart("canvas-laptime-graph", "line", lapTimeData, false, "LapTime",
-      ResultPage.graphConfig, false, title, lapTimeTooltipCallback);
+      ResultPage.graphConfig, false, title, lapTimeTooltipCallback, tooltipSort);
   }
 
-  static createChart(canvasID, chartType, dataset, stepped, yAxisTitle, config, yAxisReverse, chartTitle, tooltipCallback) {
+  static createChart(canvasID, chartType, dataset, stepped, yAxisTitle, config, yAxisReverse, chartTitle, tooltipCallback, tooltipSortCallback) {
     const xAxisOption = {
       title: {
         display: chartType !== "boxplot",
@@ -329,7 +346,8 @@ class ResultPage extends Page {
             animation: false,
             mode: 'interpolate',
             intersect: false,
-            callbacks: tooltipCallback
+            callbacks: tooltipCallback,
+            itemSort: tooltipSortCallback
           },
           crosshair: {
             line: {
