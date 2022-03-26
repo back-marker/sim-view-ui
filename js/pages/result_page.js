@@ -1,4 +1,18 @@
 class ResultPage extends Page {
+  static graphConfig = {
+    "axisTitleColor": "#bbb",
+    "axisTitleFontSize": 14,
+    "gridLineColor": "#424242",
+    "crossHairColor": "#FEC606",
+    "zoomboxBackgroundColor": "rgba(66,133,244,0.2)",
+    "zoomboxBorderColor": "#48F",
+    "showLegend": true,
+    "yAxisBeginAtZero": false,
+    "chartTitleColor": "#6db4df",
+    "chartTitleFontSize": 16,
+    "lineColors": ["#5381d9", "#cccaca"]
+  };
+
   static cb_updateEventInfo(data) {
     if (data["status"] == "success") {
       const event = data.event;
@@ -60,9 +74,305 @@ class ResultPage extends Page {
     }
   }
 
+  static renderLapVariationGraph(lapTimes, indentityNames) {
+    const labels = Array.from({ length: lapTimes.length }).map(function(v, idx) { return indentityNames[idx]; });
+
+    const lapVariationData = {
+      labels: labels,
+      datasets: [{
+        label: 'Lap Time Variation',
+        backgroundColor: Colors.getWithTransparent(3, .3),
+        borderColor: Colors.get(3),
+        borderWidth: 2,
+        outlierColor: Colors.get(17),
+        padding: 10,
+        itemRadius: 0,
+        itemBackgroundColor: Colors.get(17),
+        data: lapTimes.map(function(v, idx) { return v.lap_times; }),
+      }]
+    };
+
+    const lapTimeVariationTooltipCallback = {
+      label: function(d) {
+        console.log(d);
+        const data = d.parsed;
+        const avgTime = `${Lap.convertMSToDisplayTimeString(Math.floor(data.mean))} : average`;
+        const medianTime = `${Lap.convertMSToDisplayTimeString(Math.floor(data.median))} : median`;
+        return [
+          `${Lap.convertMSToDisplayTimeString(Math.floor(data.whiskerMax))} : max`,
+          `${Lap.convertMSToDisplayTimeString(Math.floor(data.q3))} : Q3`,
+          (data.mean > data.median) ? avgTime : medianTime,
+          (data.mean > data.median) ? medianTime : avgTime,
+          `${Lap.convertMSToDisplayTimeString(Math.floor(data.q1))} : Q1`,
+          `${Lap.convertMSToDisplayTimeString(Math.floor(data.whiskerMin))} : min`,
+          ((data.outliers.length === 0) ? "No" : data.outliers.length) + " outliers"
+        ];
+        // return `${d.dataset.label}: ${Lap.convertMSToDisplayTimeString(d.raw)}`;
+      }
+    };
+
+    var teamEvent = Util.isCurrentTeamEvent();
+    const title = "Laptime variation per " + (teamEvent ? "Team" : "Driver");
+    ResultPage.createChart("canvas-consistency-graph", "boxplot", lapVariationData, false, "Laptime",
+      ResultPage.graphConfig, false, title, lapTimeVariationTooltipCallback);
+  }
+
+  static renderPositionGraph(lapTimes, indentityNames) {
+    const position = ResultPage.computePositionPerLap(lapTimes);
+    const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
+
+    const driverLaps = lapTimes.map(function(v) { return v.lap_times.length; });
+    const totalLapCount = Math.max(...driverLaps);
+    const positionData = {
+      labels: Array.from({ length: totalLapCount }).map(function(v, idx) { return `L${idx + 1}`; }),
+      datasets: position.map(function(value, idx) {
+        return {
+          label: indentityNames[idx],
+          data: value,
+          fill: false,
+          cubicInterpolationMode: 'monotone',
+          tension: 0.4,
+          pointStyle: 'circle',
+          pointRadius: 4,
+          segment: {
+            borderDash: ctx => skipped(ctx, [6, 6]),
+          },
+          spanGaps: true,
+          pointBorderColor: Colors.get(idx),
+          pointBackgroundColor: Colors.get(idx),
+          borderColor: Colors.getWithTransparent(idx, 0.6),
+          backgroundColor: Colors.getWithTransparent(idx, 0.6)
+        };
+      })
+    };
+
+    const title = "Position at the end of each lap";
+    ResultPage.createChart("canvas-position-graph", "line", positionData, false, "Position",
+      ResultPage.graphConfig, true, title);
+  }
+
+  static computePositionPerLap(driverLapTimeData) {
+    const driverCount = driverLapTimeData.length;
+    const driverLaps = driverLapTimeData.map(function(v) { return v.lap_times.length; });
+    const totalLapCount = Math.max(...driverLaps);
+
+    // driver -> [position for each lap]
+    var positionMap = [];
+    // driver -> totalTime
+    var totalTime = {};
+
+    var winnerDriverIdx = -1;
+    var positionProcessedIdx = driverCount - 1;
+    for (var lapIdx = 0; lapIdx < totalLapCount; ++lapIdx) {
+      var cumulatedLapTime = [];
+      for (var driverIdx = 0; driverIdx < driverCount; ++driverIdx) {
+        const lapTime = driverLapTimeData[driverIdx].lap_times[lapIdx];
+        if (lapTime !== undefined) {
+          cumulatedLapTime.push({ driver: driverIdx, t: (totalTime[driverIdx] || 0) + lapTime });
+        }
+      }
+
+      cumulatedLapTime = cumulatedLapTime.sort(function(l, r) {
+        if (l.t === r.t) return 0;
+        if (l.t < r.t) return -1;
+        return 1;
+      });
+
+      for (var positionIdx = 0; positionIdx < cumulatedLapTime.length; ++positionIdx) {
+        const driverIdx = cumulatedLapTime[positionIdx].driver;
+        if (positionMap[driverIdx] === undefined) {
+          positionMap[driverIdx] = [];
+        }
+        if (lapIdx + 1 === totalLapCount && positionIdx === 0) {
+          winnerDriverIdx = driverIdx;
+        }
+
+        positionMap[driverIdx].push({ x: `L${lapIdx + 1}`, y: positionIdx });
+        totalTime[driverIdx] = cumulatedLapTime[positionIdx].t;
+      }
+
+      var lappedDriverLastPosition = {};
+      for (var driverIdx = 0; driverIdx < driverCount; ++driverIdx) {
+        if (driverLapTimeData[driverIdx].lap_times.length === lapIdx) {
+          const lastPos = positionMap[driverIdx][positionMap[driverIdx].length - 1].y;
+          lappedDriverLastPosition[lastPos] = driverIdx;
+        }
+      }
+
+      for (var positionMapIdx = driverCount - 1; positionMapIdx >= 0; --positionMapIdx) {
+        if (lappedDriverLastPosition[positionMapIdx] !== undefined) {
+          positionMap[lappedDriverLastPosition[positionMapIdx]].push({ x: `L${lapIdx + 1}`, y: positionProcessedIdx });
+          --positionProcessedIdx;
+        }
+      }
+    }
+
+    for (var driverIdx = 0; driverIdx < driverCount; ++driverIdx) {
+      if (driverLaps[driverIdx] < totalLapCount) {
+        // Lapped
+        const lapPos = positionMap[driverIdx][positionMap[driverIdx].length - 1].y;
+        positionMap[driverIdx].pop();
+        positionMap[driverIdx].push(undefined);
+        positionMap[driverIdx].push({ x: `L${totalLapCount}`, y: lapPos });
+      }
+    }
+
+    return positionMap;
+  }
+
+  static renderLapTimeGraph(lapTimes, indentityNames) {
+    const laps = Math.max(...lapTimes.map(function(v) { return v.lap_times.length; }));
+    const lapTimeData = {
+      labels: Array.from({ length: laps }).map(function(v, idx) { return `L${idx + 1}`; }),
+      datasets: lapTimes.map(function(v, idx) {
+        return {
+          label: indentityNames[idx],
+          data: v.lap_times,
+          cubicInterpolationMode: 'monotone',
+          tension: 0.4,
+          fill: false,
+          pointBorderColor: Colors.get(idx),
+          pointBackgroundColor: Colors.get(idx),
+          borderColor: Colors.getWithTransparent(idx, 0.6),
+          backgroundColor: Colors.getWithTransparent(idx, 0.6)
+        };
+      })
+    };
+
+    const lapTimeTooltipCallback = {
+      label: function(d) {
+        return `${d.dataset.label}: ${Lap.convertMSToDisplayTimeString(d.raw)}`;
+      }
+    };
+
+    const title = "Laptime per lap";
+    ResultPage.createChart("canvas-laptime-graph", "line", lapTimeData, false, "LapTime",
+      ResultPage.graphConfig, false, title, lapTimeTooltipCallback);
+  }
+
+  static createChart(canvasID, chartType, dataset, stepped, yAxisTitle, config, yAxisReverse, chartTitle, tooltipCallback) {
+    const xAxisOption = {
+      title: {
+        display: chartType !== "boxplot",
+        text: 'Lap Number',
+        color: config.axisTitleColor,
+        font: {
+          size: config.axisTitleFontSize
+        }
+      },
+      grid: {
+        color: config.gridLineColor
+      },
+      ticks: {
+        color: config.axisTitleColor
+      }
+    };
+
+    const yAxisOption = {
+      beginAtZero: config.yAxisBeginAtZero,
+      reverse: yAxisReverse,
+      title: {
+        display: true,
+        text: yAxisTitle,
+        color: config.axisTitleColor,
+        font: {
+          size: config.axisTitleFontSize
+        }
+      },
+      grid: {
+        color: config.gridLineColor
+      },
+      ticks: {
+        precision: 0,
+        color: config.axisTitleColor
+      }
+    };
+
+    if (yAxisTitle.toLowerCase() == "position") {
+      yAxisOption.ticks.callback = function(value, index, ticks) {
+        return `P${value + 1}`;
+      }
+    } else if (yAxisTitle.toLowerCase() == "laptime") {
+      yAxisOption.ticks.callback = function(value, index, ticks) {
+        return Lap.convertMSToDisplayTimeString(value);
+      }
+    }
+
+    const canvasCtx = document.getElementById(canvasID).getContext('2d');
+    const chart = new Chart(canvasCtx, {
+      type: chartType,
+      data: dataset,
+      resposive: false,
+      options: {
+        maintainAspectRatio: false,
+        stepped: stepped,
+        scales: {
+          y: yAxisOption,
+          x: xAxisOption
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: chartTitle,
+            font: {
+              size: config.chartTitleFontSize
+            },
+            color: config.chartTitleColor
+          },
+          legend: {
+            display: chartType !== "boxplot" && config.showLegend,
+            labels: {
+              color: config.axisTitleColor,
+            }
+          },
+          tooltip: {
+            animation: false,
+            mode: 'interpolate',
+            intersect: false,
+            callbacks: tooltipCallback
+          },
+          crosshair: {
+            line: {
+              color: config.crossHairColor,
+              width: 2
+            },
+            sync: {
+              enabled: false,
+              group: 1,
+            },
+            zoom: {
+              enabled: true,
+              zoomboxBackgroundColor: config.zoomboxBackgroundColor,
+              zoomboxBorderColor: config.zoomboxBorderColor,
+              zoomButtonText: 'Reset Zoom',
+              zoomButtonClass: 'reset-zoom',
+            }
+          }
+        }
+      }
+    });
+
+    return chart;
+  }
+
+  static renderGraphs(lapTimeData) {
+    var teamEvent = Util.isCurrentTeamEvent();
+    var labels = [];
+    if (teamEvent) {
+      labels = lapTimeData.map(function(v, idx) { return `[P${idx + 1}] ` + DataStore.getTeam(v.team_id).name; });
+    } else {
+      labels = lapTimeData.map(function(v, idx) { return `[P${idx + 1}] ` + DataStore.getUser(v.user_id).name; });
+    }
+
+    ResultPage.renderLapVariationGraph(lapTimeData, labels);
+    ResultPage.renderLapTimeGraph(lapTimeData, labels);
+    ResultPage.renderPositionGraph(lapTimeData, labels);
+  }
+
   static cb_updateConsistencyTab(data) {
     if (data["status"] === "success") {
       const consistency = data.laps;
+
       var pendingCarList = new Set();
       var pendingDriverList = new Set();
       var pendingTeamList = new Set();
@@ -103,6 +413,8 @@ class ResultPage extends Page {
       </tbody>
     </table>`);
       Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
+      // TODO:: Fix this
+      setTimeout(ResultPage.renderGraphs, 1000, consistency);
     }
   }
 

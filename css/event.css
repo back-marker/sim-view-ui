@@ -2404,3 +2404,7 @@ td .tooltip {
   opacity: 1;
   left: -30px;
 }
+
+.result-graphs {
+  margin-bottom: 50px;
+}

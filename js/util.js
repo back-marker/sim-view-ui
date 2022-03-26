@@ -1,3 +1,54 @@
+Colors = {};
+Colors.names = [
+  "#15f0f0",
+  "#5c5cff",
+  "#cc3a3a",
+  "#008b8b",
+  "#bfa15d",
+  "#079707",
+  "#c60a9f",
+  "#556b2f",
+  "#ff8c00",
+  "#9932cc",
+  "#ac4d07",
+  "#e9967a",
+  "#ff00ff",
+  "#ffd700",
+  "#f0e68c",
+  "#7fc9e1",
+  "#90ee90",
+  "#e1e1e1",
+  "#ffb6c1",
+  "#ff00ff",
+  "#808000",
+  "#ffa500",
+  "#ffc0cb",
+  "#ac3e5e",
+  "#ffffff",
+  "#ffff00"
+];
+
+Colors.random = function() {
+  var idx = Math.floor(Math.random() * this.names.length);
+  return this.get(idx);
+};
+
+Colors.get = function(idx) {
+  if (idx >= this.names.length) {
+    idx = idx % this.names.length;
+  }
+  return Colors.names[idx];
+}
+
+Colors.getWithTransparent = function(idx, opacity) {
+  var color = this.get(idx);
+  opacity = Math.floor(opacity * 255);
+  var letters = '0123456789ABCDEF'.split('');
+  const p1 = Math.floor(opacity / 16);
+  const p2 = opacity % 16;
+  return color + letters[p1] + letters[p2];
+}
+
 class Util {
   static getWeatherDisplayName(weather) {
     weather = weather.split("_");
