@@ -14,6 +14,25 @@ function getRequest(url, callback, failure) {
   });
 }
 
+function getRequestPromise(url, callback, failure) {
+  return new Promise(function(resolve, reject) {
+    $.ajax({
+      type: "GET",
+      url: url,
+      crossDomain: true,
+      success: function(data) { callback(data); },
+      error: function() {
+        if (failure === undefined) {
+          console.log(arguments);
+        } else {
+          failure();
+        }
+      },
+      complete: resolve
+    });
+  });
+}
+
 function getRequestBinary(url, callback, failure) {
   var req = new XMLHttpRequest();
   req.open("GET", url, true);

@@ -511,9 +511,10 @@ class ResultPage extends Page {
       ${consistencyHtml}
       </tbody>
     </table>`);
-      Page.updateTeamAndDriversAndCarsName(pendingTeamList, pendingCarList, pendingDriverList);
-      // TODO:: Fix this
-      setTimeout(ResultPage.renderGraphs, 1000, consistency);
+
+      Page.updateTeamAndDriversAndCarsNameWithCallback(pendingTeamList, pendingCarList, pendingDriverList, function() {
+        ResultPage.renderGraphs(consistency);
+      });
     }
   }
 

@@ -40,11 +40,32 @@ class Page {
       getRequest("/api/ac/teams/" + Array.from(pendingTeamList).join(','), Page.cb_updateTeamsName);
     }
     if (pendingCarList.size !== 0) {
-      getRequest("/api/ac/cars/" + Array.from(pendingCarList).join(','), Page.cb_updateCarsName)
+      getRequest("/api/ac/cars/" + Array.from(pendingCarList).join(','), Page.cb_updateCarsName);
     }
     if (pendingDriverList.size !== 0) {
       getRequest("/api/ac/users/" + Array.from(pendingDriverList).join(','), Page.cb_updateDriversName);
     }
+  }
+
+  static updateTeamAndDriversAndCarsNameWithCallback(pendingTeamList, pendingCarList, pendingDriverList, callback) {
+    var promises = [];
+    if (pendingTeamList.size !== 0) {
+      promises.push(getRequestPromise("/api/ac/teams/" + Array.from(pendingTeamList).join(','), Page.cb_updateTeamsName));
+    }
+    if (pendingCarList.size !== 0) {
+      promises.push(getRequestPromise("/api/ac/cars/" + Array.from(pendingCarList).join(','), Page.cb_updateCarsName));
+    }
+    if (pendingDriverList.size !== 0) {
+      promises.push(getRequestPromise("/api/ac/users/" + Array.from(pendingDriverList).join(','), Page.cb_updateDriversName));
+    }
+    if (callback === undefined) return;
+
+    if (promises.length === 0) {
+      callback();
+      return;
+    }
+
+    Promise.allSettled(promises).then(callback);
   }
 
   static setCommonHeaderHtml(page) {
