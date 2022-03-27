@@ -2409,4 +2409,12 @@ td .tooltip {
   margin-bottom: 50px;
   width: 1300px;
   height: 600px;
+  position: relative;
+}
+
+#consistency-graph .reset-zoom,
+#laptime-graph .reset-zoom,
+#position-graph .reset-zoom {
+  top: 0;
+  left: 20px;
 }
