@@ -26,6 +26,12 @@
 ### Stints Result Page
 ![Stints Result Page](/screenshots/result-practice-stints.png)
 
+### Graphs Result Page
+![Graphs Result Page](/screenshots/result-graphs.png)
+
+### Consistency Result Page
+![Stints Result Page](/screenshots/result-consistency.PNG)
+
 ### Team Preview
 ![Stints Result Page](/screenshots/team-preview.png)
 
