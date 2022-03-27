@@ -77,17 +77,23 @@ class ResultPage extends Page {
   static renderLapVariationGraph(lapTimes, indentityNames, teamEvent) {
     const labels = Array.from({ length: lapTimes.length }).map(function(v, idx) { return indentityNames[idx]; });
 
+    const boxColorIdx = 15;
     const lapVariationData = {
       labels: labels,
       datasets: [{
         label: 'Lap Time Variation',
-        backgroundColor: Colors.getWithTransparent(3, .3),
-        borderColor: Colors.get(3),
+        backgroundColor: Colors.getWithTransparent(boxColorIdx, .3),
+        borderColor: Colors.get(boxColorIdx),
         borderWidth: 2,
         outlierColor: Colors.get(17),
-        padding: 10,
+        outlierRadius: 3,
         itemRadius: 0,
+        padding: 10,
+        medianColor: Colors.get(17),
+        meanBackgroundColor: Colors.get(13),
+        meanBorderColor: Colors.get(13),
         itemBackgroundColor: Colors.get(17),
+        lowerBackgroundColor: Colors.getWithTransparent(boxColorIdx, .5),
         data: lapTimes.map(function(v, idx) { return v.lap_times; }),
       }]
     };
