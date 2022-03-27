@@ -444,6 +444,24 @@ class ResultPage extends Page {
       labels = lapTimeData.map(function(v, idx) { return `[P${idx + 1}] ` + DataStore.getUser(v.user_id).name; });
     }
 
+    var graphHtml = `<div id="consistency-graph" class="result-graphs">
+    <canvas id="canvas-consistency-graph" width="1300" height="620"></canvas>
+    <button class="reset-zoom hidden">Reset Zoom</button>
+  </div>
+  <div id="laptime-graph" class="result-graphs">
+    <canvas id="canvas-laptime-graph" width="1300" height="620"></canvas>
+    <button class="reset-zoom hidden">Reset Zoom</button>
+  </div>
+  <div id="avglaptime-graph" class="result-graphs">
+    <canvas id="canvas-avglaptime-graph" width="1300" height="620"></canvas>
+    <button class="reset-zoom hidden">Reset Zoom</button>
+  </div>
+  <div id="position-graph" class="result-graphs">
+    <canvas id="canvas-position-graph" width="1300" height="620"></canvas>
+    <button class="reset-zoom hidden">Reset Zoom</button>
+  </div>`;
+
+    $("#graphs-tab").html(graphHtml);
     ResultPage.renderLapVariationGraph(lapTimeData, labels, teamEvent);
     ResultPage.renderLapTimeGraph(lapTimeData, labels, teamEvent);
     ResultPage.renderAvgLapTimeGraph(lapTimeData, labels, teamEvent);
@@ -647,7 +665,8 @@ class ResultPage extends Page {
           getRequest("/api/ac/session/" + sessionId + "/race/result/laps",
             ResultPage.cb_updateConsistencyTab);
         } else {
-          $("#consistency-tab").html(`<div id="consistency-missing">Consistency data is only available for Race session</div>`);
+          $("#consistency-tab").html(`<div class="consistency-missing">Consistency data is only available for Race session</div>`);
+          $("#graphs-tab").html(`<div class="consistency-missing">Graph data is only available for Race session</div>`);
         }
       });
     }

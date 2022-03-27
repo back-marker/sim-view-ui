@@ -724,7 +724,7 @@ main {
 #message,
 #track-missing,
 #event-missing,
-#consistency-missing {
+.consistency-missing {
   color: #cccaca;
   text-align: center;
   font-size: 20px;
