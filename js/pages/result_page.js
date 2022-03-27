@@ -266,6 +266,54 @@ class ResultPage extends Page {
       ResultPage.graphConfig, false, title, lapTimeTooltipCallback, tooltipSort);
   }
 
+  static renderAvgLapTimeGraph(lapTimes, indentityNames, teamEvent) {
+    const laps = Math.max(...lapTimes.map(function(v) { return v.lap_times.length; }));
+
+    function computeAvg(data) {
+      var result = [];
+      var cumSum = 0;
+      for (var idx = 1; idx < data.length; ++idx) {
+        cumSum += data[idx];
+        result.push({ x: `L${idx + 1}`, y: Math.floor(cumSum / idx) });
+      }
+
+      return result;
+    }
+
+    const lapTimeData = {
+      labels: Array.from({ length: laps }).map(function(v, idx) { return `L${idx + 1}`; }),
+      datasets: lapTimes.map(function(v, idx) {
+        return {
+          label: indentityNames[idx],
+          data: computeAvg(v.lap_times),
+          cubicInterpolationMode: 'monotone',
+          tension: 0.4,
+          fill: false,
+          pointBorderColor: Colors.get(idx),
+          pointBackgroundColor: Colors.get(idx),
+          borderColor: Colors.getWithTransparent(idx, 0.6),
+          backgroundColor: Colors.getWithTransparent(idx, 0.6)
+        };
+      })
+    };
+
+    const lapTimeTooltipCallback = {
+      label: function(d) {
+        return `${d.dataset.label}: ${Lap.convertMSToDisplayTimeString(d.raw.y)}`;
+      }
+    };
+
+    const tooltipSort = function(l, r) {
+      if (l.raw.y === r.raw.y) return 0;
+      if (l.raw.y < r.raw.y) return 1;
+      return -1;
+    }
+
+    const title = "Pace Per Lap For Each " + (teamEvent ? "Team" : "Driver") + " - First Lap Ignored";
+    ResultPage.createChart("canvas-avglaptime-graph", "line", lapTimeData, false, "LapTime",
+      ResultPage.graphConfig, false, title, lapTimeTooltipCallback, tooltipSort);
+  }
+
   static createChart(canvasID, chartType, dataset, stepped, yAxisTitle, config, yAxisReverse, chartTitle, tooltipCallback, tooltipSortCallback) {
     const xAxisOption = {
       title: {
@@ -387,6 +435,7 @@ class ResultPage extends Page {
 
     ResultPage.renderLapVariationGraph(lapTimeData, labels, teamEvent);
     ResultPage.renderLapTimeGraph(lapTimeData, labels, teamEvent);
+    ResultPage.renderAvgLapTimeGraph(lapTimeData, labels, teamEvent);
     ResultPage.renderPositionGraph(lapTimeData, labels, teamEvent);
   }
 

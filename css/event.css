@@ -2414,6 +2414,7 @@ td .tooltip {
 
 #consistency-graph .reset-zoom,
 #laptime-graph .reset-zoom,
+#avglaptime-graph .reset-zoom,
 #position-graph .reset-zoom {
   top: 0;
   left: 20px;
