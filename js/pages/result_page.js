@@ -306,6 +306,7 @@ class ResultPage extends Page {
     };
 
     if (yAxisTitle.toLowerCase() == "position") {
+      yAxisOption.ticks.stepSize = 1;
       yAxisOption.ticks.callback = function(value, index, ticks) {
         return `P${value + 1}`;
       }
