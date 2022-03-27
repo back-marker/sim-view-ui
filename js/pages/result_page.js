@@ -343,33 +343,36 @@ class ResultPage extends Page {
             }
           },
           tooltip: {
+            enabled: true,
             animation: false,
-            mode: 'interpolate',
+            mode: 'x',
             intersect: false,
             callbacks: tooltipCallback,
             itemSort: tooltipSortCallback
           },
-          crosshair: {
-            line: {
-              color: config.crossHairColor,
-              width: 2
-            },
-            sync: {
-              enabled: false,
-              group: 1,
-            },
+          crosshair: false,
+          zoom: {
             zoom: {
-              enabled: true,
-              zoomboxBackgroundColor: config.zoomboxBackgroundColor,
-              zoomboxBorderColor: config.zoomboxBorderColor,
-              zoomButtonText: 'Reset Zoom',
-              zoomButtonClass: 'reset-zoom',
+              mode: 'x',
+              drag: {
+                borderWidth: 2,
+                backgroundColor: config.zoomboxBackgroundColor,
+                borderColor: config.zoomboxBorderColor,
+                enabled: true
+              },
+              onZoomComplete: function(chart) {
+                $("#" + canvasID).parent().children(".reset-zoom").removeClass("hidden");
+              }
             }
           }
         }
       }
     });
 
+    $("#" + canvasID).parent().children(".reset-zoom").click(function() {
+      chart.resetZoom();
+      $(this).addClass("hidden");
+    });
     return chart;
   }
 
