@@ -74,7 +74,7 @@ class ResultPage extends Page {
     }
   }
 
-  static renderLapVariationGraph(lapTimes, indentityNames) {
+  static renderLapVariationGraph(lapTimes, indentityNames, teamEvent) {
     const labels = Array.from({ length: lapTimes.length }).map(function(v, idx) { return indentityNames[idx]; });
 
     const lapVariationData = {
@@ -110,13 +110,12 @@ class ResultPage extends Page {
       }
     };
 
-    var teamEvent = Util.isCurrentTeamEvent();
-    const title = "Laptime variation per " + (teamEvent ? "Team" : "Driver");
+    const title = "Laptime Variation For Each " + (teamEvent ? "Team" : "Driver");
     ResultPage.createChart("canvas-consistency-graph", "boxplot", lapVariationData, false, "Laptime",
       ResultPage.graphConfig, false, title, lapTimeVariationTooltipCallback);
   }
 
-  static renderPositionGraph(lapTimes, indentityNames) {
+  static renderPositionGraph(lapTimes, indentityNames, teamEvent) {
     const position = ResultPage.computePositionPerLap(lapTimes);
     const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
@@ -157,7 +156,7 @@ class ResultPage extends Page {
       return 1;
     }
 
-    const title = "Position at the end of each lap";
+    const title = "Position At The End Of Each Lap For Each " + (teamEvent ? "Team" : "Driver");
     ResultPage.createChart("canvas-position-graph", "line", positionData, false, "Position",
       ResultPage.graphConfig, true, title, positionTooltipCallback, tooltipSort);
   }
@@ -231,7 +230,7 @@ class ResultPage extends Page {
     return positionMap;
   }
 
-  static renderLapTimeGraph(lapTimes, indentityNames) {
+  static renderLapTimeGraph(lapTimes, indentityNames, teamEvent) {
     const laps = Math.max(...lapTimes.map(function(v) { return v.lap_times.length; }));
     const lapTimeData = {
       labels: Array.from({ length: laps }).map(function(v, idx) { return `L${idx + 1}`; }),
@@ -262,7 +261,7 @@ class ResultPage extends Page {
       return -1;
     }
 
-    const title = "Laptime per lap";
+    const title = "Laptime Per Lap For Each " + (teamEvent ? "Team" : "Driver");
     ResultPage.createChart("canvas-laptime-graph", "line", lapTimeData, false, "LapTime",
       ResultPage.graphConfig, false, title, lapTimeTooltipCallback, tooltipSort);
   }
@@ -383,9 +382,9 @@ class ResultPage extends Page {
       labels = lapTimeData.map(function(v, idx) { return `[P${idx + 1}] ` + DataStore.getUser(v.user_id).name; });
     }
 
-    ResultPage.renderLapVariationGraph(lapTimeData, labels);
-    ResultPage.renderLapTimeGraph(lapTimeData, labels);
-    ResultPage.renderPositionGraph(lapTimeData, labels);
+    ResultPage.renderLapVariationGraph(lapTimeData, labels, teamEvent);
+    ResultPage.renderLapTimeGraph(lapTimeData, labels, teamEvent);
+    ResultPage.renderPositionGraph(lapTimeData, labels, teamEvent);
   }
 
   static cb_updateConsistencyTab(data) {
