@@ -406,6 +406,11 @@ class ResultPage extends Page {
           },
           crosshair: false,
           zoom: {
+            pan: {
+              enabled: true,
+              modifierKey: 'ctrl',
+              mode: 'x'
+            },
             zoom: {
               mode: 'x',
               drag: {
