@@ -322,7 +322,7 @@ class LeaderboardPage extends Page {
         for (const driver of driverList) {
           driverListHtml += `<div class="driver">
               ${driver.country? `<span class="left driver-country">
-                <img alt="N/A" src="${Util.getCountryFlagUrl(driver.country)}">
+              <span class="fi fi-${driver.country.toLowerCase()}"></span>
               </span>` : ""}
               <span class="left driver-name">${driver.name}</span>
               </div>`;
