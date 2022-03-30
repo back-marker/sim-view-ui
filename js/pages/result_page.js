@@ -85,8 +85,10 @@ class ResultPage extends Page {
         backgroundColor: Colors.getWithTransparent(boxColorIdx, .3),
         borderColor: Colors.get(boxColorIdx),
         borderWidth: 2,
-        outlierColor: Colors.get(17),
-        outlierRadius: 3,
+        outlierBackgroundColor: Colors.get(2),
+        outlierBorderColor: Colors.get(2),
+        outlierRadius: 4,
+        meanRadius: 4,
         itemRadius: 0,
         padding: 10,
         medianColor: Colors.get(17),
@@ -101,18 +103,22 @@ class ResultPage extends Page {
     const lapTimeVariationTooltipCallback = {
       label: function(d) {
         const data = d.parsed;
-        const avgTime = `${Lap.convertMSToDisplayTimeString(Math.floor(data.mean))} : average`;
-        const medianTime = `${Lap.convertMSToDisplayTimeString(Math.floor(data.median))} : median`;
-        return [
-          `${Lap.convertMSToDisplayTimeString(Math.floor(data.whiskerMax))} : max`,
-          `${Lap.convertMSToDisplayTimeString(Math.floor(data.q3))} : Q3`,
-          (data.mean > data.median) ? avgTime : medianTime,
-          (data.mean > data.median) ? medianTime : avgTime,
-          `${Lap.convertMSToDisplayTimeString(Math.floor(data.q1))} : Q1`,
-          `${Lap.convertMSToDisplayTimeString(Math.floor(data.whiskerMin))} : min`,
-          ((data.outliers.length === 0) ? "No" : data.outliers.length) + " outliers"
+        var tooltipData = [
+          { v: data.whiskerMax, sv: `${Lap.convertMSToDisplayTimeString(Math.floor(data.whiskerMax))} : Whisker Max` },
+          { v: data.q3, sv: `${Lap.convertMSToDisplayTimeString(Math.floor(data.q3))} : Q3` },
+          { v: data.mean, sv: `${Lap.convertMSToDisplayTimeString(Math.floor(data.mean))} : Average` },
+          { v: data.median, sv: `${Lap.convertMSToDisplayTimeString(Math.floor(data.median))} : Median` },
+          { v: data.q1, sv: `${Lap.convertMSToDisplayTimeString(Math.floor(data.q1))} : Q1` },
+          { v: data.whiskerMin, sv: `${Lap.convertMSToDisplayTimeString(Math.floor(data.whiskerMin))} : Whisker Min` }
         ];
-        // return `${d.dataset.label}: ${Lap.convertMSToDisplayTimeString(d.raw)}`;
+        tooltipData = tooltipData.sort(function(l, r) {
+          // Descending order
+          if (l.v < r.v) return 1;
+          if (l.v > r.v) return -1;
+          return 0;
+        }).map(function(x) { return x.sv; });
+        tooltipData.push(((data.outliers.length === 0) ? "No" : data.outliers.length) + " outlier" + ((data.outliers.length === 1) ? "" : "s"));
+        return tooltipData;
       }
     };
 
