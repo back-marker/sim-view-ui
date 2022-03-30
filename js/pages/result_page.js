@@ -97,6 +97,8 @@ class ResultPage extends Page {
         itemBackgroundColor: Colors.get(17),
         lowerBackgroundColor: Colors.getWithTransparent(boxColorIdx, .5),
         data: lapTimes.map(function(v, idx) { return v.lap_times; }),
+        customDataMax: Math.max(...lapTimes.map(function(v) { return Math.max(...v.lap_times); })),
+        customDataMin: Math.min(...lapTimes.map(function(v) { return Math.min(...v.lap_times); }))
       }]
     };
 
@@ -136,9 +138,12 @@ class ResultPage extends Page {
     const positionData = {
       labels: Array.from({ length: totalLapCount }).map(function(v, idx) { return `L${idx + 1}`; }),
       datasets: position.map(function(value, idx) {
+        const positionArr = value.filter(function(v) { return v !== undefined }).map(function(v) { return v.y; });
         return {
           label: indentityNames[idx],
           data: value,
+          customDataMax: Math.max(...positionArr),
+          customDataMin: Math.min(...positionArr),
           fill: false,
           cubicInterpolationMode: 'monotone',
           tension: 0.4,
@@ -250,6 +255,8 @@ class ResultPage extends Page {
         return {
           label: indentityNames[idx],
           data: v.lap_times,
+          customDataMax: Math.max(...v.lap_times),
+          customDataMin: Math.min(...v.lap_times),
           cubicInterpolationMode: 'monotone',
           tension: 0.4,
           fill: false,
@@ -295,9 +302,13 @@ class ResultPage extends Page {
     const lapTimeData = {
       labels: Array.from({ length: laps }).map(function(v, idx) { return `L${idx + 1}`; }),
       datasets: lapTimes.map(function(v, idx) {
+        var avgLaps = computeAvg(v.lap_times);
+        var avgLapTimes = avgLaps.map(function(v) { return v.y; });
         return {
           label: indentityNames[idx],
-          data: computeAvg(v.lap_times),
+          data: avgLaps,
+          customDataMax: Math.max(...avgLapTimes),
+          customDataMin: Math.min(...avgLapTimes),
           cubicInterpolationMode: 'monotone',
           tension: 0.4,
           fill: false,
@@ -325,6 +336,17 @@ class ResultPage extends Page {
     ResultPage.createChart("canvas-avglaptime-graph", "line", lapTimeData, false, "LapTime",
       ResultPage.graphConfig, false, title, lapTimeTooltipCallback, tooltipSort);
   }
+
+  static getDataSetRange(dataset) {
+    var data = dataset;
+    if (!Array.isArray(dataset)) {
+      data = dataset.datasets;
+    }
+    const dMax = Math.max(...data.map(function(v) { return v.customDataMax; }));
+    const dMin = Math.min(...data.map(function(v) { return v.customDataMin; }));
+    return { max: dMax, min: dMin };
+  }
+
 
   static createChart(canvasID, chartType, dataset, stepped, yAxisTitle, config, yAxisReverse, chartTitle, tooltipCallback, tooltipSortCallback) {
     const xAxisOption = {
@@ -375,6 +397,14 @@ class ResultPage extends Page {
       }
     }
 
+    var rightYAxisOption = Object.assign({}, yAxisOption);
+    rightYAxisOption.position = 'right';
+    const range = ResultPage.getDataSetRange(dataset);
+    rightYAxisOption.suggestedMin = range.min;
+    rightYAxisOption.suggestedMax = range.max;
+    rightYAxisOption.title = Object.assign({}, yAxisOption.title);
+    rightYAxisOption.title.display = false;
+
     const canvasCtx = document.getElementById(canvasID).getContext('2d');
     const chart = new Chart(canvasCtx, {
       type: chartType,
@@ -385,7 +415,8 @@ class ResultPage extends Page {
         stepped: stepped,
         scales: {
           y: yAxisOption,
-          x: xAxisOption
+          x: xAxisOption,
+          y2: rightYAxisOption
         },
         plugins: {
           title: {
