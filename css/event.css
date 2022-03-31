@@ -2021,18 +2021,21 @@ td .tooltip {
   cursor: help;
 }
 
-#track-class-control {
+#track-class-control,
+.graph-class-control {
   display: flex;
   justify-content: center;
   margin-bottom: 10px;
 }
 
-#track-class-control label {
+#track-class-control label,
+.graph-class-control label {
   padding: 5px;
   margin-right: 20px;
 }
 
-#track-class-control div:last-child label {
+#track-class-control div:last-child label,
+.graph-class-control div:last-child label {
   margin-right: 0;
 }
 
@@ -2408,9 +2411,12 @@ td .tooltip {
 
 .result-graphs {
   margin-bottom: 50px;
+  position: relative;
+}
+
+.result-graphs .canvas-container {
   width: 1300px;
   height: 620px;
-  position: relative;
 }
 
 #consistency-graph .reset-zoom,
@@ -2427,4 +2433,12 @@ td .tooltip {
 .sc-consistency {
   font-size: 15px !important;
   font-family: Roboto-Light;
+}
+
+.graph-title {
+  text-align: center;
+  color: #6db4df;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
 }

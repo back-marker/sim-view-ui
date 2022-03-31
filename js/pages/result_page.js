@@ -124,12 +124,11 @@ class ResultPage extends Page {
       }
     };
 
-    const title = "Laptime Variation For Each " + (teamEvent ? "Team" : "Driver");
-    ResultPage.createChart("canvas-consistency-graph", "boxplot", lapVariationData, false, "Laptime",
-      ResultPage.graphConfig, false, title, lapTimeVariationTooltipCallback);
+    ResultPage.lapVariationChartHandle = ResultPage.createChart("canvas-consistency-graph", "boxplot", lapVariationData, false, "Laptime",
+      ResultPage.graphConfig, false, lapTimeVariationTooltipCallback);
   }
 
-  static renderPositionGraph(lapTimes, indentityNames, teamEvent) {
+  static renderPositionGraph(lapTimes, indentityNames, teamEvent, colorIdx) {
     const position = ResultPage.computePositionPerLap(lapTimes);
     const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
@@ -153,10 +152,10 @@ class ResultPage extends Page {
             borderDash: ctx => skipped(ctx, [6, 6]),
           },
           spanGaps: true,
-          pointBorderColor: Colors.get(idx),
-          pointBackgroundColor: Colors.get(idx),
-          borderColor: Colors.getWithTransparent(idx, 0.6),
-          backgroundColor: Colors.getWithTransparent(idx, 0.6)
+          pointBorderColor: Colors.get(colorIdx[idx]),
+          pointBackgroundColor: Colors.get(colorIdx[idx]),
+          borderColor: Colors.getWithTransparent(colorIdx[idx], 0.6),
+          backgroundColor: Colors.getWithTransparent(colorIdx[idx], 0.6)
         };
       })
     };
@@ -173,9 +172,8 @@ class ResultPage extends Page {
       return 1;
     }
 
-    const title = "Position At The End Of Each Lap For Each " + (teamEvent ? "Team" : "Driver");
-    ResultPage.createChart("canvas-position-graph", "line", positionData, false, "Position",
-      ResultPage.graphConfig, true, title, positionTooltipCallback, tooltipSort);
+    ResultPage.positionChartHandle = ResultPage.createChart("canvas-position-graph", "line", positionData, false, "Position",
+      ResultPage.graphConfig, true, positionTooltipCallback, tooltipSort);
   }
 
   static computePositionPerLap(driverLapTimeData) {
@@ -247,7 +245,7 @@ class ResultPage extends Page {
     return positionMap;
   }
 
-  static renderLapTimeGraph(lapTimes, indentityNames, teamEvent) {
+  static renderLapTimeGraph(lapTimes, indentityNames, teamEvent, colorIdx) {
     const laps = Math.max(...lapTimes.map(function(v) { return v.lap_times.length; }));
     const lapTimeData = {
       labels: Array.from({ length: laps }).map(function(v, idx) { return `L${idx + 1}`; }),
@@ -260,10 +258,10 @@ class ResultPage extends Page {
           cubicInterpolationMode: 'monotone',
           tension: 0.4,
           fill: false,
-          pointBorderColor: Colors.get(idx),
-          pointBackgroundColor: Colors.get(idx),
-          borderColor: Colors.getWithTransparent(idx, 0.6),
-          backgroundColor: Colors.getWithTransparent(idx, 0.6)
+          pointBorderColor: Colors.get(colorIdx[idx]),
+          pointBackgroundColor: Colors.get(colorIdx[idx]),
+          borderColor: Colors.getWithTransparent(colorIdx[idx], 0.6),
+          backgroundColor: Colors.getWithTransparent(colorIdx[idx], 0.6)
         };
       })
     };
@@ -280,12 +278,11 @@ class ResultPage extends Page {
       return -1;
     }
 
-    const title = "Laptime Per Lap For Each " + (teamEvent ? "Team" : "Driver");
-    ResultPage.createChart("canvas-laptime-graph", "line", lapTimeData, false, "LapTime",
-      ResultPage.graphConfig, false, title, lapTimeTooltipCallback, tooltipSort);
+    ResultPage.lapTimeChartHandle = ResultPage.createChart("canvas-laptime-graph", "line", lapTimeData, false, "LapTime",
+      ResultPage.graphConfig, false, lapTimeTooltipCallback, tooltipSort);
   }
 
-  static renderAvgLapTimeGraph(lapTimes, indentityNames, teamEvent) {
+  static renderAvgLapTimeGraph(lapTimes, indentityNames, teamEvent, colorIdx) {
     const laps = Math.max(...lapTimes.map(function(v) { return v.lap_times.length; }));
 
     function computeAvg(data) {
@@ -312,10 +309,10 @@ class ResultPage extends Page {
           cubicInterpolationMode: 'monotone',
           tension: 0.4,
           fill: false,
-          pointBorderColor: Colors.get(idx),
-          pointBackgroundColor: Colors.get(idx),
-          borderColor: Colors.getWithTransparent(idx, 0.6),
-          backgroundColor: Colors.getWithTransparent(idx, 0.6)
+          pointBorderColor: Colors.get(colorIdx[idx]),
+          pointBackgroundColor: Colors.get(colorIdx[idx]),
+          borderColor: Colors.getWithTransparent(colorIdx[idx], 0.6),
+          backgroundColor: Colors.getWithTransparent(colorIdx[idx], 0.6)
         };
       })
     };
@@ -332,9 +329,8 @@ class ResultPage extends Page {
       return -1;
     }
 
-    const title = "Pace Per Lap For Each " + (teamEvent ? "Team" : "Driver") + " - First Lap Ignored";
-    ResultPage.createChart("canvas-avglaptime-graph", "line", lapTimeData, false, "LapTime",
-      ResultPage.graphConfig, false, title, lapTimeTooltipCallback, tooltipSort);
+    ResultPage.avgLapTimeChartHandle = ResultPage.createChart("canvas-avglaptime-graph", "line", lapTimeData, false, "LapTime",
+      ResultPage.graphConfig, false, lapTimeTooltipCallback, tooltipSort);
   }
 
   static getDataSetRange(dataset) {
@@ -348,7 +344,7 @@ class ResultPage extends Page {
   }
 
 
-  static createChart(canvasID, chartType, dataset, stepped, yAxisTitle, config, yAxisReverse, chartTitle, tooltipCallback, tooltipSortCallback) {
+  static createChart(canvasID, chartType, dataset, stepped, yAxisTitle, config, yAxisReverse, tooltipCallback, tooltipSortCallback) {
     const xAxisOption = {
       title: {
         display: chartType !== "boxplot",
@@ -419,14 +415,6 @@ class ResultPage extends Page {
           y2: rightYAxisOption
         },
         plugins: {
-          title: {
-            display: true,
-            text: chartTitle,
-            font: {
-              size: config.chartTitleFontSize
-            },
-            color: config.chartTitleColor
-          },
           legend: {
             display: chartType !== "boxplot" && config.showLegend,
             labels: {
@@ -456,8 +444,8 @@ class ResultPage extends Page {
                 borderColor: config.zoomboxBorderColor,
                 enabled: true
               },
-              onZoomComplete: function(chart) {
-                $("#" + canvasID).parent().children(".reset-zoom").removeClass("hidden");
+              onZoomComplete: function() {
+                $("#" + canvasID).parents(".result-graphs").children(".reset-zoom").removeClass("hidden");
               }
             }
           }
@@ -465,44 +453,138 @@ class ResultPage extends Page {
       }
     });
 
-    $("#" + canvasID).parent().children(".reset-zoom").click(function() {
-      chart.resetZoom();
+    $("#" + canvasID).parents(".result-graphs").children(".reset-zoom").click(function() {
+      ResultPage.resetChartZoom(canvasID);
       $(this).addClass("hidden");
     });
+
     return chart;
   }
 
-  static renderGraphs(lapTimeData) {
-    var teamEvent = Util.isCurrentTeamEvent();
+  static resetChartZoom(canvasID) {
+    switch (canvasID) {
+      case "canvas-consistency-graph":
+        ResultPage.lapVariationChartHandle.resetZoom();
+        break;
+      case "canvas-laptime-graph":
+        ResultPage.lapTimeChartHandle.resetZoom();
+        break;
+      case "canvas-avglaptime-graph":
+        ResultPage.avgLapTimeChartHandle.resetZoom();
+        break;
+      case "canvas-position-graph":
+        ResultPage.positionChartHandle.resetZoom();
+        break;
+      default:
+        break;
+    }
+  }
+
+  static getIdentityLabelsFromData(lapTimeData, teamEvent) {
     var labels = [];
     if (teamEvent) {
       labels = lapTimeData.map(function(v, idx) { return `[P${idx + 1}] ` + DataStore.getTeam(v.team_id).name; });
     } else {
       labels = lapTimeData.map(function(v, idx) { return `[P${idx + 1}] ` + DataStore.getUser(v.user_id).name; });
     }
+    return labels;
+  }
 
+  static renderGraphs(lapTimeData) {
+    var teamEvent = Util.isCurrentTeamEvent();
     var graphHtml = `<div id="consistency-graph" class="result-graphs">
-    <canvas id="canvas-consistency-graph" width="1300" height="620"></canvas>
+    <div class="graph-title">Laptime Variation For Each ${(teamEvent ? "Team" : "Driver")}</div>
+    <div class="graph-class-control"></div>
+    <div class="canvas-container"><canvas id="canvas-consistency-graph" width="1300" height="620"></canvas></div>
     <button class="reset-zoom hidden">Reset Zoom</button>
   </div>
   <div id="laptime-graph" class="result-graphs">
-    <canvas id="canvas-laptime-graph" width="1300" height="620"></canvas>
+    <div class="graph-title">Laptime Per Lap For Each ${(teamEvent ? "Team" : "Driver")}</div>
+    <div class="graph-class-control"></div>
+    <div class="canvas-container"><canvas id="canvas-laptime-graph" width="1300" height="620"></canvas></div>
     <button class="reset-zoom hidden">Reset Zoom</button>
   </div>
   <div id="avglaptime-graph" class="result-graphs">
-    <canvas id="canvas-avglaptime-graph" width="1300" height="620"></canvas>
+    <div class="graph-title">Pace Per Lap For Each ${(teamEvent ? "Team" : "Driver")} - First Lap Ignored</div>
+    <div class="graph-class-control"></div>
+    <div class="canvas-container"><canvas id="canvas-avglaptime-graph" width="1300" height="620"></canvas></div>
     <button class="reset-zoom hidden">Reset Zoom</button>
   </div>
   <div id="position-graph" class="result-graphs">
-    <canvas id="canvas-position-graph" width="1300" height="620"></canvas>
+    <div class="graph-title">Position At The End Of Each Lap For Each ${(teamEvent ? "Team" : "Driver")}</div>
+    <div class="graph-class-control"></div>
+    <div class="canvas-container"><canvas id="canvas-position-graph" width="1300" height="620"></canvas></div>
     <button class="reset-zoom hidden">Reset Zoom</button>
   </div>`;
 
     $("#graphs-tab").html(graphHtml);
+
+    var carClasses = new Set();
+    var carClasseColor = {};
+    lapTimeData.forEach(function(v) {
+      const className = DataStore.getCar(v.car_id).car_class;
+      carClasses.add(className);
+      if (carClasseColor[className] === undefined) {
+        carClasseColor[className] = DataStore.getCarColorClass(v.car_id);
+      }
+    });
+    var carClassSelectionHtml = "";
+    carClasses.forEach(function(carClassName) {
+      carClassSelectionHtml += `<div>
+        <input type="checkbox" checked name="${carClassName}_toggle" value="${carClassName}" onClick="ResultPage.toggleGraphCarClass(this)">
+        <label class="${carClasseColor[carClassName]}" for="${carClassName}_toggle">${carClassName.toUpperCase()}</label><br>
+        </div>`;
+    });
+    $(".result-graphs .graph-class-control").html(carClassSelectionHtml);
+
+    ResultPage.lapTimeData = lapTimeData;
+    var labels = ResultPage.getIdentityLabelsFromData(lapTimeData, teamEvent);
+
+    var colorIdx = Array.from(Array(ResultPage.lapTimeData.length).keys());
     ResultPage.renderLapVariationGraph(lapTimeData, labels, teamEvent);
-    ResultPage.renderLapTimeGraph(lapTimeData, labels, teamEvent);
-    ResultPage.renderAvgLapTimeGraph(lapTimeData, labels, teamEvent);
-    ResultPage.renderPositionGraph(lapTimeData, labels, teamEvent);
+    ResultPage.renderLapTimeGraph(lapTimeData, labels, teamEvent, colorIdx);
+    ResultPage.renderAvgLapTimeGraph(lapTimeData, labels, teamEvent, colorIdx);
+    ResultPage.renderPositionGraph(lapTimeData, labels, teamEvent, colorIdx);
+  }
+
+  static toggleGraphCarClass(targetGraph) {
+    var selectedClasses = [];
+    $(targetGraph).parents(".result-graphs").find("input:checked").each(function(idx, item) {
+      selectedClasses.push(item.value);
+    });
+
+    var lapTimeFiler = [];
+    var subsetData = ResultPage.lapTimeData.filter(function(v) {
+      var include = selectedClasses.includes(DataStore.getCar(v.car_id).car_class.toUpperCase());
+      lapTimeFiler.push(include);
+      return include;
+    });
+
+    var colorIdx = Array.from(Array(ResultPage.lapTimeData.length).keys()).filter(function(v, idx) { return lapTimeFiler[idx]; });
+    var teamEvent = Util.isCurrentTeamEvent();
+    var labels = ResultPage.getIdentityLabelsFromData(subsetData, teamEvent);
+    $(targetGraph).parents(".result-graphs").find("button").addClass("hidden");
+    const id = $(targetGraph).parents(".result-graphs").attr("id");
+    switch (id) {
+      case "consistency-graph":
+        ResultPage.lapVariationChartHandle.destroy();
+        ResultPage.renderLapVariationGraph(subsetData, labels, teamEvent);
+        break;
+      case "laptime-graph":
+        ResultPage.lapTimeChartHandle.destroy();
+        ResultPage.renderLapTimeGraph(subsetData, labels, teamEvent, colorIdx);
+        break;
+      case "avglaptime-graph":
+        ResultPage.avgLapTimeChartHandle.destroy();
+        ResultPage.renderAvgLapTimeGraph(subsetData, labels, teamEvent, colorIdx);
+        break;
+      case "position-graph":
+        ResultPage.positionChartHandle.destroy();
+        ResultPage.renderPositionGraph(subsetData, labels, teamEvent, colorIdx);
+        break;
+      default:
+        break;
+    }
   }
 
   static cb_updateConsistencyTab(data) {
