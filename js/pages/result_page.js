@@ -129,7 +129,9 @@ class ResultPage extends Page {
   }
 
   static renderPositionGraph(lapTimes, indentityNames, teamEvent, colorIdx) {
-    const position = ResultPage.computePositionPerLap(lapTimes);
+    const data = ResultPage.computePositionPerLap(lapTimes);
+    const position = data.pMap;
+
     const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
 
     const driverLaps = lapTimes.map(function(v) { return v.lap_times.length; });
@@ -176,6 +178,59 @@ class ResultPage extends Page {
       ResultPage.graphConfig, true, positionTooltipCallback, tooltipSort);
   }
 
+  static renderGapGraph(lapTimes, indentityNames, teamEvent, colorIdx) {
+    const data = ResultPage.computePositionPerLap(lapTimes);
+    const position = data.gMap;
+
+    const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
+
+    const driverLaps = lapTimes.map(function(v) { return v.lap_times.length; });
+    const totalLapCount = Math.max(...driverLaps);
+
+    const gapData = {
+      labels: Array.from({ length: totalLapCount }).map(function(v, idx) { return `L${idx + 1}`; }),
+      datasets: position.map(function(value, idx) {
+        const gapArr = value.filter(function(v) { return v !== undefined }).map(function(v) { return v.y; });
+        return {
+          label: indentityNames[idx],
+          data: value,
+          customDataMax: Math.max(...gapArr),
+          customDataMin: Math.min(...gapArr),
+          fill: false,
+          cubicInterpolationMode: 'monotone',
+          tension: 0.4,
+          pointStyle: 'circle',
+          pointRadius: 4,
+          segment: {
+            borderDash: ctx => skipped(ctx, [6, 6]),
+          },
+          spanGaps: true,
+          pointBorderColor: Colors.get(colorIdx[idx]),
+          pointBackgroundColor: Colors.get(colorIdx[idx]),
+          borderColor: Colors.getWithTransparent(colorIdx[idx], 0.6),
+          backgroundColor: Colors.getWithTransparent(colorIdx[idx], 0.6)
+        };
+      })
+    };
+
+    const gapTooltipCallback = {
+      label: function(d) {
+        const prefix = `${d.dataset.label}: `;
+        if (d.raw.y === 0) return prefix + "Leader";
+        return prefix + (d.raw.y / 1000).toFixed(3) + "s";;
+      }
+    };
+
+    const tooltipSort = function(l, r) {
+      if (l.raw.y === r.raw.y) return 0;
+      if (l.raw.y < r.raw.y) return -1;
+      return 1;
+    }
+
+    ResultPage.gapChartHandle = ResultPage.createChart("canvas-gap-graph", "line", gapData, false, "Gap",
+      ResultPage.graphConfig, true, gapTooltipCallback, tooltipSort);
+  }
+
   static computePositionPerLap(driverLapTimeData) {
     const driverCount = driverLapTimeData.length;
     const driverLaps = driverLapTimeData.map(function(v) { return v.lap_times.length; });
@@ -183,6 +238,8 @@ class ResultPage extends Page {
 
     // driver -> [position for each lap]
     var positionMap = [];
+    // driver -> [gap for each lap]
+    var gapMap = [];
     // driver -> totalTime
     var totalTime = {};
 
@@ -208,11 +265,16 @@ class ResultPage extends Page {
         if (positionMap[driverIdx] === undefined) {
           positionMap[driverIdx] = [];
         }
+        if (gapMap[driverIdx] === undefined) {
+          gapMap[driverIdx] = [];
+        }
+
         if (lapIdx + 1 === totalLapCount && positionIdx === 0) {
           winnerDriverIdx = driverIdx;
         }
 
         positionMap[driverIdx].push({ x: `L${lapIdx + 1}`, y: positionIdx });
+        gapMap[driverIdx].push({ x: `L${lapIdx + 1}`, y: cumulatedLapTime[positionIdx].t - cumulatedLapTime[0].t });
         totalTime[driverIdx] = cumulatedLapTime[positionIdx].t;
       }
 
@@ -242,7 +304,7 @@ class ResultPage extends Page {
       }
     }
 
-    return positionMap;
+    return { pMap: positionMap, gMap: gapMap };
   }
 
   static renderLapTimeGraph(lapTimes, indentityNames, teamEvent, colorIdx) {
@@ -391,6 +453,10 @@ class ResultPage extends Page {
       yAxisOption.ticks.callback = function(value, index, ticks) {
         return Lap.convertMSToDisplayTimeString(value);
       }
+    } else if (yAxisTitle.toLowerCase() == "gap") {
+      yAxisOption.ticks.callback = function(value, index, ticks) {
+        return Math.floor(value / 1000) + "s";
+      }
     }
 
     var rightYAxisOption = Object.assign({}, yAxisOption);
@@ -475,6 +541,9 @@ class ResultPage extends Page {
       case "canvas-position-graph":
         ResultPage.positionChartHandle.resetZoom();
         break;
+      case "canvas-gap-graph":
+        ResultPage.gapChartHandle.resetZoom();
+        break;
       default:
         break;
     }
@@ -515,6 +584,12 @@ class ResultPage extends Page {
     <div class="graph-class-control"></div>
     <div class="canvas-container"><canvas id="canvas-position-graph" width="1300" height="620"></canvas></div>
     <button class="reset-zoom hidden">Reset Zoom</button>
+  </div>
+  <div id="gap-graph" class="result-graphs">
+    <div class="graph-title">Gap To Leader At The End Of Each Lap For Each ${(teamEvent ? "Team" : "Driver")}</div>
+    <div class="graph-class-control"></div>
+    <div class="canvas-container"><canvas id="canvas-gap-graph" width="1300" height="620"></canvas></div>
+    <button class="reset-zoom hidden">Reset Zoom</button>
   </div>`;
 
     $("#graphs-tab").html(graphHtml);
@@ -545,6 +620,7 @@ class ResultPage extends Page {
     ResultPage.renderLapTimeGraph(lapTimeData, labels, teamEvent, colorIdx);
     ResultPage.renderAvgLapTimeGraph(lapTimeData, labels, teamEvent, colorIdx);
     ResultPage.renderPositionGraph(lapTimeData, labels, teamEvent, colorIdx);
+    ResultPage.renderGapGraph(lapTimeData, labels, teamEvent, colorIdx);
   }
 
   static toggleGraphCarClass(targetGraph) {
@@ -581,6 +657,10 @@ class ResultPage extends Page {
       case "position-graph":
         ResultPage.positionChartHandle.destroy();
         ResultPage.renderPositionGraph(subsetData, labels, teamEvent, colorIdx);
+        break;
+      case "gap-graph":
+        ResultPage.gapChartHandle.destroy();
+        ResultPage.renderGapGraph(subsetData, labels, teamEvent, colorIdx);
         break;
       default:
         break;
