@@ -409,7 +409,7 @@ class ResultPage extends Page {
   static createChart(canvasID, chartType, dataset, stepped, yAxisTitle, config, yAxisReverse, tooltipCallback, tooltipSortCallback) {
     const xAxisOption = {
       title: {
-        display: chartType !== "boxplot",
+        display: chartType === "line",
         text: 'Lap Number',
         color: config.axisTitleColor,
         font: {
@@ -421,11 +421,12 @@ class ResultPage extends Page {
       },
       ticks: {
         color: config.axisTitleColor
-      }
+      },
+      stacked: chartType === "bar"
     };
 
     const yAxisOption = {
-      beginAtZero: config.yAxisBeginAtZero,
+      beginAtZero: chartType === "bar" ? true : config.yAxisBeginAtZero,
       reverse: yAxisReverse,
       title: {
         display: true,
@@ -441,7 +442,8 @@ class ResultPage extends Page {
       ticks: {
         precision: 0,
         color: config.axisTitleColor
-      }
+      },
+      stacked: chartType === "bar"
     };
 
     if (yAxisTitle.toLowerCase() == "position") {
@@ -453,7 +455,7 @@ class ResultPage extends Page {
       yAxisOption.ticks.callback = function(value, index, ticks) {
         return Lap.convertMSToDisplayTimeString(value);
       }
-    } else if (yAxisTitle.toLowerCase() == "gap") {
+    } else if (yAxisTitle.toLowerCase() == "gap" || yAxisTitle.toLowerCase() == "pit stop time") {
       yAxisOption.ticks.callback = function(value, index, ticks) {
         return Math.floor(value / 1000) + "s";
       }
@@ -544,6 +546,9 @@ class ResultPage extends Page {
       case "canvas-gap-graph":
         ResultPage.gapChartHandle.resetZoom();
         break;
+      case "canvas-pitstop-graph":
+        ResultPage.pitStopChartHandle.resetZoom();
+        break;
       default:
         break;
     }
@@ -557,6 +562,97 @@ class ResultPage extends Page {
       labels = lapTimeData.map(function(v, idx) { return `[P${idx + 1}] ` + DataStore.getUser(v.user_id).name; });
     }
     return labels;
+  }
+
+  static preProcessPitStopData(pitStopData) {
+    var pitstops = pitStopData.pitstops;
+
+    var teamEvent = Util.isCurrentTeamEvent();
+
+    function getUniqueId(entry) {
+      if (teamEvent) return entry.team_id;
+      return "u" + entry.user_id + "c" + entry.car_id;
+    }
+
+    function groupPitStops(data) {
+      var result = {};
+      for (var idx = 0; idx < data.length; ++idx) {
+        const entry = data[idx];
+        const id = getUniqueId(entry);
+        if (result[id] === undefined) {
+          result[id] = [];
+        }
+        result[id].push(entry.pit_time);
+      }
+
+      return result;
+    };
+
+    pitstops = groupPitStops(pitstops);
+
+    // Add empty pit stop for driver with 0 stops
+    var filledPitstops = [];
+
+    ResultPage.lapTimeData.map(function(v) {
+      if (teamEvent) {
+        filledPitstops.push({ team_id: v.team_id, car_id: v.car_id, pits: pitstops[getUniqueId(v)] || [] });
+      } else {
+        filledPitstops.push({ user_id: v.user_id, car_id: v.car_id, pits: pitstops[getUniqueId(v)] || [] });
+      }
+      filledPitstops
+    });
+
+    ResultPage.pitStopData = filledPitstops;
+  }
+
+  static transposeFilledPitData(filledPitstops) {
+    // Transpose data, group by nth pit stop
+    const maxPits = Math.max(...filledPitstops.map(function(v) { return v.pits.length }));
+
+    var transposedData = [];
+    for (var idx = 0; idx < maxPits; ++idx) {
+      var pitList = [];
+      for (var driverIdx = 0; driverIdx < filledPitstops.length; ++driverIdx) {
+        pitList.push(filledPitstops[driverIdx].pits[idx] || 0);
+      }
+      transposedData.push(pitList);
+    }
+
+    return transposedData;
+  }
+
+  static renderPitStopGraph(pitStopData, teamEvent) {
+    const labels = ResultPage.getIdentityLabelsFromData(pitStopData, teamEvent);
+    const pits = ResultPage.transposeFilledPitData(pitStopData);
+
+    function arraySum(data) {
+      if (data === undefined) return 0;
+      return data.reduce(function(a, b) { return a + b; }, 0);
+    }
+    const totalMaxPitTime = Math.max(...pitStopData.map(function(v) { return arraySum(v.pits); }));
+
+    var pitstopGraphData = {
+      labels: labels,
+      datasets: pits.map(function(v, idx) {
+        return {
+          label: `Pit stop ${idx + 1}`,
+          data: v,
+          customDataMax: totalMaxPitTime,
+          customDataMin: 0,
+          backgroundColor: Colors.get(idx)
+        };
+      })
+    }
+
+    const pitStopTimeTooltipCallback = {
+      label: function(d) {
+        if (d.raw === 0) return "";
+        return `${d.dataset.label}: ${Math.floor(d.raw / 1000)}s`;
+      }
+    };
+
+    ResultPage.pitStopChartHandle = ResultPage.createChart("canvas-pitstop-graph", "bar", pitstopGraphData, false, "Pit Stop Time",
+      ResultPage.graphConfig, false, pitStopTimeTooltipCallback);
   }
 
   static renderGraphs(lapTimeData) {
@@ -590,6 +686,12 @@ class ResultPage extends Page {
     <div class="graph-class-control"></div>
     <div class="canvas-container"><canvas id="canvas-gap-graph" width="1300" height="620"></canvas></div>
     <button class="reset-zoom hidden">Reset Zoom</button>
+  </div>
+  <div id="pitstop-graph" class="result-graphs">
+    <div class="graph-title">Pit Stops For Each ${(teamEvent ? "Team" : "Driver")}</div>
+    <div class="graph-class-control"></div>
+    <div class="canvas-container"><canvas id="canvas-pitstop-graph" width="1300" height="620"></canvas></div>
+    <button class="reset-zoom hidden">Reset Zoom</button>
   </div>`;
 
     $("#graphs-tab").html(graphHtml);
@@ -621,6 +723,10 @@ class ResultPage extends Page {
     ResultPage.renderAvgLapTimeGraph(lapTimeData, labels, teamEvent, colorIdx);
     ResultPage.renderPositionGraph(lapTimeData, labels, teamEvent, colorIdx);
     ResultPage.renderGapGraph(lapTimeData, labels, teamEvent, colorIdx);
+    getRequest(`/api/ac/session/${ResultPage.selectedSession}/race/pitstops`, function(data) {
+      ResultPage.preProcessPitStopData(data);
+      ResultPage.renderPitStopGraph(ResultPage.pitStopData, teamEvent);
+    });
   }
 
   static toggleGraphCarClass(targetGraph) {
@@ -628,6 +734,18 @@ class ResultPage extends Page {
     $(targetGraph).parents(".result-graphs").find("input:checked").each(function(idx, item) {
       selectedClasses.push(item.value);
     });
+
+    const id = $(targetGraph).parents(".result-graphs").attr("id");
+    var teamEvent = Util.isCurrentTeamEvent();
+
+    if (id === "pitstop-graph") {
+      var subsetData = ResultPage.pitStopData.filter(function(v) {
+        return selectedClasses.includes(DataStore.getCar(v.car_id).car_class.toUpperCase())
+      });
+      ResultPage.pitStopChartHandle.destroy();
+      ResultPage.renderPitStopGraph(subsetData, teamEvent);
+      return;
+    }
 
     var lapTimeFiler = [];
     var subsetData = ResultPage.lapTimeData.filter(function(v) {
@@ -637,10 +755,8 @@ class ResultPage extends Page {
     });
 
     var colorIdx = Array.from(Array(ResultPage.lapTimeData.length).keys()).filter(function(v, idx) { return lapTimeFiler[idx]; });
-    var teamEvent = Util.isCurrentTeamEvent();
     var labels = ResultPage.getIdentityLabelsFromData(subsetData, teamEvent);
     $(targetGraph).parents(".result-graphs").find("button").addClass("hidden");
-    const id = $(targetGraph).parents(".result-graphs").attr("id");
     switch (id) {
       case "consistency-graph":
         ResultPage.lapVariationChartHandle.destroy();
@@ -855,6 +971,7 @@ class ResultPage extends Page {
       $("select[name='select-session']").html(ResultPage.getResultSidebarHtml(sessions, practiceCount,
         qualificationCount, raceCount)).change(function() {
         var sessionId = $(this).val();
+        ResultPage.selectedSession = sessionId;
         $("#result-main").attr("data-session-id", sessionId);
         var sessionType = $("option[value='" + sessionId + "'").attr("data-session-type");
         getRequest("/api/ac/session/" + sessionId, ResultPage.cb_updateSessionDetail);
