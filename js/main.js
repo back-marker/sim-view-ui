@@ -103,8 +103,9 @@ $(document).ready(function() {
       e.target.classList.add("active");
 
       $(".result-tabs").hide();
-      var tabToDisplay = "#" + e.target.getAttribute("data-tab") + "-tab";
-      $(tabToDisplay).fadeIn();
+      var tabToDisplay = e.target.getAttribute("data-tab") + "-tab";
+      $("#" + tabToDisplay).fadeIn();
+      ResultPage.renderTab(tabToDisplay);
     });
 
     $("#stints-tab").click(function(e) {

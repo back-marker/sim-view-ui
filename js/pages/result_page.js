@@ -948,6 +948,44 @@ class ResultPage extends Page {
     }
   }
 
+  static resetAllTabs() {
+    ResultPage.tabRendered = {};
+    $(".results-data-container").html("");
+  }
+
+  static renderTab(target) {
+    if (ResultPage.tabRendered[target] === true) { return; }
+
+    switch (target) {
+      case "standings-tab":
+      case "stints-tab":
+        ResultPage.tabRendered["standings-tab"] = true;
+        ResultPage.tabRendered["stints-tab"] = true;
+        getRequest("/api/ac/session/" + ResultPage.selectedSession + "/" +
+          ResultPage.selectedSessionType + "/result/standings", ResultPage.cb_updateStandingsTab);
+        break;
+      case "sectors-tab":
+        ResultPage.tabRendered["sectors-tab"] = true;
+        getRequest("/api/ac/session/" + ResultPage.selectedSession + "/result/sectors",
+          ResultPage.cb_updateSectorsTab);
+        break;
+      case "consistency-tab":
+      case "graphs-tab":
+        ResultPage.tabRendered["consistency-tab"] = true;
+        ResultPage.tabRendered["graphs-tab"] = true;
+        if (ResultPage.selectedSessionType === "race") {
+          getRequest("/api/ac/session/" + ResultPage.selectedSession + "/race/result/laps",
+            ResultPage.cb_updateConsistencyTab);
+        } else {
+          $("#consistency-tab").html(`<div class="consistency-missing">Consistency data is only available for Race session</div>`);
+          $("#graphs-tab").html(`<div class="consistency-missing">Graph data is only available for Race session</div>`);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
   static cb_updateAllSessions(data) {
     if (data["status"] == "success") {
       var sessions = data["sessions"];
@@ -971,20 +1009,17 @@ class ResultPage extends Page {
       $("select[name='select-session']").html(ResultPage.getResultSidebarHtml(sessions, practiceCount,
         qualificationCount, raceCount)).change(function() {
         var sessionId = $(this).val();
-        ResultPage.selectedSession = sessionId;
         $("#result-main").attr("data-session-id", sessionId);
         var sessionType = $("option[value='" + sessionId + "'").attr("data-session-type");
+
+        ResultPage.selectedSession = sessionId;
+        ResultPage.selectedSessionType = sessionType;
+
+        ResultPage.resetAllTabs();
+        const activeTab = $("#result-main-tabs li.active").attr("data-tab");
+        ResultPage.renderTab(activeTab + "-tab");
+
         getRequest("/api/ac/session/" + sessionId, ResultPage.cb_updateSessionDetail);
-        getRequest("/api/ac/session/" + sessionId + "/result/sectors", ResultPage.cb_updateSectorsTab);
-        getRequest("/api/ac/session/" + sessionId + "/" + sessionType + "/result/standings",
-          ResultPage.cb_updateStandingsTab);
-        if (sessionType === "race") {
-          getRequest("/api/ac/session/" + sessionId + "/race/result/laps",
-            ResultPage.cb_updateConsistencyTab);
-        } else {
-          $("#consistency-tab").html(`<div class="consistency-missing">Consistency data is only available for Race session</div>`);
-          $("#graphs-tab").html(`<div class="consistency-missing">Graph data is only available for Race session</div>`);
-        }
       });
     }
   }
