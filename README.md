@@ -18,19 +18,19 @@
 ![Lap Telemetry Comparison](/screenshots/analysis-comparison.png)
 
 ### Standing Result Page
-![Standing Result Page](/screenshots/result-practice-standing.png)
+![Standing Result Page](/screenshots/result-race-standings.png)
 
 ### Sectors Result Page
-![Sectors Result Page](/screenshots/result-practice-sectors.png)
-
-### Stints Result Page
-![Stints Result Page](/screenshots/result-practice-stints.png)
-
-### Graphs Result Page
-![Graphs Result Page](/screenshots/result-graphs.png)
+![Sectors Result Page](/screenshots/result-race-sectors.png)
 
 ### Consistency Result Page
-![Stints Result Page](/screenshots/result-consistency.PNG)
+![Stints Result Page](/screenshots/result-race-consistency.png)
+
+### Stints Result Page
+![Stints Result Page](/screenshots/result-race-stints.png)
+
+### Graphs Result Page
+![Graphs Result Page](/screenshots/result-race-graphs.png)
 
 ### Team Preview
 ![Stints Result Page](/screenshots/team-preview.png)
