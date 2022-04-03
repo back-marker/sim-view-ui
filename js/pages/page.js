@@ -78,6 +78,7 @@ class Page {
           <li class="${page === "analysis"? "active" : ""}" id="link-analysis"><a href="/analysis">Analysis</a></li>
           <li id="logo"></li>
           <li id="version"><a href="https://www.racedepartment.com/downloads/simview.35249/" targer="_blank" rel="noreferrer noopener">${Page.VERSION}</a></li>
+          <li id="rd-rating"><a title="Rate SimView" href="https://www.racedepartment.com/downloads/simview.35249/reviews/" targer="_blank" rel="noreferrer noopener">&#9734;</a></li>
           <div class="clear-both"></div>
         </ul>`;
     $("#common-header").html(header);

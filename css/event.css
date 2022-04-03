@@ -770,11 +770,21 @@ main {
   padding-left: 0;
 }
 
-#common-header li:last-of-type {
+#common-header #version,
+#common-header #rd-rating {
   float: right;
 }
 
-#common-header li:last-of-type a {
+#common-header #rd-rating {
+  padding: 0px;
+}
+
+#common-header #rd-rating a {
+  font-size: 20px;
+  color: gold;
+}
+
+#common-header #version a {
   text-transform: none;
   color: #ff5757;
 }
@@ -792,6 +802,10 @@ li a.red {
 }
 
 #common-header li a:hover {
+  color: #7cceff;
+}
+
+#common-header #version a:hover {
   color: #7cceff;
 }
 
