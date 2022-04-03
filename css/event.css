@@ -2305,6 +2305,11 @@ td .tooltip {
   cursor: pointer;
 }
 
+#standings-body[data-session-type="qualifying"] tr[data-lap-id="0"]:hover,
+#standings-body[data-session-type="practice"] tr[data-lap-id="0"]:hover {
+  cursor: auto;
+}
+
 #bestlaps-body tr:hover {
   background-color: #151515 !important;
   cursor: pointer;

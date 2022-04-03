@@ -85,7 +85,7 @@ class Page {
 
   static openAnalysisPageOnClick(e) {
     const lapID = $(e.target).parents("tr").attr("data-lap-id");
-    if (lapID) {
+    if (lapID && lapID !== "0") {
       window.open(`/analysis/lap/${lapID}`, "_blank");
     }
   }
