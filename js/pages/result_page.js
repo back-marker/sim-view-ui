@@ -468,6 +468,8 @@ class ResultPage extends Page {
     rightYAxisOption.suggestedMax = range.max;
     rightYAxisOption.title = Object.assign({}, yAxisOption.title);
     rightYAxisOption.title.display = false;
+    rightYAxisOption.grid = Object.assign({}, yAxisOption.grid);
+    rightYAxisOption.grid.display = false;
 
     const canvasCtx = document.getElementById(canvasID).getContext('2d');
     const chart = new Chart(canvasCtx, {
@@ -512,7 +514,10 @@ class ResultPage extends Page {
                 borderColor: config.zoomboxBorderColor,
                 enabled: true
               },
-              onZoomComplete: function() {
+              onZoomComplete: function(chart) {
+                chart.chart.options.scales.y2.suggestedMin = chart.chart.scales.y.min;
+                chart.chart.options.scales.y2.suggestedMax = chart.chart.scales.y.max;
+                chart.chart.update();
                 $("#" + canvasID).parents(".result-graphs").children(".reset-zoom").removeClass("hidden");
               }
             }
