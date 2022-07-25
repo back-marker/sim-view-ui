@@ -28,7 +28,7 @@ class LeaderboardPage extends Page {
 
   static setupLeaderboardAPI(websocketPort) {
     const hostName = window.location.hostname;
-    const protocol = "ws";
+    const protocol = window.location.protocol === "http:" ? "ws" : "wss";
     const leaderBoardUrl = `${protocol}://${hostName}:${websocketPort}/live`;
     const socket = new WebSocket(leaderBoardUrl);
     socket.binaryType = "arraybuffer";
