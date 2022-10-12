@@ -336,7 +336,7 @@ class BestLapEntry {
         <td class="lb-sec3"><span class="${this.getLapStatus(this.sec3ClassBest, this.sec3CarBest)}">${Lap.convertMSToDisplayTimeString(this.bestLap.sec3)}</span></td>
         <td class="lb-tyre">${this.tyre}</td>
         <td class="lb-grip">${(this.grip * 100).toFixed(2)} %</td>
-        <td class="lb-max">${this.maxSpeed} KM/HR</td>
+        <td class="lb-max">${this.maxSpeed} km/h</td>
         <td class="lb-finish-time">${this.finishedAt}</td>
       </tr>`;
   }

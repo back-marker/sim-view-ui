@@ -103,7 +103,7 @@ class AnalysisPage extends Page {
     $(`${lapMetadata} .metadata-columnar-container .road-temp .temp-val`).text(details.road_temp);
     $(`${lapMetadata} .metadata-columnar-container .grip .value`).text((details.lap.grip * 100.0).toFixed(2) + "%");
     $(`${lapMetadata} .metadata-columnar-container .tyre .value`).text(`(${details.lap.tyre})`);
-    $(`${lapMetadata} .metadata-columnar-container .max-speed .value`).text(`${details.lap.max_speed} KM/HR`);
+    $(`${lapMetadata} .metadata-columnar-container .max-speed .value`).text(`${details.lap.max_speed} km/h`);
     $(`${lapMetadata} .metadata-columnar-container .sector1 .value`).text(Lap.convertMSToDisplayTimeString(details.lap.sector_1));
     $(`${lapMetadata} .metadata-columnar-container .sector2 .value`).text(Lap.convertMSToDisplayTimeString(details.lap.sector_2));
     $(`${lapMetadata} .metadata-columnar-container .sector3 .value`).text(Lap.convertMSToDisplayTimeString(details.lap.sector_3));
