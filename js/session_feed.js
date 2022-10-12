@@ -75,7 +75,7 @@ class SessionFeed {
           } else if (speed > 100) {
             status = "red";
           }
-          msg += `<span class="speed-status-${status}-bg">${parts[idx][1]} Km/Hr</span>` + elem;
+          msg += `<span class="speed-status-${status}-bg">${parts[idx][1]} km/h</span>` + elem;
           break;
 
         case "nsp":

@@ -181,8 +181,8 @@ class ResultSectorTabEntry {
       this.sec3 = sec3;
       this.grip = (grip <= 0 ? "-" : (grip * 100.0).toFixed(2));
       this.tyre = Util.getTyreStr(tyre);
-      this.avgSpeed = (avgSpeed === 0 ? "-" : avgSpeed + " Km/Hr");
-      this.maxSpeed = maxSpeed + " Km/Hr";
+      this.avgSpeed = (avgSpeed === 0 ? "-" : avgSpeed + " km/h");
+      this.maxSpeed = maxSpeed + " km/hr";
       this.cuts = cuts;
       this.crashes = crashes;
       this.carCrashes = carCrashes;
